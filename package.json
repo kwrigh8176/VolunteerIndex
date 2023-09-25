@@ -26,8 +26,10 @@
     "@mui/icons-material": "^5.14.9",
     "@mui/material": "^5.14.10",
     "@reduxjs/toolkit": "^1.9.6",
+    "mssql": "^10.0.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.16.0"
   },
   "devDependencies": {
     "@types/node": "^16.11.45",

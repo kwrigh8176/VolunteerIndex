@@ -1,6 +1,14 @@
 import * as React from 'react';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
+import orgSignUp from '../organizationPages/orgSignUp';
+import Link from '@mui/material/Link';
+
+const sql = require('mssql');
+
+function VerifyLogin(){
+        var poolConnection = sql.connect(config);
+}
 
 export default function Login(){
     return(
@@ -17,8 +25,10 @@ export default function Login(){
                         <TextField id="outlined-basic" label="Password" variant="outlined" />
                         <br></br>
                         <Button variant="outlined">Login</Button>
+                        <Link href="/OrgSignUp">Organization Sign Up</Link>
                     </div>
             </body>
         </html>
     );
 }
+
