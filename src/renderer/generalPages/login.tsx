@@ -25,7 +25,8 @@ export default function Login(){
                         <TextField id="outlined-basic" label="Password" variant="outlined" />
                         <br></br>
                         <Button variant="outlined">Login</Button>
-                        <Link href="/OrgSignUp">Organization Sign Up</Link>
+                        <Button href="/VolunteerSignUp" variant="contained" color="primary">Volunteer Sign Up Here</Button>
+                        <Button href="/OrgSignUp" variant="contained" color="primary">Organization Sign Up Here</Button>
                     </div>
             </body>
         </html>

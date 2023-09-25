@@ -5,11 +5,13 @@ import {
     Route,
   } from "react-router-dom";
     
-  // import Home component
+  // import Login component
   import Login from "./generalPages/login";
-  // import About component
+
+  // import orgSignUp component
   import OrgSignUp from "./organizationPages/orgSignUp";
 
+  import VolunteerSignUp from "./volunteerPages/volunteerSignUp";
 
   function getRoutes() {
     return (
@@ -19,6 +21,7 @@ import {
               
                 <Route key="orgSignUp"  path="/OrgSignUp" element={<OrgSignUp/>} />
 
+                <Route key="volunteerSignUp"  path="/VolunteerSignUp" element={<VolunteerSignUp/>} />
             </Routes>
         </Router>
     );
