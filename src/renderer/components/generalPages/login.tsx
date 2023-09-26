@@ -2,7 +2,7 @@ import React from 'react'
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import orgSignUp from '../organizationPages/orgSignUp';
-import Link from '@mui/material/Link';
+import Link, { BrowserRouter } from 'react-router-dom';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 
@@ -122,11 +122,11 @@ const Login = () : JSX.Element => {
                                 else{
                                     VerifyOrgLogin()
                                 }
-                                
-                                
-                                }}>Login</Button>
-                            <Button href="/VolunteerSignUp" disabled={disableLoginButton} variant="contained" color="primary">Volunteer Sign Up Here</Button>
-                            <Button href="/OrgSignUp" disabled={disableLoginButton} variant="contained" color="primary">Organization Sign Up Here</Button>
+                            }}>
+                                Login
+                            </Button>
+
+                            <Button href={`/signup`} disabled={disableLoginButton} variant="contained" color="primary">Sign Up Here</Button>
                         </div>
         </>
     );
