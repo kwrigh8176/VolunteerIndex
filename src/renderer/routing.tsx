@@ -6,12 +6,12 @@ import {
   } from "react-router-dom";
     
   // import Login component
-  import Login from "./generalPages/login";
+  import Login from "./components/generalPages/login";
 
   // import orgSignUp component
-  import OrgSignUp from "./organizationPages/orgSignUp";
+  import OrgSignUp from "./components/organizationPages/orgSignUp";
 
-  import VolunteerSignUp from "./volunteerPages/volunteerSignUp";
+  import VolunteerSignUp from "./components/volunteerPages/volunteerSignUp";
 
   function getRoutes() {
     return (
