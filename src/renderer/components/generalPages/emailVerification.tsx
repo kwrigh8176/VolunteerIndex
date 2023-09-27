@@ -37,7 +37,9 @@ export default function emailVerification() : JSX.Element {
         if (loginType == "Organization"){
             var result = await request.query("SELECT * FROM LoginKey WHERE OrgId = @username")
             if (result.recordset.length == 1){
-                navigate("/volunteerhome")
+                setTimeout(() => {
+                    navigate("/orgHome")
+                })
             }
             else{
                 setErrorText('Invalid Codes')
@@ -46,7 +48,10 @@ export default function emailVerification() : JSX.Element {
         else{
             var result = await request.query("SELECT * FROM LoginKey WHERE VolunteerId = @username")
             if (result.recordset.length == 1){
-                navigate("/orghome")
+                setTimeout(() => {
+                    navigate("/volunteerHome")
+                })
+                
             }
             else{
                 setErrorText('Invalid Codes')
@@ -65,18 +70,25 @@ export default function emailVerification() : JSX.Element {
                 position: 'absolute', left: '50%', top: '50%',
                 transform: 'translate(-50%, -50%)'
             }}>
-                {errorText.toString() != '' && 
+                {errorText.toString() == 'Invalid Codes' && 
                     
                             <Alert severity="error">
                                 <AlertTitle>Invalid Code</AlertTitle>
                             </Alert>
                         }
+
+                {errorText.toString() == 'Sucessful Verification' && 
+                    
+                        <Alert severity="success">
+                            <AlertTitle>Sucessful Verification! You will be redirected in 5 seconds.</AlertTitle>
+                        </Alert>
+                }
                 <h1>Input the code to validate your email. You can reset the code if necessary (30 second cooldown).</h1>
                 <br></br>
                 <p>Don't forget to check spam folders!</p>
                 <br></br>
                 <TextField label="Enter code here: " onChange={(event) => setVerifyTextBox(event.target.value)}></TextField>
-                <Button disabled={buttonDisable} onClick={resendCodes}>Verify Code</Button> 
+                <Button disabled={buttonDisable} onClick={processCode}>Verify Code</Button> 
                 <br></br>
                 <Button disabled={buttonDisable} onClick={resendCodes}>Reset Code</Button>
             </div>

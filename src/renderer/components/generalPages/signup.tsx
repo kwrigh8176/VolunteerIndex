@@ -24,7 +24,7 @@ var validator = require('validator');
 
 require('dotenv').config()
 
-const navigate = useNavigate();
+
 
 function checkIllegalChars(str:string){
     return !/[~`!#$%\^&*+=\-\[\]\\';,@\/{}|\\":<>\?]/g.test(str);
@@ -32,6 +32,7 @@ function checkIllegalChars(str:string){
 
 const SignUp = () : JSX.Element => {
 
+    const navigate = useNavigate();
     const sql = require('mssql');
 
     {/*Volunteer specific data*/}
@@ -140,7 +141,7 @@ const SignUp = () : JSX.Element => {
                             request.query("INSERT INTO Volunteer (FirstName, MiddleInitial, LastName, DOB, Email, PhoneNumber, Username, Password, State, CollegeStudent, Verified) VALUES (@firstname_parameter, @middleinitial_parameter,@lastname_parameter,@DOB_parameter, @email_parameter, @phonenumber_parameter, @username_parameter, @password_parameter, @state_parameter, NULL, 0 )")
                         
                             sessionStorage.setItem("username",username.toString())
-                            
+
                             //then we can move to email verification here
                             sendVerificationMail(email.toString(), "Volunteer");
 

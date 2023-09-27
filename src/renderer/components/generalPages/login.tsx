@@ -86,6 +86,8 @@ const Login = () : JSX.Element => {
                     sessionStorage.setItem("username",username)
                     sessionStorage.setItem("loginType", "Volunteer")
 
+                    //check if account is verified first
+
                     //then take them to their respective dashboard
                 }
                 else{
