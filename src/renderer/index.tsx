@@ -5,6 +5,7 @@ import Button from "@mui/material/Button";
 import Login from "./components/generalPages/login";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import SignUp from "./components/generalPages/signup";
+import EmailVerification from "./components/generalPages/emailVerification";
 
 const rootElement = document.getElementById("root");
 const root = createRoot(rootElement!);
@@ -19,7 +20,7 @@ root.render(
                     
         <Route key="SignUp"  path="/signup" element={<SignUp/>} />
 
-        <Route key="emailVerification"  path="/emailverification" element={<SignUp/>} />
+        <Route key="emailVerification"  path="/emailverification" element={<EmailVerification/>} />
 
     </Routes>
 </BrowserRouter>

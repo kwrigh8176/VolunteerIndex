@@ -38,8 +38,10 @@ const Login = () : JSX.Element => {
                     //password should be deencrypted here
 
                     if (result.recordset.length == 1){
-                        //implement redux here
-                        
+                        //set the username, email, loginType for codes if necessary
+                        sessionStorage.setItem("username",username)
+                        sessionStorage.setItem("loginType", "Organization")
+
                         //then take them to their respective dashboard
                     }
                     else{
@@ -80,7 +82,9 @@ const Login = () : JSX.Element => {
                 //password should be deencrypted here
 
                 if (result.recordset.length == 1){
-                    //implement redux here
+                    //set the username and email for codes if necessary
+                    sessionStorage.setItem("username",username)
+                    sessionStorage.setItem("loginType", "Volunteer")
 
                     //then take them to their respective dashboard
                 }

@@ -16,12 +16,15 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import { configureStore } from '@reduxjs/toolkit'
 import db_config from '../../../globals';
+import sendVerificationMail from '../../../sendVerificationEmails';
+import { useNavigate } from 'react-router-dom';
 
 
 var validator = require('validator');
 
 require('dotenv').config()
 
+const navigate = useNavigate();
 
 function checkIllegalChars(str:string){
     return !/[~`!#$%\^&*+=\-\[\]\\';,@\/{}|\\":<>\?]/g.test(str);
@@ -54,8 +57,6 @@ const SignUp = () : JSX.Element => {
     const [errorText, setErrorText] = React.useState<string>('');
 
     const [state, setState] = React.useState<string>('');
-
-    const nodemailer = require('nodemailer');
 
     async function processVolunterSignUp(){
         
@@ -124,13 +125,6 @@ const SignUp = () : JSX.Element => {
                             throw new Error('Phone Number is already in use.')
                         }
                         else{
-                            //then we can move to email verification here
-
-                            //input data into db
-
-            
-
-                            //then redirect to verification page
 
                             request = new sql.Request()
                             request.input('firstname_parameter', sql.VarChar, firstName.toString())
@@ -143,7 +137,15 @@ const SignUp = () : JSX.Element => {
                             request.input('password_parameter', sql.VarChar, password.toString())
                             request.input('state_parameter', sql.VarChar, state.toString())
 
-                            request.query("INSERT INTO Volunteer (FirstName, MiddleInitial, LastName, DOB, Email, PhoneNumber, Username, Password, State, CollegeStudent) VALUES (@firstname_parameter, @middleinitial_parameter,@lastname_parameter,@DOB_parameter, @email_parameter, @phonenumber_parameter, @username_parameter, @password_parameter, @state_parameter, NULL )")
+                            request.query("INSERT INTO Volunteer (FirstName, MiddleInitial, LastName, DOB, Email, PhoneNumber, Username, Password, State, CollegeStudent, Verified) VALUES (@firstname_parameter, @middleinitial_parameter,@lastname_parameter,@DOB_parameter, @email_parameter, @phonenumber_parameter, @username_parameter, @password_parameter, @state_parameter, NULL, 0 )")
+                        
+                            sessionStorage.setItem("username",username.toString())
+                            
+                            //then we can move to email verification here
+                            sendVerificationMail(email.toString(), "Volunteer");
+
+                            //then redirect to verification page
+                            navigate("/emailverification")
                         }
                     }
                 }
@@ -222,52 +224,6 @@ const SignUp = () : JSX.Element => {
                         }
                         else{
 
-                            const volunteerData = {
-                                VolunteerId: '',
-                                FirstName: '',
-                                MiddleInitial : '',
-                                LastName: '',
-                                DOB: '',
-                                Email: '',
-                                PhoneNumber: '',
-                                Username: '',
-                                Pasword: '',
-                                State: ''
-                            
-                            }
-                            //implement redux here
-                            
-
-                            //then we can move to email verification here
-                            var randomToken = Math.floor(100000 + Math.random() * 900000)
-
-                            let mailTransporter = nodemailer.createTransport({
-                                service: 'gmail',
-                                auth: {
-                                    user: process.env.EmailUsername,
-                                    pass: process.env.EmailPassword
-                                }
-                            });
-                            
-                            let mailDetails = {
-                                from: process.env.EmailUsername,
-                                to:  'xerow501@gmail.com'/*email.toString()*/,
-                                subject: 'VolunteerIndex Verification Code',
-                                text: 'Enter this code into the VolunteerIndex application to verify your account: ' + Math.floor(100000 + Math.random() * 900000)
-                            };
-                            
-                            mailTransporter.sendMail(mailDetails, function(err: any, data: any) {
-                                if(err) {
-                                    console.log('Error Occurs');
-                                } else {
-                                    console.log('Email sent successfully');
-                                }
-                            });
-
-    
-
-                            //then redirect to verification page
-
                             request = new sql.Request()
                             request.input('orgname_parameter', sql.VarChar, orgName.toString())
                             request.input('address_parameter', sql.VarChar, address.toString())
@@ -279,8 +235,16 @@ const SignUp = () : JSX.Element => {
 
                             // figure out password encryption too here
  
-                            request.query("INSERT INTO Orgs (OrgName, Address, Email, PhoneNumber, Username, Password, State, CollegeOrgs) VALUES (@orgname_parameter, @address_parameter, @email_parameter, @phonenumber_parameter, @username_parameter, @password_parameter, @state_parameter,  NULL)")
+                            request.query("INSERT INTO Orgs (OrgName, Address, Email, PhoneNumber, Username, Password, State, CollegeOrgs, Verified) VALUES (@orgname_parameter, @address_parameter, @email_parameter, @phonenumber_parameter, @username_parameter, @password_parameter, @state_parameter,  NULL, 0)")
 
+                            sessionStorage.setItem("username",username.toString())
+
+                            //then we can move to email verification here
+                            sendVerificationMail(email.toString(), "Organization");
+
+                            //then redirect to verification page
+                            navigate("/emailverification")
+            
                         }
                     }
                     
