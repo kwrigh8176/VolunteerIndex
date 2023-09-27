@@ -1,7 +1,6 @@
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import React from 'react'
-import VolunteerSignUp from '../volunteerPages/volunteerSignUp';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { abort } from 'process';
@@ -15,11 +14,17 @@ import InputLabel from '@mui/material/InputLabel';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
+import { configureStore } from '@reduxjs/toolkit'
+import db_config from '../../../globals';
+
 
 var validator = require('validator');
 
+require('dotenv').config()
+
+
 function checkIllegalChars(str:string){
-    return !/[~`!#$%\^&*+=\-\[\]\\';,@/{}|\\":<>\?]/g.test(str);
+    return !/[~`!#$%\^&*+=\-\[\]\\';,@\/{}|\\":<>\?]/g.test(str);
 }
 
 const SignUp = () : JSX.Element => {
@@ -50,7 +55,7 @@ const SignUp = () : JSX.Element => {
 
     const [state, setState] = React.useState<string>('');
 
-    
+    const nodemailer = require('nodemailer');
 
     async function processVolunterSignUp(){
         
@@ -61,7 +66,7 @@ const SignUp = () : JSX.Element => {
             return
         }
 
-        if (checkIllegalChars(firstName.toString()) == true || checkIllegalChars(middleInitial.toString())  || checkIllegalChars(lastName.toString()))
+        if (checkIllegalChars(firstName.toString()) == false || checkIllegalChars(middleInitial.toString()) == false  || checkIllegalChars(lastName.toString()) == false)
         {
             setErrorText('One or more fields contain invalid characters (check the name fields).');
             return
@@ -85,7 +90,7 @@ const SignUp = () : JSX.Element => {
                 {/*Resetting the error text*/}
                 setErrorText('');
 
-                await sql.connect(config)
+                await sql.connect(db_config)
 
                 
                 {/*Checking if the username is in use*/}
@@ -182,7 +187,8 @@ const SignUp = () : JSX.Element => {
                 {/*Resetting the error text*/}
                 setErrorText('');
 
-                await sql.connect(config)
+
+                await sql.connect(db_config)
 
                 
                 {/*Checking if the username is in use*/}
@@ -216,7 +222,49 @@ const SignUp = () : JSX.Element => {
                         }
                         else{
 
+                            const volunteerData = {
+                                VolunteerId: '',
+                                FirstName: '',
+                                MiddleInitial : '',
+                                LastName: '',
+                                DOB: '',
+                                Email: '',
+                                PhoneNumber: '',
+                                Username: '',
+                                Pasword: '',
+                                State: ''
+                            
+                            }
+                            //implement redux here
+                            
+
                             //then we can move to email verification here
+                            var randomToken = Math.floor(100000 + Math.random() * 900000)
+
+                            let mailTransporter = nodemailer.createTransport({
+                                service: 'gmail',
+                                auth: {
+                                    user: process.env.EmailUsername,
+                                    pass: process.env.EmailPassword
+                                }
+                            });
+                            
+                            let mailDetails = {
+                                from: process.env.EmailUsername,
+                                to:  'xerow501@gmail.com'/*email.toString()*/,
+                                subject: 'VolunteerIndex Verification Code',
+                                text: 'Enter this code into the VolunteerIndex application to verify your account: ' + Math.floor(100000 + Math.random() * 900000)
+                            };
+                            
+                            mailTransporter.sendMail(mailDetails, function(err: any, data: any) {
+                                if(err) {
+                                    console.log('Error Occurs');
+                                } else {
+                                    console.log('Email sent successfully');
+                                }
+                            });
+
+    
 
                             //then redirect to verification page
 
@@ -230,7 +278,7 @@ const SignUp = () : JSX.Element => {
                             request.input('state_parameter', sql.VarChar, state.toString())
 
                             // figure out password encryption too here
-
+ 
                             request.query("INSERT INTO Orgs (OrgName, Address, Email, PhoneNumber, Username, Password, State, CollegeOrgs) VALUES (@orgname_parameter, @address_parameter, @email_parameter, @phonenumber_parameter, @username_parameter, @password_parameter, @state_parameter,  NULL)")
 
                         }
@@ -241,6 +289,7 @@ const SignUp = () : JSX.Element => {
             }
             catch(err)
             {
+                console.log(err)
                 sql.close()
                 setDisableSignUpButton(false)
             }

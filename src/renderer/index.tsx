@@ -19,6 +19,8 @@ root.render(
                     
         <Route key="SignUp"  path="/signup" element={<SignUp/>} />
 
+        <Route key="emailVerification"  path="/emailverification" element={<SignUp/>} />
+
     </Routes>
 </BrowserRouter>
 

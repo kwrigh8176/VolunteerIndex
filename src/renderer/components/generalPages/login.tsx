@@ -1,10 +1,10 @@
 import React from 'react'
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import orgSignUp from '../organizationPages/orgSignUp';
 import Link, { BrowserRouter } from 'react-router-dom';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import db_config from '../../../globals';
 
 
 const Login = () : JSX.Element => {
@@ -24,7 +24,7 @@ const Login = () : JSX.Element => {
             try 
             {
 
-                await sql.connect(config)
+                await sql.connect(db_config)
 
                 let request = new sql.Request()
                 request.input('username_parameter', sql.VarChar, username.toString())
@@ -38,6 +38,8 @@ const Login = () : JSX.Element => {
                     //password should be deencrypted here
 
                     if (result.recordset.length == 1){
+                        //implement redux here
+                        
                         //then take them to their respective dashboard
                     }
                     else{
@@ -64,7 +66,7 @@ const Login = () : JSX.Element => {
         try 
         {
 
-            await sql.connect(config)
+            await sql.connect(db_config)
 
             let request = new sql.Request()
             request.input('username_parameter', sql.VarChar, username.toString())
@@ -78,6 +80,8 @@ const Login = () : JSX.Element => {
                 //password should be deencrypted here
 
                 if (result.recordset.length == 1){
+                    //implement redux here
+
                     //then take them to their respective dashboard
                 }
                 else{
