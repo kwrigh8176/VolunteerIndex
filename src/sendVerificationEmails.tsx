@@ -90,21 +90,43 @@ export default async function sendVerificationMail(toEmail: string, loginType: s
 
     await sql.connect(db_config)
     
+    let request = new sql.Request()
+    request.input("username_parameter",username)
+    request.input("loginkey_parameter",randomToken)
+
     if (loginType == "Volunteer"){
-        let request = new sql.Request()
+        
+
+        var result = await request.query("SELECT * FROM LoginKey WHERE VolunteerId = @username_parameter")
+
+        request = new sql.Request()
         request.input("username_parameter",username)
         request.input("loginkey_parameter",randomToken)
+        if (result.recordset.length == 1){
+            await request.query("UPDATE LoginKey SET LoginKey = @loginkey_parameter WHERE VolunteerId = @username_parameter")
+        }
+        else{
+            await request.query("INSERT INTO LoginKey (OrgId, VolunteerId, LoginKey) VALUES (NULL, @username_parameter, @loginkey_parameter)")
+        }
 
-        await request.query("INSERT INTO LoginKey (OrgId, VolunteerId, LoginKey) VALUES (NULL, @username_parameter, @loginkey_parameter)")
+       
                         
     }
     else
     {
-        let request = new sql.Request()
+        var result = await request.query("SELECT * FROM LoginKey WHERE OrgId = @username_parameter")
+
+        request = new sql.Request()
         request.input("username_parameter",username)
         request.input("loginkey_parameter",randomToken)
 
-        await request.query("INSERT INTO LoginKey (OrgId, VolunteerId, LoginKey) VALUES (@username_parameter, NULL, @loginkey_parameter)")
+        if (result.recordset.length == 1){
+            await request.query("UPDATE LoginKey SET LoginKey = @loginkey_parameter WHERE OrgId = @username_parameter")
+        }
+        else{
+            await request.query("INSERT INTO LoginKey (OrgId, VolunteerId, LoginKey) VALUES (@username_parameter, NULL, @loginkey_parameter)")
+        }
+        
     }
 
 }

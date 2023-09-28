@@ -1,16 +1,18 @@
 import React from 'react'
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import Link, { BrowserRouter } from 'react-router-dom';
+import Link, { BrowserRouter, useNavigate } from 'react-router-dom';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import db_config from '../../../globals';
+import sendVerificationMail from '../../../sendVerificationEmails';
 
 
 const Login = () : JSX.Element => {
     
     const sql = require('mssql');
-
+    const navigate = useNavigate();
+    
     const [username, setUsername] = React.useState<string>('');
     const [password, setPassword] = React.useState<string>('');
     const [disableLoginButton, setDisableLoginButton] = React.useState(false);
@@ -33,8 +35,9 @@ const Login = () : JSX.Element => {
                 if (result.recordset.length == 1){
 
                     request = new sql.Request()
+                    request.input('username_parameter', sql.VarChar, username.toString())
                     request.input('password_parameter', sql.VarChar, password.toString())
-                    result = await request.query("SELECT * FROM Orgs WHERE Password=@password_parameter")
+                    result = await request.query("SELECT Email FROM Orgs WHERE Username=@username_parameter AND Password=@password_parameter")
                     //password should be deencrypted here
 
                     if (result.recordset.length == 1){
@@ -42,7 +45,12 @@ const Login = () : JSX.Element => {
                         sessionStorage.setItem("username",username)
                         sessionStorage.setItem("loginType", "Organization")
 
-                        //then take them to their respective dashboard
+                        var email = result.recordset[0].Email 
+                        //then we can move to email verification here
+                        sendVerificationMail(email.toString(), "Organization");
+
+                        //must verify after every login
+                        navigate("/emailverification")
                     }
                     else{
                         alert('Incorrect password!')
@@ -77,18 +85,23 @@ const Login = () : JSX.Element => {
             if (result.recordset.length == 1){
 
                 request = new sql.Request()
+                request.input('username_parameter', sql.VarChar, username.toString())
                 request.input('password_parameter', sql.VarChar, password.toString())
-                result = await request.query("SELECT * FROM Volunteer WHERE Password=@password_parameter")
+                result = await request.query("SELECT * FROM Volunteer WHERE Username=@username_parameter AND Password=@password_parameter")
                 //password should be deencrypted here
 
                 if (result.recordset.length == 1){
                     //set the username and email for codes if necessary
                     sessionStorage.setItem("username",username)
                     sessionStorage.setItem("loginType", "Volunteer")
+                    
+                    var email = result.recordset[0].Email 
+                    //then we can move to email verification here
+                    sendVerificationMail(email.toString(), "Volunteer");
 
-                    //check if account is verified first
+                    //must verify after every login
+                    navigate("/emailverification")
 
-                    //then take them to their respective dashboard
                 }
                 else{
                     alert('Incorrect password!')

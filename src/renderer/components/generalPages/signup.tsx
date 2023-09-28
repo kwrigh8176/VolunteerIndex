@@ -138,7 +138,7 @@ const SignUp = () : JSX.Element => {
                             request.input('password_parameter', sql.VarChar, password.toString())
                             request.input('state_parameter', sql.VarChar, state.toString())
 
-                            request.query("INSERT INTO Volunteer (FirstName, MiddleInitial, LastName, DOB, Email, PhoneNumber, Username, Password, State, CollegeStudent, Verified) VALUES (@firstname_parameter, @middleinitial_parameter,@lastname_parameter,@DOB_parameter, @email_parameter, @phonenumber_parameter, @username_parameter, @password_parameter, @state_parameter, NULL, 0 )")
+                            request.query("INSERT INTO Volunteer (FirstName, MiddleInitial, LastName, DOB, Email, PhoneNumber, Username, Password, State, CollegeStudent) VALUES (@firstname_parameter, @middleinitial_parameter,@lastname_parameter,@DOB_parameter, @email_parameter, @phonenumber_parameter, @username_parameter, @password_parameter, @state_parameter, NULL )")
                         
                             sessionStorage.setItem("username",username.toString())
 
@@ -236,7 +236,7 @@ const SignUp = () : JSX.Element => {
 
                             // figure out password encryption too here
  
-                            request.query("INSERT INTO Orgs (OrgName, Address, Email, PhoneNumber, Username, Password, State, CollegeOrgs, Verified) VALUES (@orgname_parameter, @address_parameter, @email_parameter, @phonenumber_parameter, @username_parameter, @password_parameter, @state_parameter,  NULL, 0)")
+                            request.query("INSERT INTO Orgs (OrgName, Address, Email, PhoneNumber, Username, Password, State, CollegeOrgs) VALUES (@orgname_parameter, @address_parameter, @email_parameter, @phonenumber_parameter, @username_parameter, @password_parameter, @state_parameter,  NULL)")
 
                             sessionStorage.setItem("username",username.toString())
 
