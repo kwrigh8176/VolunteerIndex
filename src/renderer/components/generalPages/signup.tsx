@@ -1,7 +1,6 @@
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import React from 'react'
-import VolunteerSignUp from '../volunteerPages/volunteerSignUp';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { abort } from 'process';
@@ -15,15 +14,25 @@ import InputLabel from '@mui/material/InputLabel';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
+import { configureStore } from '@reduxjs/toolkit'
+import db_config from '../../../globals';
+import sendVerificationMail from '../../../sendVerificationEmails';
+import { useNavigate } from 'react-router-dom';
+
 
 var validator = require('validator');
 
+require('dotenv').config()
+
+
+
 function checkIllegalChars(str:string){
-    return !/[~`!#$%\^&*+=\-\[\]\\';,@/{}|\\":<>\?]/g.test(str);
+    return !/[~`!#$%\^&*+=\-\[\]\\';,@\/{}|\\":<>\?]/g.test(str);
 }
 
 const SignUp = () : JSX.Element => {
 
+    const navigate = useNavigate();
     const sql = require('mssql');
 
     {/*Volunteer specific data*/}
@@ -50,8 +59,6 @@ const SignUp = () : JSX.Element => {
 
     const [state, setState] = React.useState<string>('');
 
-    
-
     async function processVolunterSignUp(){
         
         {/*Check for empty fields at first*/}
@@ -61,7 +68,7 @@ const SignUp = () : JSX.Element => {
             return
         }
 
-        if (checkIllegalChars(firstName.toString()) == true || checkIllegalChars(middleInitial.toString())  || checkIllegalChars(lastName.toString()))
+        if (checkIllegalChars(firstName.toString()) == false || checkIllegalChars(middleInitial.toString()) == false  || checkIllegalChars(lastName.toString()) == false)
         {
             setErrorText('One or more fields contain invalid characters (check the name fields).');
             return
@@ -85,7 +92,7 @@ const SignUp = () : JSX.Element => {
                 {/*Resetting the error text*/}
                 setErrorText('');
 
-                await sql.connect(config)
+                await sql.connect(db_config)
 
                 
                 {/*Checking if the username is in use*/}
@@ -119,13 +126,6 @@ const SignUp = () : JSX.Element => {
                             throw new Error('Phone Number is already in use.')
                         }
                         else{
-                            //then we can move to email verification here
-
-                            //input data into db
-
-            
-
-                            //then redirect to verification page
 
                             request = new sql.Request()
                             request.input('firstname_parameter', sql.VarChar, firstName.toString())
@@ -139,6 +139,14 @@ const SignUp = () : JSX.Element => {
                             request.input('state_parameter', sql.VarChar, state.toString())
 
                             request.query("INSERT INTO Volunteer (FirstName, MiddleInitial, LastName, DOB, Email, PhoneNumber, Username, Password, State, CollegeStudent) VALUES (@firstname_parameter, @middleinitial_parameter,@lastname_parameter,@DOB_parameter, @email_parameter, @phonenumber_parameter, @username_parameter, @password_parameter, @state_parameter, NULL )")
+                        
+                            sessionStorage.setItem("username",username.toString())
+
+                            //then we can move to email verification here
+                            sendVerificationMail(email.toString(), "Volunteer");
+
+                            //then redirect to verification page
+                            navigate("/emailverification")
                         }
                     }
                 }
@@ -182,7 +190,8 @@ const SignUp = () : JSX.Element => {
                 {/*Resetting the error text*/}
                 setErrorText('');
 
-                await sql.connect(config)
+
+                await sql.connect(db_config)
 
                 
                 {/*Checking if the username is in use*/}
@@ -216,10 +225,6 @@ const SignUp = () : JSX.Element => {
                         }
                         else{
 
-                            //then we can move to email verification here
-
-                            //then redirect to verification page
-
                             request = new sql.Request()
                             request.input('orgname_parameter', sql.VarChar, orgName.toString())
                             request.input('address_parameter', sql.VarChar, address.toString())
@@ -230,9 +235,17 @@ const SignUp = () : JSX.Element => {
                             request.input('state_parameter', sql.VarChar, state.toString())
 
                             // figure out password encryption too here
-
+ 
                             request.query("INSERT INTO Orgs (OrgName, Address, Email, PhoneNumber, Username, Password, State, CollegeOrgs) VALUES (@orgname_parameter, @address_parameter, @email_parameter, @phonenumber_parameter, @username_parameter, @password_parameter, @state_parameter,  NULL)")
 
+                            sessionStorage.setItem("username",username.toString())
+
+                            //then we can move to email verification here
+                            sendVerificationMail(email.toString(), "Organization");
+
+                            //then redirect to verification page
+                            navigate("/emailverification")
+            
                         }
                     }
                     
@@ -241,6 +254,7 @@ const SignUp = () : JSX.Element => {
             }
             catch(err)
             {
+                console.log(err)
                 sql.close()
                 setDisableSignUpButton(false)
             }
