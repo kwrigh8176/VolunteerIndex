@@ -29,66 +29,7 @@ const modalStyle = {
     p: 4,
   };
 
-const cardsFromDb = [
-    {
-        EventName: 'Charity Event',
-        Address: '1045 Throwaway Lane',
-        Date: '10/29/2023',
-        Email: 'blahaow2w@gmail.com',
-        PhoneNumber: '4106600252',
-        StartTime: '6:00 PM',
-        EndTime: '12:00 PM',
-        VolunteerLimit: '4',
-        OrgId: '3',
-        OrgName: 'Kyle\'s Fake Organization',
-        State:'MD',
-        Description: 'Charity Event, need as much help as possible.'
-    },
-    {
-        EventName: 'FAKE EVENT',
-        Address: '1045 Throwaway Lane',
-        Date: '10/29/2023',
-        Email: 'blahaow2w@gmail.com',
-        PhoneNumber: '4106600252',
-        StartTime: '6:00 PM',
-        EndTime: '12:00 PM',
-        VolunteerLimit: '4',
-        OrgId: '3',
-        OrgName: 'Kyle\'s Fake Organization',
-        State:'MD',
-        Description: 'Charity Event, need as much help as possible.'
-    },
-    {
-        EventName: 'TEMP EVENT',
-        Address: '1045 Throwaway Lane',
-        Date: '10/29/2023',
-        Email: 'blahaow2w@gmail.com',
-        PhoneNumber: '4106600252',
-        StartTime: '6:00 PM',
-        EndTime: '12:00 PM',
-        VolunteerLimit: '4',
-        OrgId: '3',
-        OrgName: 'Kyle\'s Fake Organization',
-        State:'MD',
-        Description: 'Charity Event, need as much help as possible.'
-    },
-    {
-        EventName: 'Charity Event',
-        Address: '1045 Throwaway Lane',
-        Date: '10/29/2023',
-        Email: 'blahaow2w@gmail.com',
-        PhoneNumber: '4106600252',
-        StartTime: '6:00 PM',
-        EndTime: '12:00 PM',
-        VolunteerLimit: '4',
-        OrgId: '3',
-        OrgName: 'Kyle\'s Fake Organization',
-        State:'MD',
-        Description: 'Charity Event, need as much help as possible.'
-    },
-    
 
-]
 
 const slots = [
     {
@@ -116,48 +57,47 @@ const slots = [
 ]
 
 
- void async function getEvents(){
-    try 
-            {
-
-                var currentDate = new Date();
-                var currentTime = dayjs(currentDate).format('hh:mm:ss.0000000');
-
-                var state = sessionStorage.getItem("State")
-
-                {/*Get current events that are past the current date, in the current state, and check the time*/}
-                await sql.connect(db_config)
-
-                let request = new sql.Request()
-                request.input('currentTime_parameter', sql.VarChar, currentTime)
-                request.input('state_parameter', sql.VarChar, state)
-                let result = await request.query("SELECT Address,Date,StartTime,EndTime,Description FROM Events WHERE CAST(StartTime As Time) > CAST(@currentTime_parameter AS Time) AND State=@state_parameter")
-                
-                if (result.recordset.length == 1){
-                    for (var eventIndex = 0; eventIndex < result.recordset.length; eventIndex++){
-
-                    }
-                
-                }
-                
-            }
-            catch(err)
-            {
-
-                console.log(err)
-            }
-}
+ 
 
 
 export default function VolunteerEvents() : JSX.Element {
 
+    const [cardsFromDb,setCardsFromDb] = React.useState<any[]>([]);
+
+    {/*Event Retrieval*/}
+
+    const getEvents = async () => {
+        var currentDate = new Date();
+        var currentTime = dayjs(currentDate).format('hh:mm:ss.0000000');
+
+        var state = sessionStorage.getItem("State")
+
+        {/*Get current events that are past the current date, in the current state, and check the time*/}
+        await sql.connect(db_config)
+
+        let request = new sql.Request()
+        request.input('currentTime_parameter', sql.VarChar, currentTime)
+        request.input('state_parameter', sql.VarChar, state)
+        let result = await request.query("SELECT EventId,EventName,e.Address,[Date],StartTime,EndTime,VolunteerLimit,[Description],o.OrgName FROM [dbo].[Events] e JOIN Orgs o ON e.OrgId = o.OrgId WHERE CAST(StartTime AS Time) > CAST(@currentTime_parameter AS Time) AND o.State=@state_parameter")
+        
+        var tempArray = []
+        if (result.recordset.length == 1){
+            for (var eventIndex = 0; eventIndex < result.recordset.length; eventIndex++){
+                tempArray.push(result.recordset[eventIndex])
+
+            }
+        }
+        setCardsFromDb(tempArray)
+    }
+
     const [confirmationModalOpen, setConfirmationModalOpen] = React.useState(false);
     const [activeSlot, setActiveSlot] = React.useState(0);
     const [activeEventId, setActiveEventId] = React.useState(0);
+    
 
     const renderedCards = new Array<JSX.Element> 
 
-    
+ 
     
     {/*Handles when a slot button is clicked*/}
     const customRoleHandler = (slotIndex : number, eventId : number) : void => {
@@ -166,97 +106,119 @@ export default function VolunteerEvents() : JSX.Element {
         setConfirmationModalOpen(true)
     }
 
+    
 
-    for (let cardIndex = 0; cardIndex < cardsFromDb.length; cardIndex++){
 
-        {/*Query needs to filter the date and time from events, events from different states also shouldn't be shown*/}
+   
+
+       
+
         
-        const renderedSlots = new Array<JSX.Element>
-        
-        for (let slotIndex = 0; slotIndex < slots.length; slotIndex++){
-            
-                if (slots[slotIndex].VolunteerId == 'NULL')
-                {
-                    renderedSlots.push(
-                        <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#fa534d'}}>
-                            <Typography>Slot Taken</Typography>
-                        </Box>)
-                }
-                else{
-                    renderedSlots.push(
-                    <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
-                        <Button fullWidth onClick={() => customRoleHandler(slotIndex, cardIndex)}>Open Role: {slots[slotIndex].RoleName}</Button>
-                    </Box>)
-                }
-                {/*QUERY THE VOLUNTEER SLOTS HERE */}
-        }
+    
 
-            renderedCards.push(
-            <Card sx={{marginBottom:'20px'}}>
-                <CardHeader
-                    avatar={
-                        <Avatar aria-label="recipe">
-                            {cardsFromDb[cardIndex].OrgName.charAt(0)}
-                        </Avatar>
-                }
-                title={cardsFromDb[cardIndex].EventName}
-                subheader={cardsFromDb[cardIndex].OrgName}
-                />
-                <CardContent sx={{borderTop: '1px solid black'}}>
-                    <Typography variant="body2" color="text.secondary">
-                            Address: {cardsFromDb[cardIndex].Address}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                            Date: {cardsFromDb[cardIndex].Date}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                        Start Time: {cardsFromDb[cardIndex].StartTime}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                        End Time: {cardsFromDb[cardIndex].EndTime}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                        Event Description: {cardsFromDb[cardIndex].Description}
-                    </Typography>
-                </CardContent>
-                {renderedSlots}
+    if (cardsFromDb.length == 0){
+        getEvents()
+
+        return (
+            <>
+            <p>Loading Events...</p>
+            </>
+        )
+    }
+    else{
+
+        for (let cardIndex = 0; cardIndex < cardsFromDb.length; cardIndex++)
+
+            {/*Query needs to filter the date and time from events, events from different states also shouldn't be shown*/}
+           
+            const renderedSlots = new Array<JSX.Element>
+           
+            for (let slotIndex = 0; slotIndex < slots.length; slotIndex++){
                 
+                    if (slots[slotIndex].VolunteerId == 'NULL')
+                    {
+                        renderedSlots.push(
+                            <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#fa534d'}}>
+                                <Typography>Slot Taken</Typography>
+                            </Box>)
+                    }
+                    else{
+                        renderedSlots.push(
+                        <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
+                            <Button fullWidth onClick={() => customRoleHandler(slotIndex, cardsFromDb[0].EventId)}>Open Role: {slots[slotIndex].RoleName}</Button>
+                        </Box>)
+                    }
+                    {/*QUERY THE VOLUNTEER SLOTS HERE */}
+            }
+    
+                renderedCards.push(
+                <Card sx={{marginBottom:'20px'}}>
+                    <CardHeader
+                        avatar={
+                            <Avatar aria-label="recipe">
+                                {cardsFromDb[0].OrgName.charAt(0)}
+                            </Avatar>
+                    }
+                    title={cardsFromDb[0].EventName}
+                    subheader={cardsFromDb[0].OrgName}
+                    />
+                    <CardContent sx={{borderTop: '1px solid black'}}>
+                        <Typography variant="body2" color="text.secondary">
+                                Address: {cardsFromDb[0].Address}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                                Date: {cardsFromDb[0].Date}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            Start Time: {dayjs('1/1/1 ' + cardsFromDb[0].StartTime).format('hh:mm a')}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            End Time: {dayjs('1/1/1 ' + cardsFromDb[0].EndTime).format('hh:mm a')}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            Event Description: {cardsFromDb[0].Description}
+                        </Typography>
+                    </CardContent>
+                    {renderedSlots}
+                    
+    
+    
+    
+    
+                </Card>
+    
+            )
+           
+       
 
-
-
-
-            </Card>
+       return(
+            <>
+                {renderedCards}
+                <Modal
+                        open={confirmationModalOpen}
+                        onClose={() => setConfirmationModalOpen(false)}
+                        aria-labelledby="modal-modal-title"
+                        aria-describedby="modal-modal-description"
+                    >
+                        <Box sx={modalStyle}>
+                            <Typography id="modal-modal-title" variant="h6" component="h2">
+                                Registering for event: 
+                                <p>{cardsFromDb[activeEventId].EventName}</p>
+                            </Typography>
+                            <Button onClick={() => setConfirmationModalOpen(false)}>
+                                Cancel
+                            </Button>
+                            <Button>
+                                Confirm
+                            </Button>
+                        </Box>
+                </Modal>
+                
+            </>
 
         )
 
-        
-    } 
-
-    return(
-        <>
-            {renderedCards}
-            <Modal
-                    open={confirmationModalOpen}
-                    onClose={() => setConfirmationModalOpen(false)}
-                    aria-labelledby="modal-modal-title"
-                    aria-describedby="modal-modal-description"
-                >
-                    <Box sx={modalStyle}>
-                        <Typography id="modal-modal-title" variant="h6" component="h2">
-                            Registering for event: 
-                            <p>{cardsFromDb[activeEventId].EventName}</p>
-                        </Typography>
-                        <Button onClick={() => setConfirmationModalOpen(false)}>
-                            Cancel
-                        </Button>
-                        <Button>
-                            Confirm
-                        </Button>
-                    </Box>
-            </Modal>
-            
-        </>
-
-    )
+    }
 
 }
+

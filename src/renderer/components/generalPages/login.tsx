@@ -37,13 +37,14 @@ const Login = () : JSX.Element => {
                     request = new sql.Request()
                     request.input('username_parameter', sql.VarChar, username.toString())
                     request.input('password_parameter', sql.VarChar, password.toString())
-                    result = await request.query("SELECT Email FROM Orgs WHERE Username=@username_parameter AND Password=@password_parameter")
+                    result = await request.query("SELECT Email,State FROM Orgs WHERE Username=@username_parameter AND Password=@password_parameter")
                     //password should be deencrypted here
 
                     if (result.recordset.length == 1){
                         //set the username, email, loginType for codes if necessary
                         sessionStorage.setItem("username",username)
                         sessionStorage.setItem("loginType", "Organization")
+                        sessionStorage.setItem("State", result.recordset[0].State)
 
                         var email = result.recordset[0].Email 
                         //then we can move to email verification here
@@ -94,6 +95,7 @@ const Login = () : JSX.Element => {
                     //set the username and email for codes if necessary
                     sessionStorage.setItem("username",username)
                     sessionStorage.setItem("loginType", "Volunteer")
+                    sessionStorage.setItem("State", result.recordset[0].State)
                     
                     var email = result.recordset[0].Email 
                     //then we can move to email verification here
