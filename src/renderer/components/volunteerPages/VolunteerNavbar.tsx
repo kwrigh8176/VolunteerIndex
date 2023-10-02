@@ -1,5 +1,6 @@
-import { AppBar } from '@mui/material'
+import { AppBar, Button } from '@mui/material'
 import * as React from 'react'
+import { redirect, useNavigate } from 'react-router-dom';
 
 /*
 Home 
@@ -9,11 +10,12 @@ Settings
 */
 const pages = ['Home', 'Events', 'Settings'];
 
-export default function NavBar() : JSX.Element {
-    const [activeTab, setActiveTab] = React.useState('Home')
+export default function VolunteerNavBar() : JSX.Element {
     return (
-        <AppBar>
-
+        <AppBar position = "static">
+            <Button href={`/volunteerEvents`}>
+                
+            </Button>
         </AppBar>
     )
 

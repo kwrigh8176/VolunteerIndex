@@ -7,11 +7,15 @@ import List from "@mui/material/List"
 import CardContent from "@mui/material/CardContent"
 import Typography from "@mui/material/Typography"
 import { Box, Button, CardActionArea, CardActions, Modal } from "@mui/material"
+import VolunteerNavBar from "./VolunteerNavbar"
+import db_config from "../../../globals"
+import dayjs from "dayjs"
 
 /*
     This is meant to be the main event feed. Where all current events are displayed.
 
 */
+const sql = require('mssql');
 
 const modalStyle = {
     position: 'absolute' as 'absolute',
@@ -39,7 +43,49 @@ const cardsFromDb = [
         OrgName: 'Kyle\'s Fake Organization',
         State:'MD',
         Description: 'Charity Event, need as much help as possible.'
-    }
+    },
+    {
+        EventName: 'FAKE EVENT',
+        Address: '1045 Throwaway Lane',
+        Date: '10/29/2023',
+        Email: 'blahaow2w@gmail.com',
+        PhoneNumber: '4106600252',
+        StartTime: '6:00 PM',
+        EndTime: '12:00 PM',
+        VolunteerLimit: '4',
+        OrgId: '3',
+        OrgName: 'Kyle\'s Fake Organization',
+        State:'MD',
+        Description: 'Charity Event, need as much help as possible.'
+    },
+    {
+        EventName: 'TEMP EVENT',
+        Address: '1045 Throwaway Lane',
+        Date: '10/29/2023',
+        Email: 'blahaow2w@gmail.com',
+        PhoneNumber: '4106600252',
+        StartTime: '6:00 PM',
+        EndTime: '12:00 PM',
+        VolunteerLimit: '4',
+        OrgId: '3',
+        OrgName: 'Kyle\'s Fake Organization',
+        State:'MD',
+        Description: 'Charity Event, need as much help as possible.'
+    },
+    {
+        EventName: 'Charity Event',
+        Address: '1045 Throwaway Lane',
+        Date: '10/29/2023',
+        Email: 'blahaow2w@gmail.com',
+        PhoneNumber: '4106600252',
+        StartTime: '6:00 PM',
+        EndTime: '12:00 PM',
+        VolunteerLimit: '4',
+        OrgId: '3',
+        OrgName: 'Kyle\'s Fake Organization',
+        State:'MD',
+        Description: 'Charity Event, need as much help as possible.'
+    },
     
 
 ]
@@ -70,47 +116,54 @@ const slots = [
 ]
 
 
+ void async function getEvents(){
+    try 
+            {
+
+                var currentDate = new Date();
+                var currentTime = dayjs(currentDate).format('hh:mm:ss.0000000');
+
+                var state = sessionStorage.getItem("State")
+
+                {/*Get current events that are past the current date, in the current state, and check the time*/}
+                await sql.connect(db_config)
+
+                let request = new sql.Request()
+                request.input('currentTime_parameter', sql.VarChar, currentTime)
+                request.input('state_parameter', sql.VarChar, state)
+                let result = await request.query("SELECT Address,Date,StartTime,EndTime,Description FROM Events WHERE CAST(StartTime As Time) > CAST(@currentTime_parameter AS Time) AND State=@state_parameter")
+                
+                if (result.recordset.length == 1){
+                    for (var eventIndex = 0; eventIndex < result.recordset.length; eventIndex++){
+
+                    }
+                
+                }
+                
+            }
+            catch(err)
+            {
+
+                console.log(err)
+            }
+}
 
 
-export default function VolunteerEvents() : JSX.Element[] {
+export default function VolunteerEvents() : JSX.Element {
 
     const [confirmationModalOpen, setConfirmationModalOpen] = React.useState(false);
-    const [activeSlot, setActiveSlot] = React.useState(-1);
-
+    const [activeSlot, setActiveSlot] = React.useState(0);
+    const [activeEventId, setActiveEventId] = React.useState(0);
 
     const renderedCards = new Array<JSX.Element> 
+
+    
     
     {/*Handles when a slot button is clicked*/}
-    const customRoleHandler = (slotIndex : number) : void => {
-        setConfirmationModalOpen(true)
+    const customRoleHandler = (slotIndex : number, eventId : number) : void => {
         setActiveSlot(slotIndex);
-
-    }
-
-    {/*Appears when a open role is clicked. */}
-    const confirmationModal = () : JSX.Element => {
-        return (
-            <>
-                <Modal
-                    open={confirmationModalOpen}
-                    onClose={() => setConfirmationModalOpen(false)}
-                    aria-labelledby="modal-modal-title"
-                    aria-describedby="modal-modal-description"
-                >
-                    <Box sx={modalStyle}>
-                        <Typography id="modal-modal-title" variant="h6" component="h2">
-                            Register for this event?
-                        </Typography>
-                        <Button onClick={() => setConfirmationModalOpen(false)}>
-                            Cancel
-                        </Button>
-                        <Button>
-                            Confirm
-                        </Button>
-                    </Box>
-            </Modal>
-            </>
-        )
+        setActiveEventId(eventId);
+        setConfirmationModalOpen(true)
     }
 
 
@@ -125,21 +178,21 @@ export default function VolunteerEvents() : JSX.Element[] {
                 if (slots[slotIndex].VolunteerId == 'NULL')
                 {
                     renderedSlots.push(
-                        <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid gray', backgroundColor:'#fa534d'}}>
+                        <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#fa534d'}}>
                             <Typography>Slot Taken</Typography>
                         </Box>)
                 }
                 else{
                     renderedSlots.push(
-                    <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid gray'}}>
-                        <Button fullWidth onClick={() => customRoleHandler(slotIndex)}>Open Role: {slots[slotIndex].RoleName}</Button>
+                    <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
+                        <Button fullWidth onClick={() => customRoleHandler(slotIndex, cardIndex)}>Open Role: {slots[slotIndex].RoleName}</Button>
                     </Box>)
                 }
                 {/*QUERY THE VOLUNTEER SLOTS HERE */}
         }
 
             renderedCards.push(
-            <Card sx={{maxWidth: 345}}>
+            <Card sx={{marginBottom:'20px'}}>
                 <CardHeader
                     avatar={
                         <Avatar aria-label="recipe">
@@ -149,9 +202,21 @@ export default function VolunteerEvents() : JSX.Element[] {
                 title={cardsFromDb[cardIndex].EventName}
                 subheader={cardsFromDb[cardIndex].OrgName}
                 />
-                <CardContent sx={{borderTop: '1px solid gray'}}>
+                <CardContent sx={{borderTop: '1px solid black'}}>
                     <Typography variant="body2" color="text.secondary">
-                        {cardsFromDb[cardIndex].Description}
+                            Address: {cardsFromDb[cardIndex].Address}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                            Date: {cardsFromDb[cardIndex].Date}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                        Start Time: {cardsFromDb[cardIndex].StartTime}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                        End Time: {cardsFromDb[cardIndex].EndTime}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                        Event Description: {cardsFromDb[cardIndex].Description}
                     </Typography>
                 </CardContent>
                 {renderedSlots}
@@ -161,11 +226,37 @@ export default function VolunteerEvents() : JSX.Element[] {
 
 
             </Card>
+
         )
 
-        renderedCards.push(confirmationModal())    
+        
     } 
 
-    return renderedCards
+    return(
+        <>
+            {renderedCards}
+            <Modal
+                    open={confirmationModalOpen}
+                    onClose={() => setConfirmationModalOpen(false)}
+                    aria-labelledby="modal-modal-title"
+                    aria-describedby="modal-modal-description"
+                >
+                    <Box sx={modalStyle}>
+                        <Typography id="modal-modal-title" variant="h6" component="h2">
+                            Registering for event: 
+                            <p>{cardsFromDb[activeEventId].EventName}</p>
+                        </Typography>
+                        <Button onClick={() => setConfirmationModalOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button>
+                            Confirm
+                        </Button>
+                    </Box>
+            </Modal>
+            
+        </>
+
+    )
 
 }
