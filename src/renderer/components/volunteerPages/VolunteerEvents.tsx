@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect } from "react"
 import Avatar from "@mui/material/Avatar"
 import Card from "@mui/material/Card"
 import CardHeader from "@mui/material/CardHeader"
@@ -31,38 +31,12 @@ const modalStyle = {
 
 
 
-const slots = [
-    {
-        Id: '1',
-        VolunteerId: '1',
-        VolunteerName: 'Jessica',
-        RoleName: 'Stocker'
-    },
-    {
-        Id: '2',
-        VolunteerId: 'NULL',
-        RoleName: 'Stocker'
-    },
-    {
-        Id: '3',
-        VolunteerId: 'NULL',
-        RoleName: 'Stocker'
-    },
-    {
-        Id: '4',
-        VolunteerId: 'NULL',
-        RoleName: 'Stocker'
-    },
-
-]
-
-
- 
-
 
 export default function VolunteerEvents() : JSX.Element {
 
-    const [cardsFromDb,setCardsFromDb] = React.useState<any[]>([]);
+    const [cardsFromDb,setCardsFromDb] = React.useState<any[]>([])
+    const [eventSlots,setEventSlots] = React.useState<any[]>([])
+    const [loading, setLoading] = React.useState(0)
 
     {/*Event Retrieval*/}
 
@@ -80,45 +54,65 @@ export default function VolunteerEvents() : JSX.Element {
         request.input('state_parameter', sql.VarChar, state)
         let result = await request.query("SELECT EventId,EventName,e.Address,[Date],StartTime,EndTime,VolunteerLimit,[Description],o.OrgName FROM [dbo].[Events] e JOIN Orgs o ON e.OrgId = o.OrgId WHERE CAST(StartTime AS Time) > CAST(@currentTime_parameter AS Time) AND o.State=@state_parameter")
         
-        var tempArray = []
+        var tempArray: React.SetStateAction<any[]> = []
         if (result.recordset.length == 1){
             for (var eventIndex = 0; eventIndex < result.recordset.length; eventIndex++){
                 tempArray.push(result.recordset[eventIndex])
 
             }
         }
+        
         setCardsFromDb(tempArray)
+        var tempCardsFromDb = tempArray
+
+        tempArray = []
+        for (var i = 0; i < tempCardsFromDb.length; i++)
+        {
+                {/*Get current events that are past the current date, in the current state, and check the time*/}
+                await sql.connect(db_config)
+
+                let request = new sql.Request()
+                request.input('eventid_parameter', sql.Int, tempCardsFromDb[i].EventId)
+                let results = await request.query("SELECT Id,VolunteerId, RoleName FROM VolunteersToEvents WHERE EventId=@eventid_parameter")
+                for (let slotIndex = 0; slotIndex < results.recordset.length; slotIndex++){
+                    tempArray.push(results.recordset[slotIndex])
+                }
+                
+            
+        }
+        setEventSlots(tempArray)
+
     }
 
     const [confirmationModalOpen, setConfirmationModalOpen] = React.useState(false);
     const [activeSlot, setActiveSlot] = React.useState(0);
     const [activeEventId, setActiveEventId] = React.useState(0);
-    
+    const [roleName, setRoleName] = React.useState('');
 
     const renderedCards = new Array<JSX.Element> 
 
  
     
     {/*Handles when a slot button is clicked*/}
-    const customRoleHandler = (slotIndex : number, eventId : number) : void => {
+    const customRoleHandler = (slotIndex : number, eventId : number, getRoleName : string) : void => {
         setActiveSlot(slotIndex);
         setActiveEventId(eventId);
+        setRoleName(getRoleName)
         setConfirmationModalOpen(true)
     }
 
-    
 
 
-   
-
-       
-
-        
-    
-
-    if (cardsFromDb.length == 0){
+    if (loading==0){
         getEvents()
-
+        setLoading(1)
+        return (
+            <>
+            <p>Loading Events...</p>
+            </>
+        )
+    }
+    else if (cardsFromDb.length == 0 || eventSlots.length == 0){
         return (
             <>
             <p>Loading Events...</p>
@@ -126,16 +120,21 @@ export default function VolunteerEvents() : JSX.Element {
         )
     }
     else{
+        var fixIncrement = 0;
+        
 
-        for (let cardIndex = 0; cardIndex < cardsFromDb.length; cardIndex++)
+        var eventSlotCopy = eventSlots
+        for (var cardIndex = 0; cardIndex < cardsFromDb.length; cardIndex++){
 
             {/*Query needs to filter the date and time from events, events from different states also shouldn't be shown*/}
            
+            
             const renderedSlots = new Array<JSX.Element>
-           
-            for (let slotIndex = 0; slotIndex < slots.length; slotIndex++){
+
+            for (let eventSlotCounter = 0; eventSlotCounter < cardsFromDb[cardIndex].VolunteerLimit; eventSlotCounter++){
                 
-                    if (slots[slotIndex].VolunteerId == 'NULL')
+                    
+                    if (eventSlotCopy[eventSlotCounter].VolunteerId == 'NULL')
                     {
                         renderedSlots.push(
                             <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#fa534d'}}>
@@ -145,38 +144,43 @@ export default function VolunteerEvents() : JSX.Element {
                     else{
                         renderedSlots.push(
                         <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
-                            <Button fullWidth onClick={() => customRoleHandler(slotIndex, cardsFromDb[0].EventId)}>Open Role: {slots[slotIndex].RoleName}</Button>
+                            <Button fullWidth id={eventSlotCopy[eventSlotCounter].Id} className={eventSlotCopy[eventSlotCounter].RoleName} onClick={(e) => customRoleHandler(parseInt(e.currentTarget.dataset.id!), activeEventId,e.currentTarget.dataset.className!)}>Open Role: {eventSlotCopy[eventSlotCounter].RoleName}</Button>
                         </Box>)
                     }
                     {/*QUERY THE VOLUNTEER SLOTS HERE */}
+
             }
+
+            eventSlotCopy = eventSlotCopy.slice(cardsFromDb[cardIndex].VolunteerLimit)
+
+            fixIncrement = 1
     
                 renderedCards.push(
                 <Card sx={{marginBottom:'20px'}}>
                     <CardHeader
                         avatar={
                             <Avatar aria-label="recipe">
-                                {cardsFromDb[0].OrgName.charAt(0)}
+                                {cardsFromDb[cardIndex].OrgName.charAt(0)}
                             </Avatar>
                     }
-                    title={cardsFromDb[0].EventName}
-                    subheader={cardsFromDb[0].OrgName}
+                    title={cardsFromDb[cardIndex].EventName}
+                    subheader={cardsFromDb[cardIndex].OrgName}
                     />
                     <CardContent sx={{borderTop: '1px solid black'}}>
                         <Typography variant="body2" color="text.secondary">
-                                Address: {cardsFromDb[0].Address}
+                                Address: {cardsFromDb[cardIndex].Address}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                                Date: {cardsFromDb[0].Date}
+                                Date: {cardsFromDb[cardIndex].Date}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                            Start Time: {dayjs('1/1/1 ' + cardsFromDb[0].StartTime).format('hh:mm a')}
+                            Start Time: {dayjs('1/1/1 ' + cardsFromDb[cardIndex].StartTime).format('hh:mm a')}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                            End Time: {dayjs('1/1/1 ' + cardsFromDb[0].EndTime).format('hh:mm a')}
+                            End Time: {dayjs('1/1/1 ' + cardsFromDb[cardIndex].EndTime).format('hh:mm a')}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                            Event Description: {cardsFromDb[0].Description}
+                            Event Description: {cardsFromDb[cardIndex].Description}
                         </Typography>
                     </CardContent>
                     {renderedSlots}
@@ -188,6 +192,7 @@ export default function VolunteerEvents() : JSX.Element {
                 </Card>
     
             )
+        }
            
        
 
@@ -204,6 +209,10 @@ export default function VolunteerEvents() : JSX.Element {
                             <Typography id="modal-modal-title" variant="h6" component="h2">
                                 Registering for event: 
                                 <p>{cardsFromDb[activeEventId].EventName}</p>
+                            </Typography>
+                            <Typography id="modal-modal-title" variant="h6" component="h2">
+                                Role Name: 
+                                <p>{roleName}</p>
                             </Typography>
                             <Button onClick={() => setConfirmationModalOpen(false)}>
                                 Cancel
