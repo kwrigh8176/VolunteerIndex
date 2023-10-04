@@ -5,8 +5,8 @@ import VolunteerNavBar from './VolunteerNavbar'
 const VolunteerHome = () : JSX.Element => {
     return (
         <>
-            {VolunteerNavBar()}
-            <p>Volunteer Home</p>
+            <VolunteerNavBar/>
+            <p>Volunteer Homess</p>
         </>
     )
 }

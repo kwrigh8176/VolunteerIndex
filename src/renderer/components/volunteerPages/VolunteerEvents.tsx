@@ -47,8 +47,10 @@ export default function VolunteerEvents() : JSX.Element {
     {/*Event Retrieval*/}
 
     const getEvents = async () => {
-        var currentDate = new Date();
-        var currentTime = dayjs(currentDate).format('hh:mm:ss.0000000');
+        var currDate = new Date();
+
+        var currentTime = dayjs(currDate).format('hh:mm:ss.0000000');
+        var currentDate = dayjs(currDate).format('YYYY-MM-DD');
 
         var state = sessionStorage.getItem("State")
 
@@ -57,8 +59,9 @@ export default function VolunteerEvents() : JSX.Element {
 
         let request = new sql.Request()
         request.input('currentTime_parameter', sql.VarChar, currentTime)
+        request.input('currentDate_parameter', sql.VarChar, currentDate)
         request.input('state_parameter', sql.VarChar, state)
-        let result = await request.query("SELECT EventId,EventName,e.Address,[Date],StartTime,EndTime,VolunteerLimit,[Description],o.OrgName FROM [dbo].[Events] e JOIN Orgs o ON e.OrgId = o.OrgId WHERE CAST(StartTime AS Time) > CAST(@currentTime_parameter AS Time) AND o.State=@state_parameter")
+        let result = await request.query("SELECT EventId,EventName,e.Address,[Date],StartTime,EndTime,VolunteerLimit,[Description],o.OrgName FROM [dbo].[Events] e JOIN Orgs o ON e.OrgId = o.OrgId WHERE CAST(StartTime AS Time) > CAST(@currentTime_parameter AS Time) AND o.State=@state_parameter AND Date>=@currentDate_parameter")
         
         var tempArray: React.SetStateAction<any[]> = []
         if (result.recordset.length == 1){
@@ -104,10 +107,7 @@ export default function VolunteerEvents() : JSX.Element {
         if (result.recordset[0].VolunteerId != null)
         {
             setErrorText('1')
-            setTimeout(() => {
-                window.location.reload();
-            }, 3000)
-            
+            setDisableButtons(false);
         }
 
         /*Check to see if they signed up for other slots*/
@@ -273,6 +273,7 @@ export default function VolunteerEvents() : JSX.Element {
 
        return(
             <>
+                <VolunteerNavBar/>
                 {renderedCards}
                 <Modal
                         open={confirmationModalOpen}
@@ -290,7 +291,7 @@ export default function VolunteerEvents() : JSX.Element {
                             {errorText.toString() == '2' && 
                                 
                                 <Alert severity='success'>
-                                    <AlertTitle>You registered for this slot.</AlertTitle>
+                                    <AlertTitle>You registered for this slot. Refreshing the page.</AlertTitle>
                                 </Alert>
                             }
                             {errorText.toString() == '3' && 

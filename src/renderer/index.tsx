@@ -7,7 +7,8 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import SignUp from "./components/generalPages/signup";
 import EmailVerification from "./components/generalPages/emailVerification";
 import OrgHome from "./components/organizationPages/orgHome"
-import VolunteerHome from "./components/volunteerPages/volunteerHome"
+import VolunteerNavBar from "./components/volunteerPages/VolunteerNavbar";
+import VolunteerHome from "./components/volunteerPages/volunteerHome";
 import VolunteerEvents from "./components/volunteerPages/VolunteerEvents";
 
 const rootElement = document.getElementById("root");
@@ -24,10 +25,10 @@ root.render(
         <Route key="SignUp"  path="/signup" element={<SignUp/>} />
 
         <Route key="emailVerification"  path="/emailverification" element={<EmailVerification/>} />
-
+        
         <Route key="volunteerHome"  path="/volunteerHome" element={<VolunteerHome />} />
 
-        <Route key="volunteerHome"  path="/volunteerEvents" element={<VolunteerEvents />} />
+        <Route key="volunteerEvents"  path="/volunteerEvents" element={<VolunteerEvents />} />
 
         <Route key="orgHome"  path="/orgHome" element={<OrgHome />} />
 
