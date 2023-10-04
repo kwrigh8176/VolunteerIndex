@@ -94,6 +94,7 @@ const Login = () : JSX.Element => {
                 if (result.recordset.length == 1){
                     //set the username and email for codes if necessary
                     sessionStorage.setItem("username",username)
+                    sessionStorage.setItem("Id",result.recordset[0].VolunteerId);
                     sessionStorage.setItem("loginType", "Volunteer")
                     sessionStorage.setItem("State", result.recordset[0].State)
                     
