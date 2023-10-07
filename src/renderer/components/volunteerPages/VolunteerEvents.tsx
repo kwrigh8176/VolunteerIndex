@@ -8,9 +8,10 @@ import CardContent from "@mui/material/CardContent"
 import Typography from "@mui/material/Typography"
 import { Alert, AlertTitle, Box, Button, CardActionArea, CardActions, Modal } from "@mui/material"
 import VolunteerNavBar from "./VolunteerNavbar"
-import db_config from "../../../globals"
 import dayjs from "dayjs"
 import { useNavigate } from "react-router-dom"
+import connectionString from "../../../../config"
+import axios from 'axios';
 
 /*
     This is meant to be the main event feed. Where all current events are displayed.
@@ -42,97 +43,70 @@ export default function VolunteerEvents() : JSX.Element {
     const [eventSlots,setEventSlots] = React.useState<any[]>([])
     const [loading, setLoading] = React.useState(0)
     const [volunteerId,setVolunteerId] = React.useState(sessionStorage.getItem('Id'));
+
     const navigate = useNavigate();
     
+
+    useEffect(() => {
+        getEvents()
+    }, [])
+
     {/*Event Retrieval*/}
 
     const getEvents = async () => {
-        var currDate = new Date();
-
-        var currentTime = dayjs(currDate).format('hh:mm:ss.0000000');
-        var currentDate = dayjs(currDate).format('YYYY-MM-DD');
-
-        var state = sessionStorage.getItem("State")
-
-        {/*Get current events that are past the current date, in the current state, and check the time*/}
-        await sql.connect(db_config)
-
-        let request = new sql.Request()
-        request.input('currentTime_parameter', sql.VarChar, currentTime)
-        request.input('currentDate_parameter', sql.VarChar, currentDate)
-        request.input('state_parameter', sql.VarChar, state)
-        let result = await request.query("SELECT EventId,EventName,e.Address,[Date],StartTime,EndTime,VolunteerLimit,[Description],o.OrgName FROM [dbo].[Events] e JOIN Orgs o ON e.OrgId = o.OrgId WHERE CAST(StartTime AS Time) > CAST(@currentTime_parameter AS Time) AND o.State=@state_parameter AND Date>=@currentDate_parameter")
+        var state = sessionStorage.getItem("state")
+        var tempArray = new Array()
+ 
+        var connectionStringWithParams = connectionString + "/getEvents/" + state + '/' + 'placeholdervalue'
+        await axios.get(connectionStringWithParams).then(function (response){
+                setCardsFromDb(response.data)
+                tempArray.push(response.data) 
+        })
+        .catch(function (error){
+            setErrorText(error.response.data)
+        }); 
         
-        var tempArray: React.SetStateAction<any[]> = []
-        if (result.recordset.length == 1){
-            for (var eventIndex = 0; eventIndex < result.recordset.length; eventIndex++){
-                tempArray.push(result.recordset[eventIndex])
 
-            }
+
+        var holdSlots = new Array()
+        for (var i = 0; i < tempArray.length; i++){
+            var eventId = tempArray[0][i].EventId
+
+            connectionStringWithParams = connectionString + "/getEventSlots/" + eventId + '/' + state + '/' + 'placeholdervalue'
+            await axios.get(connectionStringWithParams).then(function (response) {
+                    holdSlots.push(response.data)
+            }).catch(function (error){
+                setErrorText(error.response.data)
+            });     
+
         }
+        setEventSlots(holdSlots);
         
-        setCardsFromDb(tempArray)
-        var tempCardsFromDb = tempArray
-
-        tempArray = []
-        for (var i = 0; i < tempCardsFromDb.length; i++)
-        {
-                {/*Get current events that are past the current date, in the current state, and check the time*/}
-                await sql.connect(db_config)
-
-                let request = new sql.Request()
-                request.input('eventid_parameter', sql.Int, tempCardsFromDb[i].EventId)
-                let results = await request.query("SELECT Id,VolunteerId, RoleName FROM VolunteersToEvents WHERE EventId=@eventid_parameter")
-                for (let slotIndex = 0; slotIndex < results.recordset.length; slotIndex++){
-                    tempArray.push(results.recordset[slotIndex])
-                }
-                
-            
-        }
-        setEventSlots(tempArray)
+       
+    
 
     }
+
+  
+
 
     const eventSignUp = async() => {
         /* Disable buttons */
         setDisableButtons(true);
 
-        /*Query to see if the slot is open*/
-        await sql.connect(db_config)
+        
 
-        let request = new sql.Request()
-        request.input('slotid_parameter', sql.Int, activeSlot)
-        let result = await request.query("SELECT * FROM VolunteersToEvents WHERE Id=@slotid_parameter")
-
-        if (result.recordset[0].VolunteerId != null)
-        {
-            setErrorText('1')
-            setDisableButtons(false);
-        }
-
-        /*Check to see if they signed up for other slots*/
-        request = new sql.Request()
-        request.input('eventid_parameter', sql.Int, activeEventId)
-        request.input('volunteerid_parameter', sql.Int, volunteerId)
-        result = await request.query("SELECT * FROM VolunteersToEvents WHERE EventId=@eventid_parameter AND VolunteerId=@volunteerid_parameter")
-
-        if (result.recordset.length == 1)
-        {
             {/*Already have signed up for this event.*/}
             setErrorText('3')
             setDisableButtons(false);
             
-        }
-        else{
-            request = new sql.Request()
-            request.input('volunteerid_parameter', sql.Int, volunteerId)
-            request.input('id_parameter', sql.Int, activeSlot)
-            result = await request.query("UPDATE VolunteersToEvents SET VolunteerId = @volunteerid_parameter WHERE Id = @id_parameter")
+        
+    
             setErrorText('2')
             setTimeout(() => {
                 window.location.reload();
             }, 3000)
-        }
+        
         /*If so immediately update, if not display an error */
 
     }
@@ -168,16 +142,8 @@ export default function VolunteerEvents() : JSX.Element {
 
 
 
-    if (loading==0){
-        getEvents()
-        setLoading(1)
-        return (
-            <>
-            <p>Loading Events...</p>
-            </>
-        )
-    }
-    else if (cardsFromDb.length == 0 || eventSlots.length == 0){
+  
+    if (cardsFromDb.length == 0 || eventSlots.length == 0){
         return (
             <>
             <p>Loading Events...</p>
@@ -185,7 +151,7 @@ export default function VolunteerEvents() : JSX.Element {
         )
     }
     else{
-        var fixIncrement = 0;
+        let fixIncrement = 0;
         
 
         var eventSlotCopy = eventSlots
@@ -200,7 +166,7 @@ export default function VolunteerEvents() : JSX.Element {
             {
                 
                     /*This is for empty slots */
-                    if (eventSlotCopy[eventSlotCounter].VolunteerId == 'NULL')
+                    if (eventSlotCopy[0][eventSlotCounter].VolunteerId == 'NULL')
                     {
                         renderedSlots.push(
                             <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#fa534d'}}>
@@ -208,10 +174,10 @@ export default function VolunteerEvents() : JSX.Element {
                             </Box>)
                     }
                     /*Slots taken by the user already*/
-                    else if (eventSlotCopy[eventSlotCounter].VolunteerId == volunteerId){
+                    else if (eventSlotCopy[0][eventSlotCounter].VolunteerId == volunteerId){
                         renderedSlots.push(
                             <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#58cc00'}}>
-                                <Typography>Registered for this slot ({eventSlotCopy[eventSlotCounter].RoleName})</Typography>
+                                <Typography>Registered for this slot ({eventSlotCopy[0][eventSlotCounter].RoleName})</Typography>
                             </Box>)
                     }
                     /*Open slots*/ 
@@ -219,7 +185,7 @@ export default function VolunteerEvents() : JSX.Element {
                         renderedSlots.push(
                         <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
                             
-                            <Button fullWidth disabled={disableButtons}  id={eventSlotCopy[eventSlotCounter].Id+'_'+eventSlotCopy[eventSlotCounter].RoleName+'_'+cardsFromDb[cardIndex].EventId+'_'+cardsFromDb[cardIndex].EventName}  onClick={(e) => customRoleHandler((e.target as HTMLInputElement).id)}>Open Role: {eventSlotCopy[eventSlotCounter].RoleName}</Button>
+                            <Button fullWidth disabled={disableButtons}  id={eventSlotCopy[0][eventSlotCounter].Id+'_'+eventSlotCopy[0][eventSlotCounter].RoleName+'_'+cardsFromDb[cardIndex].EventId+'_'+cardsFromDb[cardIndex].EventName}  onClick={(e) => customRoleHandler((e.target as HTMLInputElement).id)}>Open Role: {eventSlotCopy[0][eventSlotCounter].RoleName}</Button>
                         </Box>)
                     }
                     
@@ -282,19 +248,19 @@ export default function VolunteerEvents() : JSX.Element {
                         
                     >
                         <Box sx={modalStyle}>
-                            {errorText.toString() == '1' && 
+                            {errorText == '1' && 
                                 
                                 <Alert severity="error">
                                     <AlertTitle>Slot was taken.</AlertTitle>
                                 </Alert>
                             }
-                            {errorText.toString() == '2' && 
+                            {errorText== '2' && 
                                 
                                 <Alert severity='success'>
                                     <AlertTitle>You registered for this slot. Refreshing the page.</AlertTitle>
                                 </Alert>
                             }
-                            {errorText.toString() == '3' && 
+                            {errorText == '3' && 
                                 
                                 <Alert severity='error'>
                                     <AlertTitle>You have already signed up for this event.</AlertTitle>

@@ -4,123 +4,63 @@ import Button from '@mui/material/Button';
 import Link, { BrowserRouter, useNavigate } from 'react-router-dom';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import db_config from '../../../globals';
-import sendVerificationMail from '../../../sendVerificationEmails';
+import connectionString from '../../../../config';
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
+import axios from 'axios';
 
 
 const Login = () : JSX.Element => {
     
     const sql = require('mssql');
+    const request = require('request');
+
     const navigate = useNavigate();
     
     const [username, setUsername] = React.useState<string>('');
     const [password, setPassword] = React.useState<string>('');
     const [disableLoginButton, setDisableLoginButton] = React.useState(false);
     const [loginType, setLoginType] = React.useState<string>('Volunteer');
-
-
+    const [errorText, setErrorText] = React.useState<string>('');
+    
 
     const VerifyOrgLogin = async () => {
 
             setDisableLoginButton(true)
-            try 
-            {
 
-                await sql.connect(db_config)
-
-                let request = new sql.Request()
-                request.input('username_parameter', sql.VarChar, username.toString())
-                let result = await request.query("SELECT * FROM Orgs WHERE Username=@username_parameter")
+            var connectionStringWithParams = connectionString + "/verifyorglogin/" + username + "/" + password
+            axios.get(connectionStringWithParams).then(function (response) {
+                    var getBody = response.data
+                    sessionStorage.setItem("state",getBody.State)
+                    sessionStorage.setItem("username",getBody.Username)
+                    sessionStorage.setItem("password",getBody.Password)
+                    sessionStorage.setItem("email",getBody.Email)
+                    sessionStorage.setItem("loginType","Organization")
+                    navigate('/emailverification')
                 
-                if (result.recordset.length == 1){
 
-                    request = new sql.Request()
-                    request.input('username_parameter', sql.VarChar, username.toString())
-                    request.input('password_parameter', sql.VarChar, password.toString())
-                    result = await request.query("SELECT Email,State FROM Orgs WHERE Username=@username_parameter AND Password=@password_parameter")
-                    //password should be deencrypted here
-
-                    if (result.recordset.length == 1){
-                        //set the username, email, loginType for codes if necessary
-                        sessionStorage.setItem("username",username)
-                        sessionStorage.setItem("loginType", "Organization")
-                        sessionStorage.setItem("State", result.recordset[0].State)
-
-                        var email = result.recordset[0].Email 
-                        //then we can move to email verification here
-                        sendVerificationMail(email.toString(), "Organization");
-
-                        //must verify after every login
-                        navigate("/emailverification")
-                    }
-                    else{
-                        alert('Incorrect password!')
-                    }
-                }
-                else{
-                    alert('User not found!')
-                }
-                
-                
-            }
-            catch(err)
-            {
-
-                console.log(err)
-            }
+            }).catch(function (error){
+                setErrorText(error.response.data)
+            });  
             setDisableLoginButton(false)
     }
 
     const VerifyVolunteerLogin = async () => {
 
         setDisableLoginButton(true)
-        try 
-        {
-
-            await sql.connect(db_config)
-
-            let request = new sql.Request()
-            request.input('username_parameter', sql.VarChar, username.toString())
-            let result = await request.query("SELECT * FROM Volunteer WHERE Username=@username_parameter")
-            
-            if (result.recordset.length == 1){
-
-                request = new sql.Request()
-                request.input('username_parameter', sql.VarChar, username.toString())
-                request.input('password_parameter', sql.VarChar, password.toString())
-                result = await request.query("SELECT * FROM Volunteer WHERE Username=@username_parameter AND Password=@password_parameter")
-                //password should be deencrypted here
-
-                if (result.recordset.length == 1){
-                    //set the username and email for codes if necessary
+        var connectionStringWithParams = connectionString + "/verifyvolunteerlogin/" + username + "/" + password
+        axios.get(connectionStringWithParams).then(function (response) {
+                    var getBody = response.data
+                    sessionStorage.setItem("state",getBody.State)
                     sessionStorage.setItem("username",username)
-                    sessionStorage.setItem("Id",result.recordset[0].VolunteerId);
-                    sessionStorage.setItem("loginType", "Volunteer")
-                    sessionStorage.setItem("State", result.recordset[0].State)
-                    
-                    var email = result.recordset[0].Email 
-                    //then we can move to email verification here
-                    sendVerificationMail(email.toString(), "Volunteer");
-
-                    //must verify after every login
-                    navigate("/emailverification")
-
-                }
-                else{
-                    alert('Incorrect password!')
-                }
-            }
-            else{
-                alert('User not found!')
-            }
-            
-            
-        }
-        catch(err)
-        {
-
-            console.log(err)
-        }
+                    sessionStorage.setItem("password",password)
+                    sessionStorage.setItem("Id",getBody.VolunteerId)
+                    sessionStorage.setItem("loginType","Volunteer")
+                    navigate('/emailverification')
+                
+            }).catch(function (error){
+                setErrorText(error.response.data)
+            });  
         setDisableLoginButton(false)
 }
 
@@ -133,6 +73,13 @@ const Login = () : JSX.Element => {
                                 position: 'absolute', left: '50%', top: '50%',
                                 transform: 'translate(-50%, -50%)'
                             }}>
+                            {errorText != '' && 
+                    
+                                <Alert severity="error">
+                                    <AlertTitle>Invalid Inputs</AlertTitle>
+                                    {errorText} 
+                                </Alert>
+                            }
                             <Select labelId="demo-simple-select-label" value={loginType}  label="Login Type" onChange={(event) => setLoginType(event.target.value)}>
                                 <MenuItem value='Volunteer'>Volunteer</MenuItem>
                                 <MenuItem value='Organization'>Organization</MenuItem>

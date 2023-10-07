@@ -15,9 +15,9 @@ import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import { configureStore } from '@reduxjs/toolkit'
-import db_config from '../../../globals';
-import sendVerificationMail from '../../../sendVerificationEmails';
 import { useNavigate } from 'react-router-dom';
+import connectionString from '../../../../config';
+import axios from 'axios';
 
 
 var validator = require('validator');
@@ -56,6 +56,7 @@ const SignUp = () : JSX.Element => {
     const [disableSignUpButton, setDisableSignUpButton] = React.useState<boolean>(false);
     const [signUpType, setSignUpType] = React.useState<string>('Volunteer');
     const [errorText, setErrorText] = React.useState<string>('');
+    const [successfulText, setSuccessfulText] = React.useState(false);
 
     const [state, setState] = React.useState<string>('');
 
@@ -87,78 +88,26 @@ const SignUp = () : JSX.Element => {
         }
 
         setDisableSignUpButton(true)
-            try
-            {
-                {/*Resetting the error text*/}
-                setErrorText('');
 
-                await sql.connect(db_config)
+        {/*Resetting the error text*/}
+        setErrorText('');
 
-                
-                {/*Checking if the username is in use*/}
-                let request = new sql.Request()
-                request.input('username_parameter', sql.VarChar, username.toString())
-                let result = await request.query("SELECT * FROM Volunteer WHERE Username=@username_parameter")
-                
-                if (result.recordset.length == 1){
-                    setErrorText('Username already exists!')
-                    throw new Error('Username already exists!')
-                }
-                else
-                {
+        var connectionStringWithParams = connectionString + "/processVolunteerSignUp/" + email + '/' + phoneNumber + '/' + username + '/' + password + '/' + firstName + '/' + lastName + '/' + state + '/' + DOB + '/' + middleInitial
+        axios.get(connectionStringWithParams).then(function (response) {
+            setSuccessfulText(true)
+            setTimeout(() =>{
+                navigate("/")
+            }, 5000)
 
-                    {/*Checking if the email is already in use*/}
-                    request = new sql.Request()
-                    request.input('email_parameter', sql.VarChar, email.toString())
-                    result = await request.query("SELECT * FROM Volunteer WHERE Email=@email_parameter")
-                    if (result.recordset.length == 1){
-                        setErrorText('Email is already in use.')
-                        throw new Error('Email is already in use.')
-                    }
-                    else{
 
-                        {/*Checking if the phone number is already in use*/}
-                        request = new sql.Request()
-                        request.input('phonenumber_parameter', sql.VarChar, phoneNumber.toString())
-                        result = await request.query("SELECT * FROM Volunteer WHERE PhoneNumber=@phonenumber_parameter")
-                        if (result.recordset.length == 1){
-                            setErrorText('Phone Number is already in use.')
-                            throw new Error('Phone Number is already in use.')
-                        }
-                        else{
+        }).catch(function (error){
+            setErrorText(error.response.data)
+        });  
 
-                            request = new sql.Request()
-                            request.input('firstname_parameter', sql.VarChar, firstName.toString())
-                            request.input('middleinitial_parameter', sql.VarChar, middleInitial.toString())
-                            request.input('lastname_parameter', sql.VarChar, lastName.toString())
-                            request.input('DOB_parameter', sql.VarChar, dayjs(DOB.toString()).format('YYYY-MM-DD').toString())
-                            request.input('email_parameter', sql.VarChar, email.toString())
-                            request.input('phonenumber_parameter', sql.VarChar, phoneNumber.toString())
-                            request.input('username_parameter', sql.VarChar, username.toString())
-                            request.input('password_parameter', sql.VarChar, password.toString())
-                            request.input('state_parameter', sql.VarChar, state.toString())
+            
 
-                            request.query("INSERT INTO Volunteer (FirstName, MiddleInitial, LastName, DOB, Email, PhoneNumber, Username, Password, State, CollegeStudent) VALUES (@firstname_parameter, @middleinitial_parameter,@lastname_parameter,@DOB_parameter, @email_parameter, @phonenumber_parameter, @username_parameter, @password_parameter, @state_parameter, NULL )")
-                        
-                            sessionStorage.setItem("username",username.toString())
 
-                            //then we can move to email verification here
-                            sendVerificationMail(email.toString(), "Volunteer");
-
-                            //then redirect to verification page
-                            navigate("/emailverification")
-                        }
-                    }
-                }
-
-            }
-            catch(err)
-            {
-                sql.close()
-                setDisableSignUpButton(false)
-            }
-
-            setDisableSignUpButton(false)
+        setDisableSignUpButton(false)
          
     }
     
@@ -185,79 +134,15 @@ const SignUp = () : JSX.Element => {
         }
 
         setDisableSignUpButton(true)
-            try
-            {
-                {/*Resetting the error text*/}
-                setErrorText('');
-
-
-                await sql.connect(db_config)
-
-                
-                {/*Checking if the username is in use*/}
-                let request = new sql.Request()
-                request.input('username_parameter', sql.VarChar, username.toString())
-                let result = await request.query("SELECT * FROM Orgs WHERE Username=@username_parameter")
-                
-                if (result.recordset.length == 1){
-                    setErrorText('Username already exists!')
-                    throw new Error('Username already exists!')
-                }
-                else
-                {
-                    {/*Checking if the organization name exists*/}
-                    request = new sql.Request()
-                    request.input('orgname_parameter', sql.VarChar, orgName.toString())
-                    result = await request.query("SELECT * FROM Orgs WHERE OrgName=@orgname_parameter")
-                    if (result.recordset.length == 1){
-                        setErrorText('Organization with that name already exists!')
-                        throw new Error('Organization with that name already exists!')
-                    }
-                    else
-                    {
-                        {/*Checking if the email is already in use*/}
-                        request = new sql.Request()
-                        request.input('email_parameter', sql.VarChar, email.toString())
-                        result = await request.query("SELECT * FROM Orgs WHERE Email=@email_parameter")
-                        if (result.recordset.length == 1){
-                            setErrorText('Email is already in use.')
-                            throw new Error('Email is already in use.')
-                        }
-                        else{
-
-                            request = new sql.Request()
-                            request.input('orgname_parameter', sql.VarChar, orgName.toString())
-                            request.input('address_parameter', sql.VarChar, address.toString())
-                            request.input('email_parameter', sql.VarChar, email.toString())
-                            request.input('phonenumber_parameter', sql.VarChar, phoneNumber.toString())
-                            request.input('username_parameter', sql.VarChar, username.toString())
-                            request.input('password_parameter', sql.VarChar, password.toString())
-                            request.input('state_parameter', sql.VarChar, state.toString())
-
-                            // figure out password encryption too here
- 
-                            request.query("INSERT INTO Orgs (OrgName, Address, Email, PhoneNumber, Username, Password, State, CollegeOrgs) VALUES (@orgname_parameter, @address_parameter, @email_parameter, @phonenumber_parameter, @username_parameter, @password_parameter, @state_parameter,  NULL)")
-
-                            sessionStorage.setItem("username",username.toString())
-
-                            //then we can move to email verification here
-                            sendVerificationMail(email.toString(), "Organization");
-
-                            //then redirect to verification page
-                            navigate("/emailverification")
-            
-                        }
-                    }
-                    
-                }
-
-            }
-            catch(err)
-            {
-                console.log(err)
-                sql.close()
-                setDisableSignUpButton(false)
-            }
+        var connectionStringWithParams = connectionString + "/processOrgSignUp/" + email + '/' + phoneNumber + '/' + username + '/' + password + '/' + orgName + '/' + address + '/' + state + '/' + DOB + '/' + middleInitial
+        axios.get(connectionStringWithParams).then(function (response) {
+            setSuccessfulText(true)
+            setTimeout(() =>{
+                navigate("/")
+            }, 5000)
+        }).catch(function (error){
+            setErrorText(error.response.data)
+        });  
 
             setDisableSignUpButton(false)
          
@@ -276,6 +161,13 @@ const SignUp = () : JSX.Element => {
                     
                             <Alert severity="error">
                                 <AlertTitle>Invalid Inputs</AlertTitle>
+                                {errorText} 
+                            </Alert>
+                        }
+                        {successfulText == false && 
+                    
+                            <Alert severity="success">
+                                <AlertTitle>Sign up successful. Redirecting.</AlertTitle>
                                 {errorText} 
                             </Alert>
                         }

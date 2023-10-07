@@ -1,15 +1,13 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import '../globals';
 import Button from "@mui/material/Button";
 import Login from "./components/generalPages/login";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import SignUp from "./components/generalPages/signup";
 import EmailVerification from "./components/generalPages/emailVerification";
-import OrgHome from "./components/organizationPages/orgHome"
-import VolunteerNavBar from "./components/volunteerPages/VolunteerNavbar";
-import VolunteerHome from "./components/volunteerPages/volunteerHome";
 import VolunteerEvents from "./components/volunteerPages/VolunteerEvents";
+import VolunteerHome from "./components/volunteerPages/VolunteerHome";
+import OrgHome from "./components/organizationPages/OrgHome";
 
 const rootElement = document.getElementById("root");
 const root = createRoot(rootElement!);
