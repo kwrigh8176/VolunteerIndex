@@ -1,11 +1,11 @@
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import React from "react";
-import db_config from "../../../globals";
-import { resendCodes } from "../../../sendVerificationEmails";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 import { useNavigate } from "react-router-dom";
+import connectionString from "../../../../config";
+import axios from "axios";
 
 
 export default function emailVerification() : JSX.Element {
@@ -19,7 +19,9 @@ export default function emailVerification() : JSX.Element {
     async function resetCode(){
         
         setbuttonDisable(true)
-        resendCodes()
+        var connectionStringWithParams = connectionString + "/resendCodes/" + sessionStorage.getItem("username") + "/" + sessionStorage.getItem("email") + "/" + "placeholderValue"  
+        axios.get(connectionStringWithParams).then(function (response) {});       
+
         setTimeout(() => {
             setbuttonDisable(false)
         }, 30000)
@@ -27,37 +29,31 @@ export default function emailVerification() : JSX.Element {
     }
 
     async function processCode(){
+        setErrorText('')
         setbuttonDisable(true)
-        await sql.connect(db_config)
+        var connectionStringWithParams = connectionString + "/processCode/" + sessionStorage.getItem("username")  + "/" + sessionStorage.getItem("loginType")  + "/" + verifyTextBox
+        await axios.get(connectionStringWithParams)
+        .then(function (response) {
 
-        var username = sessionStorage.getItem("username")
-        var loginType = sessionStorage.getItem("loginType")
-
-        let request = new sql.Request()
-        request.input("username",username)
-        if (loginType == "Organization"){
-            var result = await request.query("SELECT LoginKey FROM LoginKey WHERE OrgId = @username")
-            if (result.recordset.length == 1){
-                setTimeout(() => {
-                    navigate("/orgHome")
-                })
-            }
-            else{
-                setErrorText('Invalid Code')
-            }
-        }
-        else{
-            var result = await request.query("SELECT LoginKey FROM LoginKey WHERE VolunteerId = @username")
-            if (result.recordset.length == 1){
-                setTimeout(() => {
-                    navigate("/volunteerHome")
-                })
+                if (sessionStorage.getItem("loginType")  == "Volunteer")
+                {
+                    setTimeout(() =>{
+                        navigate("/volunteerHome")
+                    }, 5000)
+                }
+                else
+                {
+                    setTimeout(() =>{
+                        navigate("/orgHome")
+                    }, 5000)
+                }
                 
-            }
-            else{
-                setErrorText('Invalid Code')
-            }
-        }
+                
+            
+
+        }).catch(function (error){
+            setErrorText(error.response.data)
+        });        
 
         setbuttonDisable(false)
 
@@ -91,7 +87,7 @@ export default function emailVerification() : JSX.Element {
                 <TextField label="Enter code here: " onChange={(event) => setVerifyTextBox(event.target.value)} inputProps={{maxLength: 6}}></TextField>
                 <Button disabled={buttonDisable} onClick={processCode} >Verify Code</Button> 
                 <br></br>
-                <Button disabled={buttonDisable} onClick={resendCodes}>Reset Code</Button>
+                <Button disabled={buttonDisable} onClick={resetCode}>Reset Code</Button>
             </div>
         </>
     )
