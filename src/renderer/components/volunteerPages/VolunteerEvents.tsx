@@ -12,14 +12,12 @@ import dayjs from "dayjs"
 import { useNavigate } from "react-router-dom"
 import connectionString from "../../../../config"
 import axios from 'axios';
+import { session } from "electron"
 
 /*
     This is meant to be the main event feed. Where all current events are displayed.
 
 */
-
-
-const sql = require('mssql');
 
 const modalStyle = {
     position: 'absolute' as 'absolute',
@@ -93,21 +91,28 @@ export default function VolunteerEvents() : JSX.Element {
     const eventSignUp = async() => {
         /* Disable buttons */
         setDisableButtons(true);
+        var getValue = '0'
+        var connectionStringWithParams = connectionString + "/eventSignUp/" + activeSlot + '/' + activeEventId + '/' +  sessionStorage.getItem('Id') + '/' + sessionStorage.getItem('username') + '/' +'placeholdervalue'
+            await axios.get(connectionStringWithParams).then(function (response) {
+                    getValue = response.data
+            }).catch(function (error){
+                setErrorText(error.response.data)
+                
+            });   
 
-        
-
-            {/*Already have signed up for this event.*/}
-            setErrorText('3')
-            setDisableButtons(false);
-            
-        
-    
-            setErrorText('2')
+        setErrorText(getValue)
+        if (getValue == 'Successfully signed up for the event.')
+        {
             setTimeout(() => {
                 window.location.reload();
             }, 3000)
-        
-        /*If so immediately update, if not display an error */
+        }
+        else{
+            setDisableButtons(false)
+        }
+       
+
+
 
     }
     
@@ -264,6 +269,18 @@ export default function VolunteerEvents() : JSX.Element {
                                 
                                 <Alert severity='error'>
                                     <AlertTitle>You have already signed up for this event.</AlertTitle>
+                                </Alert>
+                            }
+                            {errorText == '0' && 
+                                
+                                <Alert severity='error'>
+                                    <AlertTitle>Error has occured. Please try again.</AlertTitle>
+                                </Alert>
+                            }
+                            {errorText == 'Successfully signed up for the event.' && 
+                                
+                                <Alert severity='success'>
+                                    <AlertTitle>Successfully signed up for the event. Reloading.</AlertTitle>
                                 </Alert>
                             }
                             <Typography id="modal-modal-title" variant="h6" component="h2">

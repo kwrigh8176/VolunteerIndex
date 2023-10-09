@@ -23,6 +23,9 @@ export default function VolunteerNavBar() : JSX.Element {
                     <MenuItem data-my-value={'Events'} sx={{height:'100%'}} component={"a"} href={'/volunteerEvents'}>
                         <Typography textAlign="center">Events</Typography>
                     </MenuItem>
+                    <MenuItem data-my-value={'Events'} sx={{height:'100%'}} component={"a"} href={'/volunteerPastEvents'}>
+                        <Typography textAlign="center">Past Events</Typography>
+                    </MenuItem>
 
                 </Toolbar>
             </AppBar>
