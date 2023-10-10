@@ -2,17 +2,15 @@ import React, { useEffect } from "react"
 import Avatar from "@mui/material/Avatar"
 import Card from "@mui/material/Card"
 import CardHeader from "@mui/material/CardHeader"
-import { render } from "react-dom"
-import List from "@mui/material/List"
 import CardContent from "@mui/material/CardContent"
 import Typography from "@mui/material/Typography"
-import { Alert, AlertTitle, Box, Button, CardActionArea, CardActions, Modal } from "@mui/material"
+import { Alert, AlertTitle, Box, Button, Modal } from "@mui/material"
 import VolunteerNavBar from "./VolunteerNavbar"
 import dayjs from "dayjs"
 import { useNavigate } from "react-router-dom"
 import connectionString from "../../../../config"
 import axios from 'axios';
-import { session } from "electron"
+
 
 /*
     This is meant to be the main event feed. Where all current events are displayed.
@@ -39,11 +37,7 @@ export default function VolunteerEvents() : JSX.Element {
 
     const [cardsFromDb,setCardsFromDb] = React.useState<any[]>([])
     const [eventSlots,setEventSlots] = React.useState<any[]>([])
-    const [loading, setLoading] = React.useState(0)
     const [volunteerId,setVolunteerId] = React.useState(sessionStorage.getItem('Id'));
-
-    const navigate = useNavigate();
-    
 
     useEffect(() => {
         getEvents()
@@ -54,7 +48,8 @@ export default function VolunteerEvents() : JSX.Element {
     const getEvents = async () => {
         var state = sessionStorage.getItem("state")
         var tempArray = new Array()
- 
+
+
         var connectionStringWithParams = connectionString + "/getEvents/" + state + '/' + 'placeholdervalue'
         await axios.get(connectionStringWithParams).then(function (response){
                 setCardsFromDb(response.data)
@@ -91,6 +86,7 @@ export default function VolunteerEvents() : JSX.Element {
     const eventSignUp = async() => {
         /* Disable buttons */
         setDisableButtons(true);
+
         var getValue = '0'
         var connectionStringWithParams = connectionString + "/eventSignUp/" + activeSlot + '/' + activeEventId + '/' +  sessionStorage.getItem('Id') + '/' + sessionStorage.getItem('username') + '/' +'placeholdervalue'
             await axios.get(connectionStringWithParams).then(function (response) {
@@ -101,6 +97,7 @@ export default function VolunteerEvents() : JSX.Element {
             });   
 
         setErrorText(getValue)
+
         if (getValue == 'Successfully signed up for the event.')
         {
             setTimeout(() => {
@@ -110,23 +107,48 @@ export default function VolunteerEvents() : JSX.Element {
         else{
             setDisableButtons(false)
         }
-       
-
-
-
     }
     
+    const eventWithdrawal = async() => {
+
+        setDisableButtons(true);
+        var getValue;
+        var connectionStringWithParams = connectionString + "/withdrawFromEvents/" + activeSlot + '/' + 'placeholdervalue'
+        await axios.get(connectionStringWithParams).then(function (response) {
+                getValue = response.data
+        }).catch(function (error){
+            getValue = error.response.data
+            
+        });  
+        if (getValue == 'Withdraw successful.'){
+            setWithdrawalModalText('Successfully withdrew from event. Refreshing...')
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000)
+
+        }
+        else{
+            setWithdrawalModalText('Error occurred. Please try again.')
+            setDisableButtons(false)
+        }
+        
+
+    }
 
     const [confirmationModalOpen, setConfirmationModalOpen] = React.useState(false);
+    const [withdrawModalOpen, setWithdrawModalOpen] = React.useState(false);
     const [activeSlot, setActiveSlot] = React.useState(0);
     const [activeEventId, setActiveEventId] = React.useState(0);
     const [roleName, setRoleName] = React.useState('');
     const [disableButtons, setDisableButtons] = React.useState(false);
+
     const [errorText, setErrorText] = React.useState('');
+    const [withdrawalModalText, setWithdrawalModalText] = React.useState('');
     const [eventName, setEventName] = React.useState('');
+    const [loading, setLoading] = React.useState(0)
+    const [renderedCards, setRenderedCards] = React.useState<any[]>([])
 
-    const renderedCards = new Array<JSX.Element> 
-
+    var renderedSlots = new Array<JSX.Element>
 
     {/*Handles when a slot button is clicked*/}
     const customRoleHandler = (slotIndexAndRoleName : string) : void => {
@@ -141,31 +163,31 @@ export default function VolunteerEvents() : JSX.Element {
         setEventName(split[3])
                         
         setConfirmationModalOpen(true)
+        
+    }
+
+    const customWithdrawHandler = (slotIndexAndEventName : string) : void => {
        
+        var split = slotIndexAndEventName.split('_')
+
+
+        setWithdrawalModalText('');
+        setActiveSlot(parseInt(split[0]));
+        setEventName(split[1])
+
+        setWithdrawModalOpen(true)
         
     }
 
-
-
-  
-    if (cardsFromDb.length == 0 || eventSlots.length == 0){
-        return (
-            <>
-            <p>Loading Events...</p>
-            </>
-        )
-    }
-    else{
-        let fixIncrement = 0;
-        
-
+    useEffect (() => {
         var eventSlotCopy = eventSlots
+        var tempArray = []
         for (var cardIndex = 0; cardIndex < cardsFromDb.length; cardIndex++){
 
             {/*Query needs to filter the date and time from events, events from different states also shouldn't be shown*/}
-           
+        
             
-            const renderedSlots = new Array<JSX.Element>
+            
 
             for (let eventSlotCounter = 0; eventSlotCounter < cardsFromDb[cardIndex].VolunteerLimit; eventSlotCounter++) 
             {
@@ -182,7 +204,7 @@ export default function VolunteerEvents() : JSX.Element {
                     else if (eventSlotCopy[0][eventSlotCounter].VolunteerId == volunteerId){
                         renderedSlots.push(
                             <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#58cc00'}}>
-                                <Typography>Registered for this slot ({eventSlotCopy[0][eventSlotCounter].RoleName})</Typography>
+                                <Button fullWidth disabled={disableButtons}  id={eventSlotCopy[0][eventSlotCounter].Id+'_'+cardsFromDb[cardIndex].EventName}  onClick={(e) => customWithdrawHandler((e.target as HTMLInputElement).id)}>Registered for this slot: {eventSlotCopy[0][eventSlotCounter].RoleName}</Button>
                             </Box>)
                     }
                     /*Open slots*/ 
@@ -200,8 +222,8 @@ export default function VolunteerEvents() : JSX.Element {
             eventSlotCopy = eventSlotCopy.slice(cardsFromDb[cardIndex].VolunteerLimit)
 
             fixIncrement = 1
-    
-                renderedCards.push(
+           
+            tempArray.push(
                 <Card sx={{marginBottom:'20px'}}>
                     <CardHeader
                         avatar={
@@ -220,10 +242,10 @@ export default function VolunteerEvents() : JSX.Element {
                                 Date: {dayjs(cardsFromDb[cardIndex].Date).format('MM/DD/YYYY')}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                            Start Time: {dayjs('1/1/1 ' + cardsFromDb[cardIndex].StartTime).format('hh:mm a')}
+                            Start Time: {dayjs('1/1/1 ' + cardsFromDb[cardIndex].StartTime).format('h:mm A')}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                            End Time: {dayjs('1/1/1 ' + cardsFromDb[cardIndex].EndTime).format('hh:mm a')}
+                            End Time: {dayjs('1/1/1 ' + cardsFromDb[cardIndex].EndTime).format('h:mm A')}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
                             Event Description: {cardsFromDb[cardIndex].Description}
@@ -238,14 +260,35 @@ export default function VolunteerEvents() : JSX.Element {
                 </Card>
     
             )
+
         }
-           
+        setRenderedCards(tempArray)
+
+    }, [eventSlots]) 
+
+
+  
+    if (loading == 0){
+        setLoading(1)
+        getEvents()
+        return (
+            <>
+            <p>Loading Events...</p>
+            </>
+        )
+    }
+    else{
+        var fixIncrement = 0;
+        
+        
        
 
        return(
             <>
                 <VolunteerNavBar/>
                 {renderedCards}
+
+                {/*This is the confirmation modal. */}
                 <Modal
                         open={confirmationModalOpen}
                         aria-labelledby="modal-modal-title"
@@ -284,12 +327,10 @@ export default function VolunteerEvents() : JSX.Element {
                                 </Alert>
                             }
                             <Typography id="modal-modal-title" variant="h6" component="h2">
-                                Registering for event: 
-                                <p>{eventName}</p>
+                                Registering for event: {eventName}
                             </Typography>
                             <Typography id="modal-modal-title" variant="h6">
-                                Role Name: 
-                                <p>{roleName}</p>
+                                Role Name: {roleName}
                             </Typography>
                             <Typography id="modal-modal-title" variant="h6">
                                 By registering for this event, you must adhere to the rules and guidelines set out by the organizing party.
@@ -298,6 +339,33 @@ export default function VolunteerEvents() : JSX.Element {
                                 Cancel
                             </Button>
                             <Button disabled={disableButtons} onClick={eventSignUp}>
+                                Confirm
+                            </Button>
+                        </Box>
+                </Modal>
+
+                {/*This is the withdrawal modal. */}
+                <Modal
+                        open={withdrawModalOpen}
+                        aria-labelledby="modal-modal-title"
+                        aria-describedby="modal-modal-description"
+                        
+                    >
+                        <Box sx={modalStyle}>
+                            {withdrawalModalText != '' && 
+                                
+                                <Alert severity='success'>
+                                    <AlertTitle>Successfully withdrew from the event. Refreshing...</AlertTitle>
+                                </Alert>
+                            }
+                            <Typography id="modal-modal-title" variant="h6" component="h2">
+                                Do you want to withdraw this event? 
+                                <p>{eventName}</p>
+                            </Typography>
+                            <Button disabled={disableButtons} onClick={() => setWithdrawModalOpen(false)}>
+                                Cancel
+                            </Button>
+                            <Button disabled={disableButtons} onClick={eventWithdrawal}>
                                 Confirm
                             </Button>
                         </Box>
