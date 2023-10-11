@@ -18,7 +18,7 @@ const VolunteerHome = () : JSX.Element => {
     const [pieChartData, setPieChartData] = React.useState<JSX.Element>(<p>Loading pie chart...</p>)
     const [loading, setLoading] = React.useState(0);
     const [pieChartSettings, setPieChartSettings] = React.useState({
-        timeSetting: "day",
+        timeSetting: "week",
         hours: "all"
     })
 
@@ -83,7 +83,50 @@ const VolunteerHome = () : JSX.Element => {
             )
         }
         else if (pieChartSettings.timeSetting == "week"){
+            var date = new Date();
 
+
+            var chartData = []
+
+            {/*If the day is not a sunday */}
+            var dateDiff =  date.getDate() - date.getDay();
+            
+            date = new Date(date.setDate(dateDiff));
+
+            for (let day = 0; day < 7; day++){
+                var getProperDateFormat = dayjs(date).format('YYYY-MM-DD')
+
+                data = allData.filter((obj) => obj.Date===getProperDateFormat)
+
+                if (data.length != 0){
+
+                    var totalHoursOnDay = data.reduce( function(prev,curr){ return prev + curr.value; }, 0)
+                    var getLabel =  '('+Math.floor(totalHoursOnDay/60) + ' hrs ' + totalHoursOnDay%60 + ' m)'
+                    chartData.push({value: totalHoursOnDay, label: dayjs(getProperDateFormat).format('MM-DD-YYYY') + ' ' + getLabel})
+                }
+
+                date.setDate(date.getDate() + 1)
+            }
+
+            data = chartData
+
+            setPieChartData(
+                <>
+                     <PieChart
+                        series={[
+                            {
+                            arcLabel: (item) => `${item.label}`,
+                            highlightScope: { faded: 'global', highlighted: 'item' },
+                            arcLabelMinAngle: 45,
+                            data,
+                            
+                            },
+                        ]}
+                        {...pieChartStylings}
+                    />
+                </>
+
+            )
         }
         else{
 
