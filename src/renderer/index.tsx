@@ -9,6 +9,7 @@ import VolunteerEvents from "./components/volunteerPages/VolunteerEvents";
 import VolunteerHome from "./components/volunteerPages/VolunteerHome";
 import OrgHome from "./components/organizationPages/OrgHome";
 import VolunteerPastEvents from "./components/volunteerPages/VolunteerPastEvents";
+import VolunteerProfile from "./components/volunteerPages/VolunteerProfile";
 
 const rootElement = document.getElementById("root");
 const root = createRoot(rootElement!);
@@ -31,6 +32,7 @@ root.render(
 
         <Route key="volunteerPastEvents"  path="/volunteerPastEvents" element={<VolunteerPastEvents />} />
 
+        <Route key="volunteerProfile"  path="/volunteerProfile" element={<VolunteerProfile />} />
         <Route key="orgHome"  path="/orgHome" element={<OrgHome />} />
 
     </Routes>
