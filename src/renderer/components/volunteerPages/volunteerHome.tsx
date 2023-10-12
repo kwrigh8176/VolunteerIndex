@@ -1,11 +1,11 @@
 import * as React from 'react'
-import VolunteerEvents from './VolunteerEvents'
 import VolunteerNavBar from './VolunteerNavbar'
 import { useEffect } from 'react';
 import connectionString from '../../../../config';
 import axios from 'axios';
 import { PieChart } from '@mui/x-charts/PieChart';
 import dayjs from 'dayjs';
+
 
 
 
@@ -18,7 +18,7 @@ const VolunteerHome = () : JSX.Element => {
     const [pieChartData, setPieChartData] = React.useState<JSX.Element>(<p>Loading pie chart...</p>)
     const [loading, setLoading] = React.useState(0);
     const [pieChartSettings, setPieChartSettings] = React.useState({
-        timeSetting: "week",
+        timeSetting: "day",
         hours: "all"
     })
 
@@ -63,24 +63,30 @@ const VolunteerHome = () : JSX.Element => {
             var currDate = dayjs(date).format('YYYY-MM-DD')
             data = allData.filter((data) => data.Date===currDate)
 
-
-            setPieChartData(
-                <>
-                     <PieChart
-                        series={[
-                            {
-                            arcLabel: (item) => `${item.label}`,
-                            highlightScope: { faded: 'global', highlighted: 'item' },
-                            arcLabelMinAngle: 45,
-                            data,
-                            
-                            },
-                        ]}
-                        {...pieChartStylings}
-                    />
-                </>
-
-            )
+            if (data.length == 0)
+            {
+                setPieChartData(<p>No events participated on this date.</p>)
+            }
+            else{
+                setPieChartData(
+                    <>
+                         <PieChart
+                            series={[
+                                {
+                                arcLabel: (item) => `${item.label}`,
+                                highlightScope: { faded: 'global', highlighted: 'item' },
+                                arcLabelMinAngle: 45,
+                                data,
+                                
+                                },
+                            ]}
+                            {...pieChartStylings}
+                        />
+                    </>
+    
+                )
+            }
+            
         }
         else if (pieChartSettings.timeSetting == "week"){
             var date = new Date();
@@ -93,19 +99,36 @@ const VolunteerHome = () : JSX.Element => {
             
             date = new Date(date.setDate(dateDiff));
 
+            var dataObtained = 0;
+
             for (let day = 0; day < 7; day++){
                 var getProperDateFormat = dayjs(date).format('YYYY-MM-DD')
 
                 data = allData.filter((obj) => obj.Date===getProperDateFormat)
 
+                dataObtained+=1
+
                 if (data.length != 0){
 
                     var totalHoursOnDay = data.reduce( function(prev,curr){ return prev + curr.value; }, 0)
-                    var getLabel =  '('+Math.floor(totalHoursOnDay/60) + ' hrs ' + totalHoursOnDay%60 + ' m)'
+                    var minutes = totalHoursOnDay%60
+                    if (minutes != 0)
+                    {
+                        var getLabel =  '('+Math.floor(totalHoursOnDay/60) + ' hrs ' + minutes + ' m)'
+                    }
+                    else{
+                        var getLabel =  Math.floor(totalHoursOnDay/60) + ' hrs '
+                    }
+                    
+
                     chartData.push({value: totalHoursOnDay, label: dayjs(getProperDateFormat).format('MM-DD-YYYY') + ' ' + getLabel})
                 }
 
                 date.setDate(date.getDate() + 1)
+            }
+
+            if (dataObtained == 0){
+                setPieChartData(<p>No events participated on this date.</p>)
             }
 
             data = chartData
@@ -130,6 +153,78 @@ const VolunteerHome = () : JSX.Element => {
         }
         else{
 
+            var date = new Date();
+
+
+            var chartData = []
+
+            var getYear = dayjs(date).year()
+
+            var months = new Array(12);
+            months[0] = "January";
+            months[1] = "February";
+            months[2] = "March";
+            months[3] = "April";
+            months[4] = "May";
+            months[5] = "June";
+            months[6] = "July";
+            months[7] = "August";
+            months[8] = "September";
+            months[9] = "October";
+            months[10] = "November";
+            months[11] = "December";
+
+            var dataObtained = 0;
+
+            for (let month = 0; month < 12; month++)
+            {
+                
+                data = allData.filter((obj) => dayjs(obj.Date).month()===month)
+
+                if (data.length != 0){
+
+                    dataObtained+=1
+
+
+                    var totalHoursOnDay = data.reduce( function(prev,curr){ return prev + curr.value; }, 0)
+                    var minutes = totalHoursOnDay%60
+                    if (minutes != 0)
+                    {
+                        var getLabel =  '('+Math.floor(totalHoursOnDay/60) + ' hrs ' + minutes + ' m)'
+                    }
+                    else{
+                        var getLabel =  Math.floor(totalHoursOnDay/60) + ' hrs '
+                    }
+                    
+
+                    chartData.push({value: totalHoursOnDay, label: months[month] + ' ' + getYear + ' ' + getLabel})
+                }
+
+            }
+
+            if (dataObtained == 0){
+                setPieChartData(<p>No events participated on this date.</p>)
+            }
+
+            data = chartData
+
+            setPieChartData(
+                <>
+                     <PieChart
+                        series={[
+                            {
+                            arcLabel: (item) => `${item.label}`,
+                            highlightScope: { faded: 'global', highlighted: 'item' },
+                            arcLabelMinAngle: 45,
+                            data,
+                            
+                            },
+                        ]}
+                        {...pieChartStylings}
+                    />
+                </>
+
+            )
         }
 
     }, [allData])

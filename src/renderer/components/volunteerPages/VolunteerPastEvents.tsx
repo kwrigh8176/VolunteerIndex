@@ -21,13 +21,26 @@ export default function VolunteerPastEvents() : JSX.Element {
 
     const [loading, setLoading] = React.useState(0)
 
-    var state = sessionStorage.getItem("state")
-
     const getPastEvents = async () => {
 
         var connectionStringWithParams = connectionString + "/getPastEvents/" + sessionStorage.getItem("Id") + '/' + 'placeholdervalue'
         await axios.get(connectionStringWithParams).then(function (response){
-                setCardsFromDb(response.data)
+
+                if (response.data.length != 0){
+                    const sorted = response.data.sort((objA : any,objB:any)=>{
+                        const dateA = new Date(`${objA.Date}`).valueOf();
+                        const dateB = new Date(`${objB.Date}`).valueOf();
+                        if(dateA > dateB){
+                          return 1
+                        }
+                        return -1
+                    });
+                    setCardsFromDb(sorted)
+                }
+                else{
+                    setCardsFromDb(response.data)
+                }
+                
         })
         .catch(function (error){
             
