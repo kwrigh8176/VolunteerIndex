@@ -7,7 +7,6 @@ import Typography from "@mui/material/Typography"
 import { Alert, AlertTitle, Box, Button, Modal } from "@mui/material"
 import VolunteerNavBar from "./VolunteerNavbar"
 import dayjs from "dayjs"
-import { useNavigate } from "react-router-dom"
 import connectionString from "../../../../config"
 import axios from 'axios';
 
@@ -62,12 +61,25 @@ export default function VolunteerEvents() : JSX.Element {
 
 
         var holdSlots = new Array()
-        for (var i = 0; i < tempArray.length; i++){
+
+        if (tempArray.length == 1){
+            if (tempArray[0].length == 0){
+                return 
+            }
+            
+        }
+
+        for (var i = 0; i < tempArray[0].length; i++){
             var eventId = tempArray[0][i].EventId
 
             connectionStringWithParams = connectionString + "/getEventSlots/" + eventId + '/' + state + '/' + 'placeholdervalue'
             await axios.get(connectionStringWithParams).then(function (response) {
-                    holdSlots.push(response.data)
+                if (response.data.length >= 1){
+                    for (var dataindex = 0; dataindex < response.data.length; dataindex++){
+                        holdSlots.push(response.data[dataindex])
+                    }
+                }
+                   
             }).catch(function (error){
                 setErrorText(error.response.data)
             });     
@@ -90,7 +102,20 @@ export default function VolunteerEvents() : JSX.Element {
         var getValue = '0'
         var connectionStringWithParams = connectionString + "/eventSignUp/" + activeSlot + '/' + activeEventId + '/' +  sessionStorage.getItem('Id') + '/' + sessionStorage.getItem('username') + '/' +'placeholdervalue'
             await axios.get(connectionStringWithParams).then(function (response) {
-                    getValue = response.data
+                if (response.data.length != 0){
+                    const sorted = response.data.sort((objA : any,objB:any)=>{
+                        const dateA = new Date(`${objA.Date}`).valueOf();
+                        const dateB = new Date(`${objB.Date}`).valueOf();
+                        if(dateA > dateB){
+                          return 1
+                        }
+                        return -1
+                    });
+                    setCardsFromDb(sorted)
+                }
+                else{
+                    setCardsFromDb(response.data)
+                }
             }).catch(function (error){
                 setErrorText(error.response.data)
                 
@@ -148,7 +173,7 @@ export default function VolunteerEvents() : JSX.Element {
     const [loading, setLoading] = React.useState(0)
     const [renderedCards, setRenderedCards] = React.useState<any[]>([])
 
-    var renderedSlots = new Array<JSX.Element>
+    
 
     {/*Handles when a slot button is clicked*/}
     const customRoleHandler = (slotIndexAndRoleName : string) : void => {
@@ -182,8 +207,11 @@ export default function VolunteerEvents() : JSX.Element {
     useEffect (() => {
         var eventSlotCopy = eventSlots
         var tempArray = []
+
+
         for (var cardIndex = 0; cardIndex < cardsFromDb.length; cardIndex++){
 
+            var renderedSlots = new Array<JSX.Element>
             {/*Query needs to filter the date and time from events, events from different states also shouldn't be shown*/}
         
             
@@ -192,28 +220,29 @@ export default function VolunteerEvents() : JSX.Element {
             for (let eventSlotCounter = 0; eventSlotCounter < cardsFromDb[cardIndex].VolunteerLimit; eventSlotCounter++) 
             {
                 
-                    /*This is for empty slots */
-                    if (eventSlotCopy[0][eventSlotCounter].VolunteerId == 'NULL')
+                    /*Empty slots*/
+                    if (eventSlotCopy[eventSlotCounter].VolunteerId == null)
                     {
+                        renderedSlots.push(
+                            <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
+                                
+                                <Button fullWidth disabled={disableButtons}  id={eventSlotCopy[eventSlotCounter].Id+'_'+eventSlotCopy[eventSlotCounter].RoleName+'_'+cardsFromDb[cardIndex].EventId+'_'+cardsFromDb[cardIndex].EventName}  onClick={(e) => customRoleHandler((e.target as HTMLInputElement).id)}>Open Role: {eventSlotCopy[eventSlotCounter].RoleName}</Button>
+                            </Box>)
+                        
+                    }
+                    /*Slots taken by the user already*/
+                    else if (eventSlotCopy[eventSlotCounter].VolunteerId == volunteerId){
+                        renderedSlots.push(
+                            <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#58cc00'}}>
+                                <Button fullWidth disabled={disableButtons}  id={eventSlotCopy[eventSlotCounter].Id+'_'+cardsFromDb[cardIndex].EventName}  onClick={(e) => customWithdrawHandler((e.target as HTMLInputElement).id)}>Registered for this slot: {eventSlotCopy[eventSlotCounter].RoleName}</Button>
+                            </Box>)
+                    }
+                    /*Closed slots*/ 
+                    else{
                         renderedSlots.push(
                             <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#fa534d'}}>
                                 <Typography>Slot Taken</Typography>
                             </Box>)
-                    }
-                    /*Slots taken by the user already*/
-                    else if (eventSlotCopy[0][eventSlotCounter].VolunteerId == volunteerId){
-                        renderedSlots.push(
-                            <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#58cc00'}}>
-                                <Button fullWidth disabled={disableButtons}  id={eventSlotCopy[0][eventSlotCounter].Id+'_'+cardsFromDb[cardIndex].EventName}  onClick={(e) => customWithdrawHandler((e.target as HTMLInputElement).id)}>Registered for this slot: {eventSlotCopy[0][eventSlotCounter].RoleName}</Button>
-                            </Box>)
-                    }
-                    /*Open slots*/ 
-                    else{
-                        renderedSlots.push(
-                        <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
-                            
-                            <Button fullWidth disabled={disableButtons}  id={eventSlotCopy[0][eventSlotCounter].Id+'_'+eventSlotCopy[0][eventSlotCounter].RoleName+'_'+cardsFromDb[cardIndex].EventId+'_'+cardsFromDb[cardIndex].EventName}  onClick={(e) => customRoleHandler((e.target as HTMLInputElement).id)}>Open Role: {eventSlotCopy[0][eventSlotCounter].RoleName}</Button>
-                        </Box>)
                     }
                     
 
@@ -221,7 +250,6 @@ export default function VolunteerEvents() : JSX.Element {
 
             eventSlotCopy = eventSlotCopy.slice(cardsFromDb[cardIndex].VolunteerLimit)
 
-            fixIncrement = 1
            
             tempArray.push(
                 <Card sx={{marginBottom:'20px'}}>
@@ -260,7 +288,7 @@ export default function VolunteerEvents() : JSX.Element {
                 </Card>
     
             )
-
+            
         }
         setRenderedCards(tempArray)
 
@@ -278,7 +306,7 @@ export default function VolunteerEvents() : JSX.Element {
         )
     }
     else{
-        var fixIncrement = 0;
+
         
         
        
