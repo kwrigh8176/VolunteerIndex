@@ -7,7 +7,6 @@ import Typography from "@mui/material/Typography"
 import { Alert, AlertTitle, Box, Button, Modal } from "@mui/material"
 import VolunteerNavBar from "./VolunteerNavbar"
 import dayjs from "dayjs"
-import { useNavigate } from "react-router-dom"
 import connectionString from "../../../../config"
 import axios from 'axios';
 

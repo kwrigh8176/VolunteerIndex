@@ -5,6 +5,8 @@ import connectionString from '../../../../config';
 import axios from 'axios';
 import { PieChart } from '@mui/x-charts/PieChart';
 import dayjs from 'dayjs';
+import { Select } from '@mui/material';
+import MenuItem from '@mui/material/MenuItem';
 
 
 
@@ -54,20 +56,26 @@ const VolunteerHome = () : JSX.Element => {
         var data = allData
 
         if (pieChartSettings.hours == "verified"){
-            data = allData.filter((data) => data.verifiedHours!=0)
+            data = allData.filter((data) => data.verifiedHours==true)
         }
 
+        if (data.length == 0)
+        {
+            setPieChartData(<p>No events retrieved with the settings.</p>)
+            return
+        }
 
         if (pieChartSettings.timeSetting == "day"){
             var date = new Date();
             var currDate = dayjs(date).format('YYYY-MM-DD')
-            data = allData.filter((data) => data.Date===currDate)
-
+            data = data.filter((data) => data.Date===currDate)
             if (data.length == 0)
             {
-                setPieChartData(<p>No events participated on this date.</p>)
+                setPieChartData(<p>No events retrieved with the settings.</p>)
+                return
             }
-            else{
+   
+            
                 setPieChartData(
                     <>
                          <PieChart
@@ -85,7 +93,7 @@ const VolunteerHome = () : JSX.Element => {
                     </>
     
                 )
-            }
+            
             
         }
         else if (pieChartSettings.timeSetting == "week"){
@@ -99,17 +107,16 @@ const VolunteerHome = () : JSX.Element => {
             
             date = new Date(date.setDate(dateDiff));
 
-            var dataObtained = 0;
-
+            var dataAmt = 0
             for (let day = 0; day < 7; day++){
                 var getProperDateFormat = dayjs(date).format('YYYY-MM-DD')
 
-                data = allData.filter((obj) => obj.Date===getProperDateFormat)
-
-                dataObtained+=1
+                data = data.filter((obj) => obj.Date===getProperDateFormat)
 
                 if (data.length != 0){
 
+
+                    dataAmt+= 1
                     var totalHoursOnDay = data.reduce( function(prev,curr){ return prev + curr.value; }, 0)
                     var minutes = totalHoursOnDay%60
                     if (minutes != 0)
@@ -117,7 +124,7 @@ const VolunteerHome = () : JSX.Element => {
                         var getLabel =  '('+Math.floor(totalHoursOnDay/60) + ' hrs ' + minutes + ' m)'
                     }
                     else{
-                        var getLabel =  Math.floor(totalHoursOnDay/60) + ' hrs '
+                        var getLabel = '('+Math.floor(totalHoursOnDay/60) + ' hrs) '
                     }
                     
 
@@ -127,8 +134,10 @@ const VolunteerHome = () : JSX.Element => {
                 date.setDate(date.getDate() + 1)
             }
 
-            if (dataObtained == 0){
-                setPieChartData(<p>No events participated on this date.</p>)
+            if (dataAmt == 0)
+            {
+                setPieChartData(<p>No events retrieved with the settings.</p>)
+                return
             }
 
             data = chartData
@@ -174,18 +183,17 @@ const VolunteerHome = () : JSX.Element => {
             months[10] = "November";
             months[11] = "December";
 
-            var dataObtained = 0;
+            var dataAmt = 0;
 
             for (let month = 0; month < 12; month++)
             {
                 
-                data = allData.filter((obj) => dayjs(obj.Date).month()===month)
+                data = data.filter((obj) => dayjs(obj.Date).month()===month)
 
                 if (data.length != 0){
 
-                    dataObtained+=1
 
-
+                    dataAmt += 1
                     var totalHoursOnDay = data.reduce( function(prev,curr){ return prev + curr.value; }, 0)
                     var minutes = totalHoursOnDay%60
                     if (minutes != 0)
@@ -193,7 +201,7 @@ const VolunteerHome = () : JSX.Element => {
                         var getLabel =  '('+Math.floor(totalHoursOnDay/60) + ' hrs ' + minutes + ' m)'
                     }
                     else{
-                        var getLabel =  Math.floor(totalHoursOnDay/60) + ' hrs '
+                        var getLabel =  '('+Math.floor(totalHoursOnDay/60) + ' hrs) '
                     }
                     
 
@@ -202,8 +210,195 @@ const VolunteerHome = () : JSX.Element => {
 
             }
 
-            if (dataObtained == 0){
-                setPieChartData(<p>No events participated on this date.</p>)
+            if (dataAmt == 0)
+            {
+                setPieChartData(<p>No events retrieved with the settings.</p>)
+                return
+            }
+            data = chartData
+
+            setPieChartData(
+                <>
+                     <PieChart
+                        series={[
+                            {
+                            arcLabel: (item) => `${item.label}`,
+                            highlightScope: { faded: 'global', highlighted: 'item' },
+                            arcLabelMinAngle: 45,
+                            data,
+                            
+                            },
+                        ]}
+                        {...pieChartStylings}
+                    />
+                </>
+
+            )
+        }
+    }, [allData])
+
+    useEffect (() => {
+        var data = allData
+
+        if (pieChartSettings.hours == "verified"){
+            data = allData.filter((data) => data.verifiedHours==true)
+        }
+
+        if (data.length == 0)
+        {
+            setPieChartData(<p>No events retrieved with the settings.</p>)
+            return
+        }
+
+        if (pieChartSettings.timeSetting == "day"){
+            var date = new Date();
+            var currDate = dayjs(date).format('YYYY-MM-DD')
+            data = data.filter((data) => data.Date===currDate)
+            if (data.length == 0)
+            {
+                setPieChartData(<p>No events retrieved with the settings.</p>)
+                return
+            }
+   
+            
+                setPieChartData(
+                    <>
+                         <PieChart
+                            series={[
+                                {
+                                arcLabel: (item) => `${item.label}`,
+                                highlightScope: { faded: 'global', highlighted: 'item' },
+                                arcLabelMinAngle: 45,
+                                data,
+                                
+                                },
+                            ]}
+                            {...pieChartStylings}
+                        />
+                    </>
+    
+                )
+            
+            
+        }
+        else if (pieChartSettings.timeSetting == "week"){
+            var date = new Date();
+
+
+            var chartData = []
+
+            {/*If the day is not a sunday */}
+            var dateDiff =  date.getDate() - date.getDay();
+            
+            date = new Date(date.setDate(dateDiff));
+
+            var dataAmt = 0
+            for (let day = 0; day < 7; day++){
+                var getProperDateFormat = dayjs(date).format('YYYY-MM-DD')
+
+                var tempData = data.filter((obj) => obj.Date===getProperDateFormat)
+
+                if (tempData.length != 0){
+
+
+                    dataAmt+= 1
+                    var totalHoursOnDay = tempData.reduce( function(prev,curr){ return prev + curr.value; }, 0)
+                    var minutes = totalHoursOnDay%60
+                    if (minutes != 0)
+                    {
+                        var getLabel =  '('+Math.floor(totalHoursOnDay/60) + ' hrs ' + minutes + ' m)'
+                    }
+                    else{
+                        var getLabel = '('+Math.floor(totalHoursOnDay/60) + ' hrs) '
+                    }
+                    
+
+                    chartData.push({value: totalHoursOnDay, label: dayjs(getProperDateFormat).format('MM-DD-YYYY') + ' ' + getLabel})
+                }
+
+                date.setDate(date.getDate() + 1)
+            }
+
+            if (dataAmt == 0)
+            {
+                setPieChartData(<p>No events retrieved with the settings.</p>)
+                return
+            }
+
+            data = chartData
+
+            setPieChartData(
+                <>
+                     <PieChart
+                        series={[
+                            {
+                            arcLabel: (item) => `${item.label}`,
+                            highlightScope: { faded: 'global', highlighted: 'item' },
+                            arcLabelMinAngle: 45,
+                            data,
+                            
+                            },
+                        ]}
+                        {...pieChartStylings}
+                    />
+                </>
+
+            )
+        }
+        else{
+
+            var date = new Date();
+
+
+            var chartData = []
+
+            var getYear = dayjs(date).year()
+
+            var months = new Array(12);
+            months[0] = "January";
+            months[1] = "February";
+            months[2] = "March";
+            months[3] = "April";
+            months[4] = "May";
+            months[5] = "June";
+            months[6] = "July";
+            months[7] = "August";
+            months[8] = "September";
+            months[9] = "October";
+            months[10] = "November";
+            months[11] = "December";
+
+            var dataAmt = 0;
+
+            for (let month = 0; month < 12; month++)
+            {
+                
+                var tempData = data.filter((obj) => dayjs(obj.Date).month()===month)
+
+                if (tempData.length != 0){
+
+
+                    dataAmt += 1
+                    var totalHoursOnDay = tempData.reduce( function(prev,curr){ return prev + curr.value; }, 0)
+                    var minutes = totalHoursOnDay%60
+                    if (minutes != 0)
+                    {
+                        var getLabel =  '('+Math.floor(totalHoursOnDay/60) + ' hrs ' + minutes + ' m)'
+                    }
+                    else{
+                        var getLabel =  '('+Math.floor(totalHoursOnDay/60) + ' hrs) '
+                    }
+                    
+
+                    chartData.push({value: totalHoursOnDay, label: months[month] + ' ' + getYear + ' ' + getLabel})
+                }
+
+            }
+
+            if (dataAmt == 0)
+            {
+                setPieChartData(<p>No events retrieved with the settings.</p>)
+                return
             }
 
             data = chartData
@@ -227,7 +422,7 @@ const VolunteerHome = () : JSX.Element => {
             )
         }
 
-    }, [allData])
+    }, [pieChartSettings])
 
     if (loading == 0){
         setLoading(1)
@@ -244,6 +439,27 @@ const VolunteerHome = () : JSX.Element => {
             <>
                 <VolunteerNavBar/>
                 {pieChartData}
+                <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={pieChartSettings.timeSetting}
+                    label="Time Frame"
+                    onChange={(event) => setPieChartSettings({timeSetting: event.target.value, hours: pieChartSettings.hours})}
+                >
+                    <MenuItem value={"day"}>Day</MenuItem>
+                    <MenuItem value={"week"}>Week</MenuItem>
+                    <MenuItem value={"months"}>Month</MenuItem>
+                </Select>
+                <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={pieChartSettings.hours}
+                    label="Verification?"
+                    onChange={(event) => setPieChartSettings({timeSetting: pieChartSettings.timeSetting, hours: event.target.value})}
+                >
+                    <MenuItem value={"all"}>All</MenuItem>
+                    <MenuItem value={"verified"}>Verified</MenuItem>
+                </Select>
             </>
         )
     }
