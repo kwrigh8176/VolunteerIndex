@@ -59,8 +59,10 @@ const Login = () : JSX.Element => {
                     navigate('/emailverification')
                 
             }).catch(function (error){
-                setErrorText(error.response.data)
+                setErrorText("Login Error")
             });  
+
+            
         setDisableLoginButton(false)
 }
 
@@ -73,11 +75,10 @@ const Login = () : JSX.Element => {
                                 position: 'absolute', left: '50%', top: '50%',
                                 transform: 'translate(-50%, -50%)'
                             }}>
-                            {errorText != '' && 
+                            {errorText == 'Login Error' && 
                     
                                 <Alert severity="error">
-                                    <AlertTitle>Invalid Inputs</AlertTitle>
-                                    {errorText} 
+                                    <AlertTitle>Login error, restart the app and try again.</AlertTitle>
                                 </Alert>
                             }
                             <Select labelId="demo-simple-select-label" value={loginType}  label="Login Type" onChange={(event) => setLoginType(event.target.value)}>
