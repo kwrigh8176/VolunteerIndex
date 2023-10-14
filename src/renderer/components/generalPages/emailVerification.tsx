@@ -32,9 +32,8 @@ export default function emailVerification() : JSX.Element {
         setErrorText('')
         setbuttonDisable(true)
         var connectionStringWithParams = connectionString + "/processCode/" + sessionStorage.getItem("username")  + "/" + sessionStorage.getItem("loginType")  + "/" + verifyTextBox
-        await axios.get(connectionStringWithParams)
-        .then(function (response) {
-
+        await axios.get(connectionStringWithParams).then(function (response) {
+                setErrorText('Sucessful Verification')
                 if (sessionStorage.getItem("loginType")  == "Volunteer")
                 {
                     setTimeout(() =>{
@@ -52,7 +51,7 @@ export default function emailVerification() : JSX.Element {
             
 
         }).catch(function (error){
-            setErrorText(error.response.data)
+            setErrorText('Invalid Code')
         });        
 
         setbuttonDisable(false)

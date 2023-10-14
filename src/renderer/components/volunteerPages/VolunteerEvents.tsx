@@ -36,7 +36,7 @@ export default function VolunteerEvents() : JSX.Element {
 
     const [cardsFromDb,setCardsFromDb] = React.useState<any[]>([])
     const [eventSlots,setEventSlots] = React.useState<any[]>([])
-    const [volunteerId,setVolunteerId] = React.useState(sessionStorage.getItem('Id'));
+    const volunteerId = sessionStorage.getItem('Id');
 
     useEffect(() => {
         getEvents()
