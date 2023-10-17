@@ -11,6 +11,7 @@ import OrgHome from "./components/organizationPages/OrgEvents";
 import VolunteerPastEvents from "./components/volunteerPages/VolunteerPastEvents";
 import VolunteerProfile from "./components/volunteerPages/VolunteerProfile";
 import OrgEvents from "./components/organizationPages/OrgEvents";
+import OrgPastEvents from "./components/organizationPages/OrgPastEvents";
 
 const rootElement = document.getElementById("root");
 const root = createRoot(rootElement!);
@@ -35,7 +36,9 @@ root.render(
 
         <Route key="volunteerProfile"  path="/volunteerProfile" element={<VolunteerProfile />} />
 
-        <Route key="orgHome"  path="/orgCurrentEvents" element={<OrgEvents />} />
+        <Route key="orgCurrentEvents"  path="/orgCurrentEvents" element={<OrgEvents />} />
+
+        <Route key="orgPastEvents"  path="/orgPastEvents" element={<OrgPastEvents />} />
 
     </Routes>
 </BrowserRouter>
