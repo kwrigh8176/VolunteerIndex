@@ -43,7 +43,7 @@ export default function emailVerification() : JSX.Element {
                 else
                 {
                     setTimeout(() =>{
-                        navigate("/orgHome")
+                        navigate("/orgCurrentEvents")
                     }, 5000)
                 }
                 
