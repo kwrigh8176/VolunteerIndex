@@ -85,7 +85,7 @@ export default function VolunteerProfile() : JSX.Element {
         var connectionStringWithParams = connectionString + "/saveVolunteerProfile/" + sessionStorage.getItem("Id") + '/' + loadedInfo[0].Username + '/' + loadedInfo[0].Email + '/' + loadedInfo[0].PhoneNumber + '/' + loadedInfo[0].Bio + '/' + 'placeholdervalue'
         await axios.post(connectionStringWithParams).then(function (response) {
             setConfirmationResponse('Data saved.')
-            sessionStorage.setItem("Id", response.data)
+            sessionStorage.setItem("username", loadedInfo[0].Username)
          }).catch(function (error){
             setConfirmationResponse(error.data.response)
         
