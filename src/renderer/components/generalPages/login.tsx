@@ -28,16 +28,25 @@ const Login = () : JSX.Element => {
 
             setDisableLoginButton(true)
             setErrorText('')
-            var connectionStringWithParams = connectionString + "/verifylogin/" + username + "/" + password + '/' + loginType
+           
             
             if (loginType == 'Volunteer'){
                 
-                await axios.get(connectionStringWithParams).then(function (response) {
+                await axios.post(connectionString + '/verifylogin/', null, {
+                        params : {
+                                username: username,
+                                password: password,
+                                loginType: loginType,
+
+                        }
+                        }).then(function (response) {
+                            
                             var getBody = response.data
                             sessionStorage.setItem("state",getBody.State)
                             sessionStorage.setItem("username",username)
                             sessionStorage.setItem("password",password)
                             sessionStorage.setItem("Id",getBody.VolunteerId)
+                            sessionStorage.setItem("email", getBody.Email)
                             sessionStorage.setItem("loginType","Volunteer")
                             navigate('/emailverification')
                         
@@ -50,11 +59,21 @@ const Login = () : JSX.Element => {
             }
             else{
               
-                await axios.get(connectionStringWithParams).then(function (response) {
+                await axios.post(connectionString + '/verifylogin/', null, {
+                        params : {
+                                username: username,
+                                password: password,
+                                loginType: loginType,
+                                
+                        }
+                        }).then(function (response) {
                         var getBody = response.data
                         sessionStorage.setItem("state",getBody.State)
                         sessionStorage.setItem("username",getBody.Username)
                         sessionStorage.setItem("orgId", getBody.OrgId)
+                        sessionStorage.setItem("email", getBody.Email)
+                        sessionStorage.setItem("phoneNumber", getBody.phoneNumber)
+                        sessionStorage.setItem("address", getBody.Address)
                         sessionStorage.setItem("loginType","Organization")
                         navigate('/emailverification')
                     

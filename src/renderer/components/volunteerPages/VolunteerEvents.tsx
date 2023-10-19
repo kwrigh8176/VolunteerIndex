@@ -49,8 +49,15 @@ export default function VolunteerEvents() : JSX.Element {
         var tempArray = new Array()
 
 
-        var connectionStringWithParams = connectionString + "/getEvents/" + state + '/' + 'placeholdervalue'
-        await axios.get(connectionStringWithParams).then(function (response){
+        
+        await axios.get(connectionString + "/getEvents/", {
+            params:{
+                state: state,
+                username: sessionStorage.getItem("username"),
+                token: sessionStorage.getItem("token")
+
+            }
+        }).then(function (response){
                 setCardsFromDb(response.data)
                 tempArray.push(response.data) 
         })
@@ -72,8 +79,14 @@ export default function VolunteerEvents() : JSX.Element {
         for (var i = 0; i < tempArray[0].length; i++){
             var eventId = tempArray[0][i].EventId
 
-            connectionStringWithParams = connectionString + "/getEventSlots/" + eventId + '/' + state + '/' + 'placeholdervalue'
-            await axios.get(connectionStringWithParams).then(function (response) {
+    
+            await axios.get(connectionString + "/getEventSlots/", {
+                params:{
+                    eventId: eventId,
+                    username: sessionStorage.getItem("username"),
+                    token: sessionStorage.getItem("token")
+                }
+            }).then(function (response) {
                 if (response.data.length >= 1){
                     for (var dataindex = 0; dataindex < response.data.length; dataindex++){
                         holdSlots.push(response.data[dataindex])
@@ -93,33 +106,41 @@ export default function VolunteerEvents() : JSX.Element {
     }
 
   
-
-
     const eventSignUp = async() => {
         /* Disable buttons */
         setDisableButtons(true);
 
         var getValue = '0'
-        var connectionStringWithParams = connectionString + "/eventSignUp/" + activeSlot + '/' + activeEventId + '/' +  sessionStorage.getItem('Id') + '/' + sessionStorage.getItem('username') + '/' +'placeholdervalue'
-            await axios.get(connectionStringWithParams).then(function (response) {
-                if (response.data.length != 0){
-                    const sorted = response.data.sort((objA : any,objB:any)=>{
-                        const dateA = new Date(`${objA.Date}`).valueOf();
-                        const dateB = new Date(`${objB.Date}`).valueOf();
-                        if(dateA > dateB){
-                          return 1
-                        }
-                        return -1
-                    });
-                    setCardsFromDb(sorted)
-                }
-                else{
-                    setCardsFromDb(response.data)
-                }
-            }).catch(function (error){
-                setErrorText(error.response.data)
+
+
+        await axios.post(connectionString + "/eventSignUp/", null, {
+            params:{
+                activeSlot: activeSlot,
+                activeEventId: activeEventId,
+                volunteerId: sessionStorage.getItem('Id'),
+                username: sessionStorage.getItem('username'),
+                token: sessionStorage.getItem('token')
                 
-            });   
+            }
+        }).then(function (response) {
+            if (response.data.length != 0){
+                const sorted = response.data.sort((objA : any,objB:any)=>{
+                    const dateA = new Date(`${objA.Date}`).valueOf();
+                    const dateB = new Date(`${objB.Date}`).valueOf();
+                    if(dateA > dateB){
+                        return 1
+                    }
+                    return -1
+                });
+                setCardsFromDb(sorted)
+            }
+            else{
+                setCardsFromDb(response.data)
+            }
+        }).catch(function (error){
+            setErrorText(error.response.data)
+            
+        });   
 
         setErrorText(getValue)
 
@@ -138,8 +159,12 @@ export default function VolunteerEvents() : JSX.Element {
 
         setDisableButtons(true);
         var getValue;
-        var connectionStringWithParams = connectionString + "/withdrawFromEvents/" + activeSlot + '/' + 'placeholdervalue'
-        await axios.get(connectionStringWithParams).then(function (response) {
+        
+        await axios.post(connectionString + "/withdrawFromEvents/", null,{params:{
+            activeSlotId: activeSlot,
+            username: sessionStorage.getItem('username'),
+            token: sessionStorage.getItem('token')
+        }}).then(function (response) {
                 getValue = response.data
         }).catch(function (error){
             getValue = error.response.data

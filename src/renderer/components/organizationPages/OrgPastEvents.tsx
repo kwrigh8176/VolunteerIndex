@@ -31,8 +31,12 @@ export default function OrgPastEvents() : JSX.Element {
         var tempArray = new Array()
 
 
-        var connectionStringWithParams = connectionString + "/getOrganizationPastEvents/" + orgId + '/' + 'placeholdervalue'
-        await axios.get(connectionStringWithParams).then(function (response){
+        
+        await axios.get(connectionString + "/getOrganizationPastEvents/", {params:{
+            orgId: orgId,
+            username: sessionStorage.getItem("username"),
+            token: sessionStorage.getItem("token")
+        }}).then(function (response){
                 setCardsFromDb(response.data)
                 tempArray.push(response.data) 
         })
@@ -54,8 +58,12 @@ export default function OrgPastEvents() : JSX.Element {
         for (var i = 0; i < tempArray[0].length; i++){
             var eventId = tempArray[0][i].EventId
 
-            connectionStringWithParams = connectionString + "/getOrganizationEventSlots/" + eventId + '/' + state + '/' + 'placeholdervalue'
-            await axios.get(connectionStringWithParams).then(function (response) {
+           
+            await axios.get(connectionString + "/getOrganizationEventSlots/", {params:{
+                eventId: eventId,
+                username: sessionStorage.getItem("username"),
+                token: sessionStorage.getItem("token")
+            }}).then(function (response) {
                 if (response.data.length >= 1){
                     for (var dataindex = 0; dataindex < response.data.length; dataindex++){
                         holdSlots.push(response.data[dataindex])

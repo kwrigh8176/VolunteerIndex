@@ -10,17 +10,22 @@ import axios from "axios";
 
 export default function emailVerification() : JSX.Element {
     const [buttonDisable, setbuttonDisable] = React.useState(false)
+    const [verifyButtonDisable, setVerifyButtonDisable] = React.useState(false)
     const [verifyTextBox, setVerifyTextBox] = React.useState('')
     const [errorText, setErrorText] = React.useState('')
 
-    const sql = require('mssql');
     const navigate = useNavigate();
     
     async function resetCode(){
         
         setbuttonDisable(true)
-        var connectionStringWithParams = connectionString + "/resendCodes/" + sessionStorage.getItem("username") + "/" + sessionStorage.getItem("email") + "/" + "placeholderValue"  
-        axios.get(connectionStringWithParams).then(function (response) {});       
+        axios.post(connectionString + "/resendCodes/", null, {
+            params: {
+                username: sessionStorage.getItem("username"),
+                email: sessionStorage.getItem("email"),
+                loginType: sessionStorage.getItem("loginType"),
+            }
+        }).then(function (response) {});       
 
         setTimeout(() => {
             setbuttonDisable(false)
@@ -31,9 +36,17 @@ export default function emailVerification() : JSX.Element {
     async function processCode(){
         setErrorText('')
         setbuttonDisable(true)
-        var connectionStringWithParams = connectionString + "/processCode/" + sessionStorage.getItem("username")  + "/" + sessionStorage.getItem("loginType")  + "/" + verifyTextBox
-        await axios.get(connectionStringWithParams).then(function (response) {
+      
+        await axios.post(connectionString + "/processCode/", null, {
+            params:{
+                username: sessionStorage.getItem("username"),
+                loginType: sessionStorage.getItem("loginType"),
+                keyProvided: verifyTextBox,
+            }
+
+        }).then(function (response) {
                 setErrorText('Sucessful Verification')
+                sessionStorage.setItem("token",response.data)
                 if (sessionStorage.getItem("loginType")  == "Volunteer")
                 {
                     setTimeout(() =>{
@@ -50,10 +63,12 @@ export default function emailVerification() : JSX.Element {
                 
             
 
-        }).catch(function (error){
+        }).catch(function (){
             setErrorText('Invalid Code')
+            
         });        
 
+        setVerifyButtonDisable(false)
         setbuttonDisable(false)
 
 
@@ -84,7 +99,7 @@ export default function emailVerification() : JSX.Element {
                 <p>Don't forget to check spam folders!</p>
                 <br></br>
                 <TextField label="Enter code here: " onChange={(event) => setVerifyTextBox(event.target.value)} inputProps={{maxLength: 6}}></TextField>
-                <Button disabled={buttonDisable} onClick={processCode} >Verify Code</Button> 
+                <Button disabled={verifyButtonDisable} onClick={processCode} >Verify Code</Button> 
                 <br></br>
                 <Button disabled={buttonDisable} onClick={resetCode}>Reset Code</Button>
             </div>

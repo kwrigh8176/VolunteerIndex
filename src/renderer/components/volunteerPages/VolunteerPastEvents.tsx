@@ -8,7 +8,6 @@ import Avatar from "@mui/material/Avatar";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import dayjs from "dayjs";
-import { render } from "react-dom";
 import Box from "@mui/material/Box";
 
 
@@ -23,8 +22,12 @@ export default function VolunteerPastEvents() : JSX.Element {
 
     const getPastEvents = async () => {
 
-        var connectionStringWithParams = connectionString + "/getPastEvents/" + sessionStorage.getItem("Id") + '/' + 'placeholdervalue'
-        await axios.get(connectionStringWithParams).then(function (response){
+       
+        await axios.get(connectionString + "/getPastEvents/", {params:{
+            volunteerId: sessionStorage.getItem("Id"),
+            username: sessionStorage.getItem("username"),
+            token: sessionStorage.getItem("token")
+        }}).then(function (response){
 
                 if (response.data.length != 0){
                     const sorted = response.data.sort((objA : any,objB:any)=>{
