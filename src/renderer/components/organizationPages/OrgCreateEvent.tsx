@@ -9,13 +9,27 @@ import { DatePicker, LocalizationProvider, StaticTimePicker, TimePicker } from "
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
-import Textarea from "@mui/joy/Textarea";
 import FormLabel from "@mui/material/FormLabel";
-import { FormControl } from "@mui/joy";
+import { FormControl, Textarea} from "@mui/joy";
 import Button from "@mui/material/Button";
 import connectionString from "../../../../config";
 import axios from "axios";
-import { start } from "repl";
+import Box from "@mui/material/Box";
+import Modal from "@mui/material/Modal";
+import Typography from "@mui/material/Typography";
+
+
+import { styled } from '@mui/system';
+import validator from "validator";
+import Alert from "@mui/material/Alert";
+import AlertTitle from "@mui/material/AlertTitle";
+
+
+
+
+export default function OrgCreateEvent() : JSX.Element {
+
+    const [confirmationModalOpen, setConfirmationModalOpen] = React.useState(false);
 
 const modalStyle = {
     position: 'absolute' as 'absolute',
@@ -31,15 +45,13 @@ const modalStyle = {
   };
 
 
-
-export default function OrgCreateEvent() : JSX.Element {
     //Required fields
     const [eventName, setEventName] = React.useState('')
     const [date, setDate] = React.useState<Dayjs | null>(dayjs(new Date()));
     const [startTime, setStartTime] = React.useState<Dayjs | null>(dayjs(new Date()).add(1, 'hour'))
     const [endTime, setEndTime] = React.useState<Dayjs | null>(dayjs(new Date()).add(2, 'hour'))
     const [volunteerLimit, setVolunteerLimit] = React.useState(1)
-    const [description, setDescription] = React.useState('')
+    const [description, setDescription] = React.useState("")
 
     //Set an alternative address or email (option fields)
     const [address, setAddress] = React.useState('');
@@ -55,34 +67,83 @@ export default function OrgCreateEvent() : JSX.Element {
 
     const [renderedContent, setRenderedContent] = React.useState<JSX.Element>(<></>);
 
+    const [errorModal, setErrorModal] = React.useState<string>("");
+    const [successModal, setSuccessModal]  = React.useState<string>("");
+    
     const processEventCreation = async () => {
 
         //Need to do some validation here (event name, event description, event date is not less than current one)
 
-        var getEvent, getAddress, getPhone;
+        var getEmail = sessionStorage.getItem("email")
+        var getAddress = sessionStorage.getItem("address")
 
-        if (email == ''){
-            getEvent = sessionStorage.getItem("email")
-        }
-        else{
-            getEvent = email;
-        }
+        var getPhone = sessionStorage.getItem("phoneNumber")
 
-        if (address == ''){
-            getAddress = sessionStorage.getItem("address")
+        if (email != ''){
+            getEmail = email;
         }
-        else{
+ 
+
+        if (address != ''){
             getAddress = address;
         }
+   
 
-        if (phoneNumber == ''){
-            getPhone = sessionStorage.getItem("phoneNumber")
-        }
-        else{
+        if (phoneNumber != ''){
             getPhone = phoneNumber
         }
+ 
 
+        var errMsg = ''
+        if (eventName == ''){
+            errMsg += 'Event Name is empty. \n'
+        }
 
+        if (description == ''){
+            errMsg += 'Description is empty. \n'
+        }
+
+        var currDate = new Date()
+
+        if (dayjs(date?.format('MM/DD/YYYY 11:11:11')).isBefore(dayjs(dayjs(currDate).format('MM/DD/YYYY 11:11:11')))){
+            errMsg += 'Date can\'t be before the current date. \n'
+
+        }
+
+        if (dayjs(date?.format('MM/DD/YYYY 11:11:11')).isSame(dayjs(dayjs(currDate).format('MM/DD/YYYY 11:11:11')))){
+            if (dayjs(startTime?.format('[2001-01-01] HH:mm:ss')).isBefore(dayjs(currDate).format('[2001-01-01] HH:mm:ss'))){
+                errMsg += 'Start time can\'t be before current time. \n'
+            }
+
+        }
+
+        if (getPhone != null)
+        {
+            if (validator.isMobilePhone(getPhone) == false)
+            {
+                errMsg += 'Phone Number is not valid. \n'  
+            }
+        }
+        
+        if (getEmail != null)
+        {
+            if (validator.isEmail(getEmail) == false)
+            {
+                errMsg += 'Email is not valid. \n';
+            }
+            
+        }
+
+        if (dayjs('1/1/1 ' + startTime).isAfter(dayjs('1/1/1 '+ endTime)) ){
+            errMsg += 'Start time is after end time. \n';
+        }
+
+        if (errMsg != ''){
+            setErrorModal(errMsg)
+            return
+        }
+
+        //check start time
         await axios.post(connectionString + `/organizationCreateEvent/`, null, { params: {
             eventName: eventName,
             date: date,
@@ -91,7 +152,7 @@ export default function OrgCreateEvent() : JSX.Element {
             description: description,
             volunteerLimit: volunteerLimit,
             address: getAddress,
-            email: getEvent,
+            email: getEmail,
             orgId: sessionStorage.getItem("orgId"),
             phoneNumber: getPhone,
             optionalRoleInfo: JSON.stringify(optionalRoleInfo),
@@ -100,7 +161,7 @@ export default function OrgCreateEvent() : JSX.Element {
 
           }})
           .then(response => {
-            console.log("Event created")
+            setSuccessModal("Success")
           })
           .catch(err => console.log(err));
     }
@@ -120,7 +181,7 @@ export default function OrgCreateEvent() : JSX.Element {
 
                 }
 
-            }></TextField><br></br></>)
+            } inputProps={{maxLength:50}}></TextField><br></br></>)
             if (optionalRoleInfo.length >= i+1)
             {
                 tempValues.push(optionalRoleInfo[i])
@@ -139,19 +200,31 @@ export default function OrgCreateEvent() : JSX.Element {
 
 
        setRenderedContent(<>
+        
+        {tempElements}
+            
+        </>)
+
+    }, [volunteerLimit, optionalRoleInfo])
+
+
+
+   
+    return (
+    <>
         <OrgNavBar/>
         <Card sx={{marginBottom:'20px'}}>
                 <CardHeader title={"Create Event"} sx={{borderBottom:'1px solid grey'}}/>
                 <CardHeader title={"General Info"} sx={{borderBottom: '1px solid grey'}}/>
                 <CardContent>
-                    <TextField defaultValue={eventName} onChange={(event) => setEventName(event.target.value)} label="Event Name" sx={{paddingBottom: '8px', minWidth:250}}></TextField>
+                    <TextField required defaultValue={eventName} onChange={(event) => setEventName(event.target.value)} label="Event Name" sx={{paddingBottom: '8px', minWidth:250}} inputProps={{maxLength:50}}></TextField>
                     <br></br>
                     <LocalizationProvider localeText={{timePickerToolbarTitle: 'Enter Event Start Time'}} dateAdapter={AdapterDayjs} >
                         <DatePicker defaultValue={date} onChange={(event) => setDate(event)} label="Event Date" sx={{paddingBottom: '8px' , minWidth:250}}></DatePicker>
                         <br></br>
                         <FormControl>
                             <FormLabel> Event Description</FormLabel>
-                            <Textarea placeholder="Enter the event description here..."  onChange={(event) => {setDescription(event.target.value as string)}}/>
+                            <Textarea required placeholder="Enter the event description here..." onChange={(event) => {if (event.target.value.length < 250) setDescription(event.target.value)}} value={description} ></Textarea>
                         </FormControl>
                         <br></br>
                         <StaticTimePicker defaultValue={startTime} onChange={(event) => setStartTime(event)}  sx={{paddingBottom: '8px'}} slotProps={{actionBar:{actions:[]}}}/>
@@ -176,27 +249,76 @@ export default function OrgCreateEvent() : JSX.Element {
                     </Select>
 
                     <br></br>
-                    {tempElements}
+                    {renderedContent}
                 </CardContent>
                 <CardHeader title={"Optional Settings"} sx={{borderTop: '1px solid grey'}}/>
                 <CardContent sx={{borderTop: '1px solid grey'}}>
-                <TextField defaultValue={address} onChange={(event) => setAddress(event.target.value)} label="Alternate Address" sx={{paddingBottom: '8px', minWidth:250}}></TextField>
+                <TextField defaultValue={address} onChange={(event) => setAddress(event.target.value)} label="Alternate Address" sx={{paddingBottom: '8px', minWidth:250}} inputProps={{maxLength:50}}></TextField>
                 <br></br>
-                <TextField defaultValue={email} onChange={(event) => setEmail(event.target.value)} label="Alternate Email" sx={{paddingBottom: '8px', minWidth:250}}></TextField> 
+                <TextField defaultValue={email} onChange={(event) => setEmail(event.target.value)} label="Alternate Email" sx={{paddingBottom: '8px', minWidth:250}} inputProps={{maxLength:50}}></TextField> 
                 <br></br>
-                <TextField defaultValue={phoneNumber} onChange={(event) => setPhoneNumber(event.target.value)} label="Alternate Phone Number" sx={{paddingBottom: '8px', minWidth:250}}></TextField>     
+                <TextField defaultValue={phoneNumber} onChange={(event) => setPhoneNumber(event.target.value)} label="Alternate Phone Number" sx={{paddingBottom: '8px', minWidth:250}} inputProps={{maxLength:10}}></TextField>     
                 </CardContent>
                 <CardContent sx={{borderTop: '1px solid grey'}}>
-
-                    <Button onClick={processEventCreation}>Create Event</Button>
+                    <Button onClick={() => {setConfirmationModalOpen(true)}}>Create Event</Button>
                 </CardContent>
             </Card>
-        </>)
-
-    }, [volunteerLimit, optionalRoleInfo])
 
 
-   
-    return (renderedContent)
+        <Modal open={confirmationModalOpen}>
+            <Box sx={modalStyle}>
+
+            {
+                errorModal != "" && 
+
+                <>
+                    <Alert severity='error'>
+                        <AlertTitle>{errorModal}</AlertTitle>
+                    </Alert>
+                </>
+                
+            }
+
+            {
+                successModal != "" && 
+
+                <>
+                    <Alert severity='success'>
+                        <AlertTitle>Event successfully created!</AlertTitle>
+                    </Alert>
+                </>
+                
+            }
+
+                <Typography>Are you sure you want to create this event?</Typography>
+                <br></br>
+                <Typography>Name: {eventName}</Typography>
+                <br></br>
+                <Typography>Date: {date?.format('MM/DD/YYYY')}</Typography>
+                <br></br>
+                <Typography>Start Time: {startTime?.format('hh:mm:ss a')}</Typography>
+                <br></br>
+                <Typography>End Time: {endTime?.format('hh:mm:ss a')}</Typography>
+                <br></br>
+                <Typography>Description: {description}</Typography>
+                <br></br>
+                <Typography>Volunteer Slots: {volunteerLimit}</Typography>
+                <br></br>
+                {
+                optionalRoleInfo.map(function(object, index){
+                    if (object== null){
+                        return (<><Typography>Slot {index+1}: (No role name)</Typography><br></br></>)
+                    }
+                    else{
+                        return (<><Typography>Slot {index+1}: {object} </Typography><br></br></>)
+                    }
+                    
+                })
+                }
+                <Button onClick={() => {setConfirmationModalOpen(false); setErrorModal(""); setSuccessModal("");}}>Cancel</Button>
+                <Button onClick={processEventCreation}>Create</Button>
+            </Box>
+        </Modal>
+    </>)
 
 }
