@@ -39,8 +39,12 @@ export default function VolunteerProfile() : JSX.Element {
     const getLoadedInfo = async () => {
         setConfirmationResponse('')
 
-        var connectionStringWithParams = connectionString + "/getVolunteerProfile/" + sessionStorage.getItem("Id") + '/' + 'placeholdervalue'
-        await axios.get(connectionStringWithParams).then(function (response) {
+     
+        await axios.get(connectionString + "/getVolunteerProfile/", {params:{
+            volunteerId: sessionStorage.getItem("Id"),
+            username: sessionStorage.getItem("username"),
+            token: sessionStorage.getItem("token"), 
+        }}).then(function (response) {
             setLoadedInfo(response.data)
             
          }).catch(function (error){
@@ -82,14 +86,32 @@ export default function VolunteerProfile() : JSX.Element {
             return
         }
 
-        var connectionStringWithParams = connectionString + "/saveVolunteerProfile/" + sessionStorage.getItem("Id") + '/' + loadedInfo[0].Username + '/' + loadedInfo[0].Email + '/' + loadedInfo[0].PhoneNumber + '/' + loadedInfo[0].Bio + '/' + 'placeholdervalue'
-        await axios.post(connectionStringWithParams).then(function (response) {
-            setConfirmationResponse('Data saved.')
-            sessionStorage.setItem("Id", response.data)
+        await axios.post(connectionString + "/getTakenVolunteerData/", {params:{
+            email: loadedInfo[0].Email,
+            username: loadedInfo[0].Username,
+            phonenumber: loadedInfo[0].PhoneNumber,
+            token:  sessionStorage.getItem("token")
+        }}).then(function (response) {
+            axios.post(connectionString + "/saveVolunteerProfile/", {params:{
+                volunteerId: sessionStorage.getItem("Id"),
+                email: loadedInfo[0].Email,
+                username: loadedInfo[0].Username,
+                phonenumber: loadedInfo[0].PhoneNumber,
+                bio: loadedInfo[0].Bio,
+                token:  sessionStorage.getItem("token")
+            }}).then(function (response) {
+                setConfirmationResponse('Data saved.')
+                sessionStorage.setItem("username", loadedInfo[0].Username)
+             }).catch(function (error){
+                setConfirmationResponse(error.data.response)
+            
+             });  
          }).catch(function (error){
             setConfirmationResponse(error.data.response)
         
          });  
+
+        
 
          setDisabledButton(false)
 

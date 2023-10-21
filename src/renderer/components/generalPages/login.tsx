@@ -24,47 +24,69 @@ const Login = () : JSX.Element => {
     const [errorText, setErrorText] = React.useState<string>('');
     
 
-    const VerifyOrgLogin = async () => {
+    const VerifyLogin = async () => {
 
             setDisableLoginButton(true)
-
-            var connectionStringWithParams = connectionString + "/verifyorglogin/" + username + "/" + password
-            axios.get(connectionStringWithParams).then(function (response) {
-                    var getBody = response.data
-                    sessionStorage.setItem("state",getBody.State)
-                    sessionStorage.setItem("username",getBody.Username)
-                    sessionStorage.setItem("password",getBody.Password)
-                    sessionStorage.setItem("email",getBody.Email)
-                    sessionStorage.setItem("loginType","Organization")
-                    navigate('/emailverification')
+            setErrorText('')
+           
+            
+            if (loginType == 'Volunteer'){
                 
+                await axios.post(connectionString + '/verifylogin/', null, {
+                        params : {
+                                username: username,
+                                password: password,
+                                loginType: loginType,
 
-            }).catch(function (error){
-                setErrorText(error.response.data)
-            });  
-            setDisableLoginButton(false)
-    }
-
-    const VerifyVolunteerLogin = async () => {
-
-        setDisableLoginButton(true)
-        var connectionStringWithParams = connectionString + "/verifyvolunteerlogin/" + username + "/" + password
-        axios.get(connectionStringWithParams).then(function (response) {
-                    var getBody = response.data
-                    sessionStorage.setItem("state",getBody.State)
-                    sessionStorage.setItem("username",username)
-                    sessionStorage.setItem("password",password)
-                    sessionStorage.setItem("Id",getBody.VolunteerId)
-                    sessionStorage.setItem("loginType","Volunteer")
-                    navigate('/emailverification')
-                
-            }).catch(function (error){
-                setErrorText("Login Error")
-            });  
+                        }
+                        }).then(function (response) {
+                            
+                            var getBody = response.data
+                            sessionStorage.setItem("state",getBody.State)
+                            sessionStorage.setItem("username",username)
+                            sessionStorage.setItem("password",password)
+                            sessionStorage.setItem("Id",getBody.VolunteerId)
+                            sessionStorage.setItem("email", getBody.Email)
+                            sessionStorage.setItem("loginType","Volunteer")
+                            navigate('/emailverification')
+                        
+                    }).catch(function (error){
+                        setErrorText(error.response.data)
+                    });  
 
             
-        setDisableLoginButton(false)
-}
+                 setDisableLoginButton(false)
+            }
+            else{
+              
+                await axios.post(connectionString + '/verifylogin/', null, {
+                        params : {
+                                username: username,
+                                password: password,
+                                loginType: loginType,
+                                
+                        }
+                        }).then(function (response) {
+                        var getBody = response.data
+                        sessionStorage.setItem("state",getBody.State)
+                        sessionStorage.setItem("username",getBody.Username)
+                        sessionStorage.setItem("orgId", getBody.OrgId)
+                        sessionStorage.setItem("email", getBody.Email)
+                        sessionStorage.setItem("phoneNumber", getBody.phoneNumber)
+                        sessionStorage.setItem("address", getBody.Address)
+                        sessionStorage.setItem("loginType","Organization")
+                        navigate('/emailverification')
+                    
+
+                }).catch(function (error){
+                    setErrorText(error.response.data)
+                });  
+                setDisableLoginButton(false)
+            }
+
+            
+    }
+
 
 
     return(
@@ -75,10 +97,10 @@ const Login = () : JSX.Element => {
                                 position: 'absolute', left: '50%', top: '50%',
                                 transform: 'translate(-50%, -50%)'
                             }}>
-                            {errorText == 'Login Error' && 
+                            {errorText != '' && 
                     
                                 <Alert severity="error">
-                                    <AlertTitle>Login error, restart the app and try again.</AlertTitle>
+                                    <AlertTitle>{errorText}</AlertTitle>
                                 </Alert>
                             }
                             <Select labelId="demo-simple-select-label" value={loginType}  label="Login Type" onChange={(event) => setLoginType(event.target.value)}>
@@ -89,14 +111,7 @@ const Login = () : JSX.Element => {
                             <br></br>
                             <TextField id="outlined-basic" label="Password" onChange={(event) => setPassword(event.target.value)} type="password" variant="outlined" />
                             <br></br>
-                            <Button variant="outlined" disabled={disableLoginButton} onClick={() => {
-                                if (loginType.toString() == "Volunteer"){
-                                    VerifyVolunteerLogin()
-                                }
-                                else{
-                                    VerifyOrgLogin()
-                                }
-                            }}>
+                            <Button variant="outlined" disabled={disableLoginButton} onClick={() => {VerifyLogin()}}>
                                 Login
                             </Button>
 

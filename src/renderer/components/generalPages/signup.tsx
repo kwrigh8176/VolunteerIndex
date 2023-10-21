@@ -92,8 +92,20 @@ const SignUp = () : JSX.Element => {
         {/*Resetting the error text*/}
         setErrorText('');
 
-        var connectionStringWithParams = connectionString + "/processVolunteerSignUp/" + email + '/' + phoneNumber + '/' + username + '/' + password + '/' + firstName + '/' + lastName + '/' + state + '/' + DOB + '/' + middleInitial
-        axios.get(connectionStringWithParams).then(function (response) {
+       
+        await axios.post(connectionString + "/processVolunteerSignUp/", null, {
+            params: {
+                email: email,
+                phoneNumber: phoneNumber,
+                username: username,
+                password: password,
+                firstName: firstName,
+                lastName: lastName,
+                state: state,
+                DOB: DOB,
+                middleInitial: middleInitial,
+            }
+        }).then(function (response) {
             setSuccessfulText(true)
             setTimeout(() =>{
                 navigate("/")
@@ -102,12 +114,13 @@ const SignUp = () : JSX.Element => {
 
         }).catch(function (error){
             setErrorText(error.response.data)
+            setDisableSignUpButton(false)
         });  
 
             
 
 
-        setDisableSignUpButton(false)
+       
          
     }
     
@@ -134,8 +147,16 @@ const SignUp = () : JSX.Element => {
         }
 
         setDisableSignUpButton(true)
-        var connectionStringWithParams = connectionString + "/processOrgSignUp/" + email + '/' + phoneNumber + '/' + username + '/' + password + '/' + orgName + '/' + address + '/' + state + '/' + DOB + '/' + middleInitial
-        axios.get(connectionStringWithParams).then(function (response) {
+       
+        axios.post(connectionString + "/processOrgSignUp/", null, {params: {
+            email: email,
+            phoneNumber: phoneNumber,
+            username: username,
+            password: password,
+            orgName: orgName,
+            address: address,
+            state: state,
+        }}).then(function (response) {
             setSuccessfulText(true)
             setTimeout(() =>{
                 navigate("/")

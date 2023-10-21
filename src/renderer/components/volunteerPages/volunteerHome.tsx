@@ -27,8 +27,13 @@ const VolunteerHome = () : JSX.Element => {
     const fetchEvents = async () => {
         var getValue: any[] = [];
         var formattedData = [];
-        var connectionStringWithParams = connectionString + "/fetchVolunteerHome/" + sessionStorage.getItem("Id") + '/' + sessionStorage.getItem("state") + '/' + 'placeholdervalue'
-        await axios.get(connectionStringWithParams).then(function (response) {
+        
+        await axios.get(connectionString + "/fetchVolunteerHome/",{params:{
+            volunteerId: sessionStorage.getItem("Id"),
+            state: sessionStorage.getItem("state"),
+            username: sessionStorage.getItem('username'),
+            token: sessionStorage.getItem('token')
+        }}).then(function (response) {
             getValue = response.data
         }).catch(function (error){
             console.log(error.response.data)

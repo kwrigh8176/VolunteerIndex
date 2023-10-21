@@ -7,9 +7,12 @@ import SignUp from "./components/generalPages/signup";
 import EmailVerification from "./components/generalPages/emailVerification";
 import VolunteerEvents from "./components/volunteerPages/VolunteerEvents";
 import VolunteerHome from "./components/volunteerPages/VolunteerHome";
-import OrgHome from "./components/organizationPages/OrgHome";
+import OrgHome from "./components/organizationPages/OrgEvents";
 import VolunteerPastEvents from "./components/volunteerPages/VolunteerPastEvents";
 import VolunteerProfile from "./components/volunteerPages/VolunteerProfile";
+import OrgEvents from "./components/organizationPages/OrgEvents";
+import OrgPastEvents from "./components/organizationPages/OrgPastEvents";
+import OrgCreateEvent from "./components/organizationPages/OrgCreateEvent";
 
 const rootElement = document.getElementById("root");
 const root = createRoot(rootElement!);
@@ -33,7 +36,12 @@ root.render(
         <Route key="volunteerPastEvents"  path="/volunteerPastEvents" element={<VolunteerPastEvents />} />
 
         <Route key="volunteerProfile"  path="/volunteerProfile" element={<VolunteerProfile />} />
-        <Route key="orgHome"  path="/orgHome" element={<OrgHome />} />
+
+        <Route key="orgCurrentEvents"  path="/orgCurrentEvents" element={<OrgEvents />} />
+
+        <Route key="orgPastEvents"  path="/orgPastEvents" element={<OrgPastEvents />} />
+
+        <Route key="orgCurrentEvents"  path="/orgCreateEvents" element={<OrgCreateEvent />} />
 
     </Routes>
 </BrowserRouter>
