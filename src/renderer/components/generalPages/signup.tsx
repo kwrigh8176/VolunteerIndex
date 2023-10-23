@@ -178,18 +178,17 @@ const SignUp = () : JSX.Element => {
                         position: 'absolute', left: '50%', top: '50%',
                         transform: 'translate(-50%, -50%)'
                     }}>
-                        {errorText.toString() != '' && 
+                        {errorText != '' && 
                     
                             <Alert severity="error">
-                                <AlertTitle>Invalid Inputs</AlertTitle>
-                                {errorText} 
+                                <AlertTitle>{errorText}</AlertTitle>
                             </Alert>
                         }
                         {successfulText == false && 
                     
                             <Alert severity="success">
                                 <AlertTitle>Sign up successful. Redirecting.</AlertTitle>
-                                {errorText} 
+                                
                             </Alert>
                         }
                         <TextField id="outlined-basic" label="First Name" inputProps={{maxLength: 50}} onChange={(event) => setFirstName(event.target.value)} variant="outlined"/>

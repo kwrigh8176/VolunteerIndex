@@ -158,12 +158,13 @@ const modalStyle = {
             optionalRoleInfo: JSON.stringify(optionalRoleInfo),
             username: sessionStorage.getItem("username"),
             token: sessionStorage.getItem("token"),
+            loginType : sessionStorage.getItem("loginType")
 
           }})
           .then(response => {
             setSuccessModal("Success")
           })
-          .catch(err => console.log(err));
+          .catch(err => setErrorModal(err.response.message));
     }
 
     useEffect(() =>  {

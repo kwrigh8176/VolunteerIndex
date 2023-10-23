@@ -49,13 +49,13 @@ export default function VolunteerEvents() : JSX.Element {
         var tempArray = new Array()
 
 
-        
+        var tempText = '';
         await axios.get(connectionString + "/getEvents/", {
             params:{
                 state: state,
                 username: sessionStorage.getItem("username"),
-                token: sessionStorage.getItem("token")
-
+                token: sessionStorage.getItem("token"),
+                loginType: sessionStorage.getItem("loginType")
             }
         }).then(function (response){
                 setCardsFromDb(response.data)
@@ -63,8 +63,12 @@ export default function VolunteerEvents() : JSX.Element {
         })
         .catch(function (error){
             setErrorText(error.response.data)
+            tempText = error.response.data;
         }); 
-        
+
+        if (tempText != ''){
+            return 
+        }
 
 
         var holdSlots = new Array()
@@ -84,7 +88,8 @@ export default function VolunteerEvents() : JSX.Element {
                 params:{
                     eventId: eventId,
                     username: sessionStorage.getItem("username"),
-                    token: sessionStorage.getItem("token")
+                    token: sessionStorage.getItem("token"),
+                    loginType: sessionStorage.getItem("loginType")
                 }
             }).then(function (response) {
                 if (response.data.length >= 1){
@@ -119,8 +124,8 @@ export default function VolunteerEvents() : JSX.Element {
                 activeEventId: activeEventId,
                 volunteerId: sessionStorage.getItem('Id'),
                 username: sessionStorage.getItem('username'),
-                token: sessionStorage.getItem('token')
-                
+                token: sessionStorage.getItem('token'),
+                loginType: sessionStorage.getItem("loginType")
             }
         }).then(function (response) {
             if (response.data.length != 0){
@@ -137,12 +142,14 @@ export default function VolunteerEvents() : JSX.Element {
             else{
                 setCardsFromDb(response.data)
             }
+            setSuccessfulText('Successful sign up!')
+            getValue = 'Successfully signed up for the event.'
         }).catch(function (error){
             setErrorText(error.response.data)
             
         });   
 
-        setErrorText(getValue)
+        
 
         if (getValue == 'Successfully signed up for the event.')
         {
@@ -163,13 +170,15 @@ export default function VolunteerEvents() : JSX.Element {
         await axios.post(connectionString + "/withdrawFromEvents/", null,{params:{
             activeSlotId: activeSlot,
             username: sessionStorage.getItem('username'),
-            token: sessionStorage.getItem('token')
+            token: sessionStorage.getItem('token'),
+            loginType: sessionStorage.getItem('loginType')
         }}).then(function (response) {
                 getValue = response.data
         }).catch(function (error){
-            getValue = error.response.data
+            setErrorText(error.response.data)
             
         });  
+
         if (getValue == 'Withdraw successful.'){
             setWithdrawalModalText('Successfully withdrew from event. Refreshing...')
             setTimeout(() => {
@@ -197,7 +206,7 @@ export default function VolunteerEvents() : JSX.Element {
     const [eventName, setEventName] = React.useState('');
     const [loading, setLoading] = React.useState(0)
     const [renderedCards, setRenderedCards] = React.useState<any[]>([])
-
+    const [successfulText, setSuccessfulText] = React.useState('');
     
 
     {/*Handles when a slot button is clicked*/}
@@ -349,31 +358,13 @@ export default function VolunteerEvents() : JSX.Element {
                         
                     >
                         <Box sx={modalStyle}>
-                            {errorText == '1' && 
+                            {errorText != '' && 
                                 
                                 <Alert severity="error">
-                                    <AlertTitle>Slot was taken.</AlertTitle>
+                                    <AlertTitle>{errorText}</AlertTitle>
                                 </Alert>
                             }
-                            {errorText== '2' && 
-                                
-                                <Alert severity='success'>
-                                    <AlertTitle>You registered for this slot. Refreshing the page.</AlertTitle>
-                                </Alert>
-                            }
-                            {errorText == '3' && 
-                                
-                                <Alert severity='error'>
-                                    <AlertTitle>You have already signed up for this event.</AlertTitle>
-                                </Alert>
-                            }
-                            {errorText == '0' && 
-                                
-                                <Alert severity='error'>
-                                    <AlertTitle>Error has occured. Please try again.</AlertTitle>
-                                </Alert>
-                            }
-                            {errorText == 'Successfully signed up for the event.' && 
+                            {successfulText != '' && 
                                 
                                 <Alert severity='success'>
                                     <AlertTitle>Successfully signed up for the event. Reloading.</AlertTitle>

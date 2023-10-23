@@ -44,11 +44,12 @@ export default function VolunteerProfile() : JSX.Element {
             volunteerId: sessionStorage.getItem("Id"),
             username: sessionStorage.getItem("username"),
             token: sessionStorage.getItem("token"), 
+            loginType: sessionStorage.getItem("loginType")
         }}).then(function (response) {
             setLoadedInfo(response.data)
             
          }).catch(function (error){
-            setLoadedInfoJSX(<p>Data could not be retrieved. Try restarting the app.</p>)
+            setLoadedInfoJSX(<p>{error.response.data}</p>)
         
          });  
     }
@@ -90,7 +91,8 @@ export default function VolunteerProfile() : JSX.Element {
             email: loadedInfo[0].Email,
             username: loadedInfo[0].Username,
             phonenumber: loadedInfo[0].PhoneNumber,
-            token:  sessionStorage.getItem("token")
+            token:  sessionStorage.getItem("token"),
+            loginType: sessionStorage.getItem("loginType")
         }}).then(function (response) {
             axios.post(connectionString + "/saveVolunteerProfile/", {params:{
                 volunteerId: sessionStorage.getItem("Id"),
@@ -98,7 +100,8 @@ export default function VolunteerProfile() : JSX.Element {
                 username: loadedInfo[0].Username,
                 phonenumber: loadedInfo[0].PhoneNumber,
                 bio: loadedInfo[0].Bio,
-                token:  sessionStorage.getItem("token")
+                token:  sessionStorage.getItem("token"),
+                loginType: sessionStorage.getItem("loginType")
             }}).then(function (response) {
                 setConfirmationResponse('Data saved.')
                 sessionStorage.setItem("username", loadedInfo[0].Username)

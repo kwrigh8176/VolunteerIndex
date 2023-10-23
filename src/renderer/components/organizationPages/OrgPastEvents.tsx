@@ -4,11 +4,11 @@ import axios from "axios";
 import OrgNavBar from "./OrgNavbar";
 import CardHeader from "@mui/material/CardHeader";
 import Card from "@mui/material/Card";
-import Avatar from "@mui/material/Avatar";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import dayjs from "dayjs";
 import Box from "@mui/material/Box";
+import { Alert, AlertTitle } from "@mui/material";
 
 
 
@@ -27,24 +27,27 @@ export default function OrgPastEvents() : JSX.Element {
     {/*Event Retrieval*/}
 
     const getEvents = async () => {
-        var state = sessionStorage.getItem("state")
+
         var tempArray = new Array()
+        var tempText = ''
 
-
-        
         await axios.get(connectionString + "/getOrganizationPastEvents/", {params:{
             orgId: orgId,
             username: sessionStorage.getItem("username"),
-            token: sessionStorage.getItem("token")
+            token: sessionStorage.getItem("token"),
+            loginType: sessionStorage.getItem("loginType")
         }}).then(function (response){
                 setCardsFromDb(response.data)
                 tempArray.push(response.data) 
         })
         .catch(function (error){
             setErrorText(error.response.data)
+            tempText = error.response.data
         }); 
         
-
+        if (tempText != ''){
+            return 
+        }
 
         var holdSlots = new Array()
 
@@ -195,7 +198,12 @@ export default function OrgPastEvents() : JSX.Element {
             <>
                 <OrgNavBar/>
                 {renderedCards}
-
+                {errorText != '' && 
+                    
+                    <Alert severity="error">
+                        <AlertTitle>{errorText}</AlertTitle>
+                    </Alert>
+                }
             </>
 
         )
