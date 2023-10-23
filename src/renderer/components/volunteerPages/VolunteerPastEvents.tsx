@@ -9,6 +9,8 @@ import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import dayjs from "dayjs";
 import Box from "@mui/material/Box";
+import Alert from "@mui/material/Alert";
+import AlertTitle from "@mui/material/AlertTitle";
 
 
 
@@ -17,16 +19,16 @@ export default function VolunteerPastEvents() : JSX.Element {
 
     const [cardsFromDb,setCardsFromDb] = React.useState<any[]>([])
     const [renderedCards, setRenderedCards] = React.useState<any[]>([])
-
+    const [errorText, setErrorText] = React.useState('');
     const [loading, setLoading] = React.useState(0)
 
     const getPastEvents = async () => {
 
-       
         await axios.get(connectionString + "/getPastEvents/", {params:{
             volunteerId: sessionStorage.getItem("Id"),
             username: sessionStorage.getItem("username"),
-            token: sessionStorage.getItem("token")
+            token: sessionStorage.getItem("token"),
+            loginType: sessionStorage.getItem("loginType")
         }}).then(function (response){
 
                 if (response.data.length != 0){
@@ -46,7 +48,7 @@ export default function VolunteerPastEvents() : JSX.Element {
                 
         })
         .catch(function (error){
-            
+            setErrorText(error.response.data)
         }); 
     }
 
@@ -113,6 +115,12 @@ export default function VolunteerPastEvents() : JSX.Element {
         return (
             <>
                 <VolunteerNavBar/>
+                {errorText != '' && 
+                                
+                    <Alert severity="error">
+                        <AlertTitle>{errorText}</AlertTitle>
+                    </Alert>
+                }
                 {renderedCards}
             </>
         )

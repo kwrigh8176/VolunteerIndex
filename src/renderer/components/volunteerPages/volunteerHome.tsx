@@ -5,8 +5,9 @@ import connectionString from '../../../../config';
 import axios from 'axios';
 import { PieChart } from '@mui/x-charts/PieChart';
 import dayjs from 'dayjs';
-import { Select } from '@mui/material';
+import { Alert, AlertTitle, Select } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
+import { session } from 'electron';
 
 
 
@@ -19,6 +20,8 @@ const VolunteerHome = () : JSX.Element => {
     const [allData, setAllData] = React.useState<any[]>([]);
     const [pieChartData, setPieChartData] = React.useState<JSX.Element>(<p>Loading pie chart...</p>)
     const [loading, setLoading] = React.useState(0);
+    const [errorText, setErrorText] = React.useState('');
+
     const [pieChartSettings, setPieChartSettings] = React.useState({
         timeSetting: "day",
         hours: "all"
@@ -28,17 +31,24 @@ const VolunteerHome = () : JSX.Element => {
         var getValue: any[] = [];
         var formattedData = [];
         
+        var tempText = '';
         await axios.get(connectionString + "/fetchVolunteerHome/",{params:{
             volunteerId: sessionStorage.getItem("Id"),
             state: sessionStorage.getItem("state"),
             username: sessionStorage.getItem('username'),
-            token: sessionStorage.getItem('token')
+            token: sessionStorage.getItem('token'),
+            loginType: sessionStorage.getItem('loginType')
         }}).then(function (response) {
             getValue = response.data
         }).catch(function (error){
-            console.log(error.response.data)
+            setErrorText(error.response.data)
+            tempText = error.response.data
         });  
 
+        if (tempText != ''){
+            return 
+        }
+        
         for (let index = 0;  index < getValue.length; index++){
             var currLine = getValue[index];
 
@@ -243,6 +253,7 @@ const VolunteerHome = () : JSX.Element => {
     }, [allData])
 
     useEffect (() => {
+        setErrorText('')
         var data = allData
 
         if (pieChartSettings.hours == "verified"){
@@ -444,6 +455,12 @@ const VolunteerHome = () : JSX.Element => {
             <>
                 <VolunteerNavBar/>
                 {pieChartData}
+                {errorText != '' && 
+                                
+                    <Alert severity="error">
+                        <AlertTitle>{errorText}</AlertTitle>
+                    </Alert>
+                }
                 <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"

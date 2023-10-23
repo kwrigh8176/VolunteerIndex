@@ -3,7 +3,7 @@ import Card from "@mui/material/Card"
 import CardHeader from "@mui/material/CardHeader"
 import CardContent from "@mui/material/CardContent"
 import Typography from "@mui/material/Typography"
-import {Box, Button, IconButton } from "@mui/material"
+import {Alert, AlertTitle, Box, Button, IconButton } from "@mui/material"
 import OrgNavBar from "./OrgNavbar"
 import dayjs from "dayjs"
 import connectionString from "../../../../config"
@@ -28,10 +28,9 @@ export default function OrgEvents() : JSX.Element {
     {/*Event Retrieval*/}
 
     const getEvents = async () => {
-        var state = sessionStorage.getItem("state")
         var tempArray = new Array()
 
-
+        var tempText = '';
      
         await axios.get(connectionString + "/getOrganizationCurrentEvents/",{params:{
             orgId: orgId,
@@ -43,18 +42,20 @@ export default function OrgEvents() : JSX.Element {
         })
         .catch(function (error){
             setErrorText(error.response.data)
+            tempText = error.response.data
+            return
         }); 
         
 
 
         var holdSlots = new Array()
 
-        if (tempArray.length == 1){
-            if (tempArray[0].length == 0){
-                return 
-            }
-            
+
+        if (tempText != ''){
+            return 
         }
+            
+     
 
         for (var i = 0; i < tempArray[0].length; i++){
             var eventId = tempArray[0][i].EventId
@@ -63,7 +64,8 @@ export default function OrgEvents() : JSX.Element {
             await axios.get(connectionString + "/getOrganizationEventSlots/",{params:{
                 eventId: eventId,
                 username: sessionStorage.getItem("username"),
-                token: sessionStorage.getItem("token")
+                token: sessionStorage.getItem("token"),
+                loginType: sessionStorage.getItem("loginType")
             }}).then(function (response) {
                 if (response.data.length >= 1){
                     for (var dataindex = 0; dataindex < response.data.length; dataindex++){
@@ -73,6 +75,7 @@ export default function OrgEvents() : JSX.Element {
                    
             }).catch(function (error){
                 setErrorText(error.response.data)
+                return
             });     
 
         }
@@ -205,7 +208,12 @@ export default function OrgEvents() : JSX.Element {
             <>
                 <OrgNavBar/>
                 {renderedCards}
-
+                {errorText != '' && 
+                    
+                    <Alert severity="error">
+                        <AlertTitle>{errorText}</AlertTitle>
+                    </Alert>
+                }
             </>
 
         )
