@@ -106,12 +106,23 @@ export default function VolunteerProfile() : JSX.Element {
                 setConfirmationResponse('Data saved.')
                 sessionStorage.setItem("username", loadedInfo[0].Username)
              }).catch(function (error){
-                setConfirmationResponse(error.data.response)
+                if (error.response == undefined){
+                    setConfirmationResponse("Network error connecting to the API, please try again.")
+                }
+                else
+                {
+                    setConfirmationResponse(error.response.data)
+                }
             
              });  
          }).catch(function (error){
-            setConfirmationResponse(error.data.response)
-        
+            if (error.response == undefined){
+                setConfirmationResponse("Network error connecting to the API, please try again.")
+            }
+            else
+            {
+                setConfirmationResponse(error.response.data)
+            }
          });  
 
         

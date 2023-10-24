@@ -41,8 +41,16 @@ export default function OrgPastEvents() : JSX.Element {
                 tempArray.push(response.data) 
         })
         .catch(function (error){
-            setErrorText(error.response.data)
-            tempText = error.response.data
+            tempText = 'error'
+            if (error.response == undefined)
+            {
+                setErrorText('Error connecting to the API. Please try again.')
+            }
+            else
+            {
+                setErrorText(error.response.data)
+            }
+            
         }); 
         
         if (tempText != ''){
@@ -74,7 +82,15 @@ export default function OrgPastEvents() : JSX.Element {
                 }
                    
             }).catch(function (error){
-                setErrorText(error.response.data)
+                if (error.response == undefined)
+                {
+                    setErrorText('Error connecting to the API. Please try again.')
+                }
+                else
+                {
+                    setErrorText(error.response.data)
+                }
+
             });     
 
         }

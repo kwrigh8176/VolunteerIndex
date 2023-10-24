@@ -48,7 +48,13 @@ export default function VolunteerPastEvents() : JSX.Element {
                 
         })
         .catch(function (error){
-            setErrorText(error.response.data)
+            if (error.response == undefined){
+                setErrorText("Network error connecting to the API, please try again.")
+            }
+            else
+            {
+                setErrorText(error.response.data)
+            }
         }); 
     }
 

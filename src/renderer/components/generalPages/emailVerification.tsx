@@ -12,7 +12,9 @@ export default function emailVerification() : JSX.Element {
     const [buttonDisable, setbuttonDisable] = React.useState(false)
     const [verifyButtonDisable, setVerifyButtonDisable] = React.useState(false)
     const [verifyTextBox, setVerifyTextBox] = React.useState('')
+
     const [errorText, setErrorText] = React.useState('')
+    const [successText, setSuccessText] = React.useState('')
 
     const navigate = useNavigate();
     
@@ -25,8 +27,18 @@ export default function emailVerification() : JSX.Element {
                 email: sessionStorage.getItem("email"),
                 loginType: sessionStorage.getItem("loginType"),
             }
-        }).then(function (response) {});       
+        }).then(function (response) {
 
+        }).catch(function(error){
+            if (error.response == undefined)
+            {
+                setErrorText('Error connecting to the API. Please try again.')
+            }
+            else{
+                setErrorText(error.response.data)
+            }
+        });       
+            
         setTimeout(() => {
             setbuttonDisable(false)
         }, 30000)
@@ -63,8 +75,15 @@ export default function emailVerification() : JSX.Element {
                 
             
 
-        }).catch(function (){
-            setErrorText('Invalid Code')
+        }).catch(function (error){
+            if (error.response == undefined)
+            {
+                setErrorText('Error connecting to the API. Please try again.')
+            }
+            else{
+                setErrorText(error.response.data)
+            }
+            
             
         });        
 
@@ -81,7 +100,7 @@ export default function emailVerification() : JSX.Element {
                 position: 'absolute', left: '50%', top: '50%',
                 transform: 'translate(-50%, -50%)'
             }}>
-                {errorText.toString() == 'Invalid Code' && 
+                {errorText != '' && 
                     
                             <Alert severity="error">
                                 <AlertTitle>Invalid Code</AlertTitle>

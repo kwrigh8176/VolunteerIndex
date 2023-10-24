@@ -62,8 +62,15 @@ export default function VolunteerEvents() : JSX.Element {
                 tempArray.push(response.data) 
         })
         .catch(function (error){
-            setErrorText(error.response.data)
-            tempText = error.response.data;
+            tempText = "error";
+            if (error.response == undefined){
+                setErrorText("Network error connecting to the API, please try again.")
+            }
+            else
+            {
+                setErrorText(error.response.data)
+            }
+            
         }); 
 
         if (tempText != ''){
@@ -99,7 +106,13 @@ export default function VolunteerEvents() : JSX.Element {
                 }
                    
             }).catch(function (error){
-                setErrorText(error.response.data)
+                if (error.response == undefined){
+                    setErrorText("Network error connecting to the API, please try again.")
+                }
+                else
+                {
+                    setErrorText(error.response.data)
+                }
             });     
 
         }
@@ -145,7 +158,13 @@ export default function VolunteerEvents() : JSX.Element {
             setSuccessfulText('Successful sign up!')
             getValue = 'Successfully signed up for the event.'
         }).catch(function (error){
-            setErrorText(error.response.data)
+            if (error.response == undefined){
+                setErrorText("Network error connecting to the API, please try again.")
+            }
+            else
+            {
+                setErrorText(error.response.data)
+            }
             
         });   
 
@@ -175,7 +194,13 @@ export default function VolunteerEvents() : JSX.Element {
         }}).then(function (response) {
                 getValue = response.data
         }).catch(function (error){
-            setErrorText(error.response.data)
+            if (error.response == undefined){
+                setErrorText("Network error connecting to the API, please try again.")
+            }
+            else
+            {
+                setErrorText(error.response.data)
+            }
             
         });  
 

@@ -9,7 +9,6 @@ import dayjs from "dayjs"
 import connectionString from "../../../../config"
 import axios from 'axios';
 import EditIcon from '@mui/icons-material/Edit';
-import { render } from "react-dom"
 
 /*
     This is meant to be the main event feed. Where all current events are displayed.

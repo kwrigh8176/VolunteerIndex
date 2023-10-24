@@ -164,7 +164,15 @@ export default function OrgCreateEvent() : JSX.Element {
           .then(response => {
             setSuccessModal("Success")
           })
-          .catch(err => setErrorModal(err.response.message));
+          .catch(error => {
+            if (error.response == undefined)
+            {
+                setErrorModal('Error connecting to the API. Please try again.')
+            }
+            else{
+                setErrorModal(error.response.data)
+            }
+          });
     }
 
     useEffect(() =>  {
