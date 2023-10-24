@@ -3,7 +3,7 @@ import Card from "@mui/material/Card"
 import CardHeader from "@mui/material/CardHeader"
 import CardContent from "@mui/material/CardContent"
 import Typography from "@mui/material/Typography"
-import {Alert, AlertTitle, Box, Button, IconButton } from "@mui/material"
+import {Alert, AlertTitle, Box, Button, IconButton, Modal } from "@mui/material"
 import OrgNavBar from "./OrgNavbar"
 import dayjs from "dayjs"
 import connectionString from "../../../../config"
@@ -20,6 +20,25 @@ export default function OrgEvents() : JSX.Element {
     const [cardsFromDb,setCardsFromDb] = React.useState<any[]>([])
     const [eventSlots,setEventSlots] = React.useState<any[]>([])
     const orgId = sessionStorage.getItem('orgId');
+
+    const [kickUserModal, setKickUserModal] = React.useState(false);
+    const [kickModalContent, setKickModalContent] =  React.useState<any>()
+    const [kickModalJSX, setKickModalJSX] =  React.useState<JSX.Element>(<></>)
+    const [kickModalError, setKickModalError] = React.useState('')
+    const [kickModalSuccess, setKickModalSuccess] = React.useState('')
+
+    const modalStyle = {
+        position: 'absolute' as 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: 400,
+        bgcolor: 'background.paper',
+        border: '2px solid #000',
+        boxShadow: 24,
+        p: 4,
+        backdrop: 'static'
+    };
 
     useEffect(() => {
         getEvents()
@@ -41,13 +60,18 @@ export default function OrgEvents() : JSX.Element {
                 tempArray.push(response.data) 
         })
         .catch(function (error){
-            setErrorText(error.response.data)
-            tempText = error.response.data
+            if (error.response == undefined){
+                setErrorText("Network error connecting to the API, please try again.")
+                tempText = "Network error connecting to the API, please try again."
+            }
+            else
+            {
+                setErrorText(error.response.data)
+                tempText = error.response.data
+            }
             return
         }); 
         
-
-
         var holdSlots = new Array()
 
 
@@ -55,8 +79,6 @@ export default function OrgEvents() : JSX.Element {
             return 
         }
             
-     
-
         for (var i = 0; i < tempArray[0].length; i++){
             var eventId = tempArray[0][i].EventId
 
@@ -74,7 +96,13 @@ export default function OrgEvents() : JSX.Element {
                 }
                    
             }).catch(function (error){
-                setErrorText(error.response.data)
+                if (error.response == undefined){
+                    setErrorText("Network error connecting to the API, please try again.")
+                }
+                else
+                {
+                    setErrorText(error.response.data)
+                }
                 return
             });     
 
@@ -86,13 +114,30 @@ export default function OrgEvents() : JSX.Element {
 
     }
 
-  
-
-
-   
-  
-
-   
+    const kickUser = async (Id : number) => {
+        await axios.post(connectionString + "/organizationKickIndividual/", null, {params:{
+            slotId: Id,
+            username: sessionStorage.getItem("username"),
+            token: sessionStorage.getItem("token"),
+            loginType: sessionStorage.getItem("loginType")
+        }}).then(function (response) {
+            setKickModalSuccess(response.data)
+            setTimeout(() => {
+                window.location.reload();
+            }, 5000)
+        }).catch(function (error){
+            
+            if (error.response == undefined){
+                setKickModalError("Network error connecting to the API, please try again.")
+            }
+            else{
+                setKickModalError(error.response.data)
+            }
+            
+            
+            return
+        })
+    }
 
     const [errorText, setErrorText] = React.useState('');
 
@@ -108,7 +153,7 @@ export default function OrgEvents() : JSX.Element {
         var eventSlotCopy = eventSlots
         var tempArray = []
 
-
+        var counter = 0;
         for (var cardIndex = 0; cardIndex < cardsFromDb.length; cardIndex++){
 
             var renderedSlots = new Array<JSX.Element>
@@ -126,19 +171,21 @@ export default function OrgEvents() : JSX.Element {
                         renderedSlots.push(
                             <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
                                 
-                                <Button fullWidth>Open Role: {eventSlotCopy[eventSlotCounter].RoleName}</Button>
+                                <Typography>Open Role: {eventSlotCopy[eventSlotCounter].RoleName}</Typography>
                             </Box>)
                         
                     }
                     /*Closed slots*/ 
                     else{
+                        var getCard = cardsFromDb[cardIndex]
+                        var getEventSlot = eventSlotCopy[eventSlotCounter]
                         renderedSlots.push(
                             <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#fa534d'}}>
-                                <Typography>Taken by: {eventSlotCopy[eventSlotCounter].FirstName} {eventSlotCopy[eventSlotCounter].LastName}</Typography>
+                                <Button fullWidth onClick={() => {setKickModalContent([getCard,getEventSlot])}}>Taken by: {eventSlotCopy[eventSlotCounter].FirstName} {eventSlotCopy[eventSlotCounter].LastName}</Button>
                             </Box>)
                     }
                     
-
+                    counter++;
             }
 
             eventSlotCopy = eventSlotCopy.slice(cardsFromDb[cardIndex].VolunteerLimit)
@@ -187,6 +234,54 @@ export default function OrgEvents() : JSX.Element {
 
     }, [eventSlots]) 
 
+    useEffect(() => {
+
+        if (kickModalContent == undefined)
+        return
+
+        if (kickModalContent[0] == undefined)
+        return
+
+        var eventInfo = kickModalContent[0]
+        var slotInfo = kickModalContent[1]
+
+        setKickModalJSX(
+        <>
+            {kickModalError != '' &&
+                <Alert severity="error">
+                    <AlertTitle>{kickModalError}</AlertTitle>
+                </Alert>
+            }
+            {kickModalSuccess != '' &&
+                <Alert severity="success">
+                    <AlertTitle>{kickModalSuccess}</AlertTitle>
+                </Alert>
+            }
+            <Typography sx={{textDecoration:'underline', fontSize:17}}>Event Info</Typography>
+            <br></br>
+            <Typography>Event Name: {eventInfo.EventName}</Typography>
+            <br></br>
+            <Typography>Start Time: {eventInfo.StartTime}</Typography>
+            <br></br>
+            <Typography>End Time: {eventInfo.EndTime}</Typography>
+            <br></br>
+            <Typography>Description: {eventInfo.Description}</Typography>
+            <br></br>
+            <Typography sx={{textDecoration:'underline', fontSize:17}}> Would you like to kick this user from the event?</Typography>
+            <br></br>
+            <Typography>Name of Individual: {slotInfo.FirstName} {slotInfo.LastName}</Typography>
+            <br></br>
+            <Typography>Username: {slotInfo.Username}</Typography>
+            <br></br>
+            <Typography>Role Name: {slotInfo.RoleName}</Typography>
+            <br></br>
+            <Button onClick={() => setKickUserModal(false)}>Cancel</Button>
+            <Button onClick={() => {kickUser(slotInfo.Id)}}>Submit</Button>
+        </>
+        )
+
+        setKickUserModal(true)
+    },[kickModalContent, kickModalError, kickModalSuccess])
 
   
     if (loading == 0){
@@ -207,6 +302,12 @@ export default function OrgEvents() : JSX.Element {
        return(
             <>
                 <OrgNavBar/>
+                { renderedCards.length == 0 && errorText == '' && 
+                    <Alert severity="warning">
+                      <AlertTitle>Fetching data from API...</AlertTitle>
+                  </Alert>
+
+                }
                 {renderedCards}
                 {errorText != '' && 
                     
@@ -214,6 +315,11 @@ export default function OrgEvents() : JSX.Element {
                         <AlertTitle>{errorText}</AlertTitle>
                     </Alert>
                 }
+                <Modal open={kickUserModal}>
+                <Box sx={modalStyle}>
+                    {kickModalJSX}
+                </Box>
+                </Modal>
             </>
 
         )

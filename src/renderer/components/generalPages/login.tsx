@@ -12,9 +12,6 @@ import axios from 'axios';
 
 const Login = () : JSX.Element => {
     
-    const sql = require('mssql');
-    const request = require('request');
-
     const navigate = useNavigate();
     
     const [username, setUsername] = React.useState<string>('');
@@ -51,7 +48,13 @@ const Login = () : JSX.Element => {
                             navigate('/emailverification')
                         
                     }).catch(function (error){
-                        setErrorText(error.response.data)
+                        if (error.response == undefined)
+                        {
+                            setErrorText('Error connecting to the API. Please try again.')
+                        }
+                        else{
+                            setErrorText(error.response.data)
+                        }
                     });  
 
             
@@ -79,7 +82,13 @@ const Login = () : JSX.Element => {
                     
 
                 }).catch(function (error){
-                    setErrorText(error.response.data)
+                    if (error.response == undefined)
+                    {
+                        setErrorText('Error connecting to the API. Please try again.')
+                    }
+                    else{
+                        setErrorText(error.response.data)
+                    }
                 });  
                 setDisableLoginButton(false)
             }

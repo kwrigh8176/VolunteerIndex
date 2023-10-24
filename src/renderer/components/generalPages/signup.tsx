@@ -56,7 +56,7 @@ const SignUp = () : JSX.Element => {
     const [disableSignUpButton, setDisableSignUpButton] = React.useState<boolean>(false);
     const [signUpType, setSignUpType] = React.useState<string>('Volunteer');
     const [errorText, setErrorText] = React.useState<string>('');
-    const [successfulText, setSuccessfulText] = React.useState(false);
+    const [successfulText, setSuccessfulText] = React.useState(true);
 
     const [state, setState] = React.useState<string>('');
 
@@ -113,7 +113,13 @@ const SignUp = () : JSX.Element => {
 
 
         }).catch(function (error){
-            setErrorText(error.response.data)
+            if (error.response == undefined)
+            {
+                setErrorText('Error connecting to the API. Please try again.')
+            }
+            else{
+                setErrorText(error.response.data)
+            }
             setDisableSignUpButton(false)
         });  
 
@@ -157,12 +163,18 @@ const SignUp = () : JSX.Element => {
             address: address,
             state: state,
         }}).then(function (response) {
-            setSuccessfulText(true)
+            setSuccessfulText(false)
             setTimeout(() =>{
                 navigate("/")
             }, 5000)
         }).catch(function (error){
-            setErrorText(error.response.data)
+            if (error.response == undefined)
+            {
+                setErrorText('Error connecting to the API. Please try again.')
+            }
+            else{
+                setErrorText(error.response.data)
+            }
         });  
 
             setDisableSignUpButton(false)

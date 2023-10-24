@@ -7,7 +7,6 @@ import { PieChart } from '@mui/x-charts/PieChart';
 import dayjs from 'dayjs';
 import { Alert, AlertTitle, Select } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
-import { session } from 'electron';
 
 
 
@@ -41,8 +40,15 @@ const VolunteerHome = () : JSX.Element => {
         }}).then(function (response) {
             getValue = response.data
         }).catch(function (error){
-            setErrorText(error.response.data)
-            tempText = error.response.data
+            tempText = "error"
+            if (error.response == undefined){
+                setErrorText("Network error connecting to the API, please try again.")
+            }
+            else
+            {
+                setErrorText(error.response.data)
+            }
+            
         });  
 
         if (tempText != ''){

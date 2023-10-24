@@ -32,11 +32,14 @@
     "axios": "^1.5.1",
     "dayjs": "^1.11.10",
     "dotenv": "^16.3.1",
+    "got": "^11.8.5",
+    "minimatch": "^3.0.5",
     "mssql": "^10.0.1",
     "nodemailer": "^6.9.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.16.0",
+    "semver": "^7.5.2",
     "validator": "^13.11.0"
   },
   "devDependencies": {
@@ -52,7 +55,7 @@
     "@typescript-eslint/eslint-plugin": "^5.30.7",
     "@typescript-eslint/parser": "^5.30.7",
     "cross-env": "^7.0.3",
-    "electron": "^19.0.8",
+    "electron": "^22.3.25",
     "electron-builder": "^23.3.2",
     "eslint": "^8.20.0",
     "eslint-config-prettier": "^8.5.0",
