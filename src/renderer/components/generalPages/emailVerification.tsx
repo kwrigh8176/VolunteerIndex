@@ -98,7 +98,7 @@ export default function emailVerification() : JSX.Element {
                 <br></br>
                 <p>Don't forget to check spam folders!</p>
                 <br></br>
-                <TextField label="Enter code here: " onChange={(event) => setVerifyTextBox(event.target.value)} inputProps={{maxLength: 6}}></TextField>
+                <TextField label="Enter code here: " onChange={(event) => setVerifyTextBox(event.target.value)} inputProps={{maxLength: 10}}></TextField>
                 <Button disabled={verifyButtonDisable} onClick={processCode} >Verify Code</Button> 
                 <br></br>
                 <Button disabled={buttonDisable} onClick={resetCode}>Reset Code</Button>
