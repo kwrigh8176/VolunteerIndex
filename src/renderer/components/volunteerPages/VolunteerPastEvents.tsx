@@ -17,6 +17,8 @@ import AlertTitle from "@mui/material/AlertTitle";
 
 export default function VolunteerPastEvents() : JSX.Element {
 
+    sessionStorage.setItem("currRoute", "/volunteerPastEvents")
+    
     const [cardsFromDb,setCardsFromDb] = React.useState<any[]>([])
     const [renderedCards, setRenderedCards] = React.useState<any[]>([])
     const [errorText, setErrorText] = React.useState('');

@@ -15,9 +15,8 @@ import EditIcon from '@mui/icons-material/Edit';
 
 */
 
-export default function OrgEvents() : JSX.Element {
-
-    sessionStorage.setItem("currRoute", "/orgCurrentEvents")
+export default function orgCollegeEvents() : JSX.Element {
+    sessionStorage.setItem("currRoute", "/orgCollegeEvents")
 
     const [cardsFromDb,setCardsFromDb] = React.useState<any[]>([])
     const [eventSlots,setEventSlots] = React.useState<any[]>([])
@@ -28,8 +27,6 @@ export default function OrgEvents() : JSX.Element {
     const [kickModalJSX, setKickModalJSX] =  React.useState<JSX.Element>(<></>)
     const [kickModalError, setKickModalError] = React.useState('')
     const [kickModalSuccess, setKickModalSuccess] = React.useState('')
-    const [disableButtons, setDisableButtons] = React.useState(false)
-
 
     const modalStyle = {
         position: 'absolute' as 'absolute',
@@ -59,7 +56,7 @@ export default function OrgEvents() : JSX.Element {
             orgId: orgId,
             username: sessionStorage.getItem('username'),
             token: sessionStorage.getItem('token'),
-            getCollegeEvents: "0"
+            getCollegeEvents: "1"
         }}).then(function (response){
                 setCardsFromDb(response.data)
                 tempArray.push(response.data) 
@@ -280,8 +277,8 @@ export default function OrgEvents() : JSX.Element {
             <br></br>
             <Typography>Role Name: {slotInfo.RoleName}</Typography>
             <br></br>
-            <Button onClick={() => setKickUserModal(false)} disabled={disableButtons}>Cancel</Button>
-            <Button onClick={() => {setDisableButtons(true); kickUser(slotInfo.Id)}} disabled={disableButtons}>Submit</Button>
+            <Button onClick={() => setKickUserModal(false)}>Cancel</Button>
+            <Button onClick={() => {kickUser(slotInfo.Id)}}>Submit</Button>
         </>
         )
 

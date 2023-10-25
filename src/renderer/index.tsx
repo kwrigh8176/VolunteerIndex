@@ -13,6 +13,7 @@ import VolunteerProfile from "./components/volunteerPages/VolunteerProfile";
 import OrgEvents from "./components/organizationPages/OrgEvents";
 import OrgPastEvents from "./components/organizationPages/OrgPastEvents";
 import OrgCreateEvent from "./components/organizationPages/OrgCreateEvent";
+import OrgCollegeEvents from "./components/organizationPages/OrgCollegeEvents";
 
 const rootElement = document.getElementById("root");
 const root = createRoot(rootElement!);
@@ -43,6 +44,7 @@ root.render(
 
         <Route key="orgCurrentEvents"  path="/orgCreateEvents" element={<OrgCreateEvent />} />
 
+        <Route key="orgCollegeEvents"  path="/orgCollegeEvents" element={<OrgCollegeEvents />} />
     </Routes>
 </BrowserRouter>
 

@@ -19,10 +19,11 @@ import Modal from "@mui/material/Modal";
 import Typography from "@mui/material/Typography";
 
 
-import { styled } from '@mui/system';
+
 import validator from "validator";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
+import InputLabel from "@mui/material/InputLabel";
 
 
 
@@ -57,6 +58,7 @@ export default function OrgCreateEvent() : JSX.Element {
     const [address, setAddress] = React.useState('');
     const [email, setEmail] = React.useState('');
     const [phoneNumber, setPhoneNumber] = React.useState('');
+    const [collegeVisibility, setCollegeVisibility] = React.useState(0)
 
     const maxVolunteers = 15;
 
@@ -158,8 +160,8 @@ export default function OrgCreateEvent() : JSX.Element {
             optionalRoleInfo: JSON.stringify(optionalRoleInfo),
             username: sessionStorage.getItem("username"),
             token: sessionStorage.getItem("token"),
-            loginType : sessionStorage.getItem("loginType")
-
+            loginType : sessionStorage.getItem("loginType"),
+            CollegeEvent: collegeVisibility
           }})
           .then(response => {
             setSuccessModal("Success")
@@ -266,7 +268,19 @@ export default function OrgCreateEvent() : JSX.Element {
                 <br></br>
                 <TextField defaultValue={email} onChange={(event) => setEmail(event.target.value)} label="Alternate Email" sx={{paddingBottom: '8px', minWidth:250}} inputProps={{maxLength:50}}></TextField> 
                 <br></br>
-                <TextField defaultValue={phoneNumber} onChange={(event) => setPhoneNumber(event.target.value)} label="Alternate Phone Number" sx={{paddingBottom: '8px', minWidth:250}} inputProps={{maxLength:10}}></TextField>     
+                <TextField defaultValue={phoneNumber} onChange={(event) => setPhoneNumber(event.target.value)} label="Alternate Phone Number" sx={{paddingBottom: '8px', minWidth:250}} inputProps={{maxLength:10}}></TextField>
+
+                {sessionStorage.getItem("collegeOrgs") == "true" &&
+                    <>
+                        <br></br>
+                        <InputLabel id="eventVisibility">Event Visibility</InputLabel>
+                        <Select labelId="eventVisibility" defaultValue={"Any"} label="Event Visibility" sx={{marginBottom:'10px'}} onChange={(event) => setCollegeVisibility(parseInt(event.target.value))}>
+                            <MenuItem value={0}>Any</MenuItem>
+                            <MenuItem value={1}>College</MenuItem>
+                        </Select>
+                    </>
+                }
+
                 </CardContent>
                 <CardContent sx={{borderTop: '1px solid grey'}}>
                     <Button onClick={() => {setConfirmationModalOpen(true)}}>Create Event</Button>

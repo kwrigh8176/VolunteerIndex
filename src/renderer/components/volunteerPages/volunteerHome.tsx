@@ -12,6 +12,9 @@ import MenuItem from '@mui/material/MenuItem';
 
 
 const VolunteerHome = () : JSX.Element => {
+
+    sessionStorage.setItem("currRoute", "/volunteerHome")
+
     {/*Should be able to see events in a day, a week, or a month*/}
 
     {/*Should be able to switch between verified hours and all hours */}
@@ -23,7 +26,8 @@ const VolunteerHome = () : JSX.Element => {
 
     const [pieChartSettings, setPieChartSettings] = React.useState({
         timeSetting: "day",
-        hours: "all"
+        hours: "all",
+        collegeFlag : "0"
     })
 
     const fetchEvents = async () => {
@@ -61,7 +65,7 @@ const VolunteerHome = () : JSX.Element => {
             var duration = currLine.Duration
             var getLabel = currLine.EventName + ': ' +  Math.floor(currLine.Duration/60) + ' hours ' + currLine.Duration%60 + ' minutes'
 
-            formattedData.push({value: duration, label: getLabel, verifiedHours: currLine.VerifiedHours, Date: currLine.Date})
+            formattedData.push({value: duration, label: getLabel, verifiedHours: currLine.VerifiedHours, Date: currLine.Date, CollegeEvent: currLine.CollegeEvent})
         }
 
         setAllData(formattedData)
@@ -78,6 +82,11 @@ const VolunteerHome = () : JSX.Element => {
 
         if (pieChartSettings.hours == "verified"){
             data = allData.filter((data) => data.verifiedHours==true)
+        }
+
+        if (pieChartSettings.collegeFlag == "1")
+        {
+            data = allData.filter((data) => data.CollegeEvent==true)
         }
 
         if (data.length == 0)
@@ -264,6 +273,11 @@ const VolunteerHome = () : JSX.Element => {
 
         if (pieChartSettings.hours == "verified"){
             data = allData.filter((data) => data.verifiedHours==true)
+        }
+
+        if (pieChartSettings.collegeFlag == "1")
+        {
+            data = allData.filter((data) => data.CollegeEvent==true)
         }
 
         if (data.length == 0)
@@ -472,22 +486,36 @@ const VolunteerHome = () : JSX.Element => {
                     id="demo-simple-select"
                     value={pieChartSettings.timeSetting}
                     label="Time Frame"
-                    onChange={(event) => setPieChartSettings({timeSetting: event.target.value, hours: pieChartSettings.hours})}
+                    onChange={(event) => setPieChartSettings({timeSetting: event.target.value, hours: pieChartSettings.hours, collegeFlag: pieChartSettings.collegeFlag})}
                 >
                     <MenuItem value={"day"}>Day</MenuItem>
                     <MenuItem value={"week"}>Week</MenuItem>
                     <MenuItem value={"months"}>Month</MenuItem>
                 </Select>
                 <Select
-                    labelId="demo-simple-select-label"
                     id="demo-simple-select"
                     value={pieChartSettings.hours}
-                    label="Verification?"
-                    onChange={(event) => setPieChartSettings({timeSetting: pieChartSettings.timeSetting, hours: event.target.value})}
+                    label="Verified?"
+                    onChange={(event) => setPieChartSettings({timeSetting: pieChartSettings.timeSetting, hours: event.target.value, collegeFlag: pieChartSettings.collegeFlag})}
                 >
-                    <MenuItem value={"all"}>All</MenuItem>
-                    <MenuItem value={"verified"}>Verified</MenuItem>
+                    <MenuItem value={"all"}>No</MenuItem>
+                    <MenuItem value={"verified"}>Yes</MenuItem>
                 </Select>
+                {sessionStorage.getItem("collegeStudent") == "true" &&
+
+                    <Select
+                    id="demo-simple-select"
+                    value={pieChartSettings.collegeFlag}
+                    label="College Related?"
+                    onChange={(event) => setPieChartSettings({timeSetting: pieChartSettings.timeSetting, hours: pieChartSettings.hours, collegeFlag: event.target.value})}
+                    >
+                    <MenuItem value={"0"}>Yes</MenuItem>
+                    <MenuItem value={"1"}>No</MenuItem>
+                    </Select>
+
+                }
+
+
             </>
         )
     }

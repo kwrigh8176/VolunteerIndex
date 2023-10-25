@@ -9,22 +9,58 @@ College Events (*if college email domain was used)
 Settings
 */
 
+const allRoutes = [
+    {
+        pageName: "All Events",
+        pageRoute:"/orgCurrentEvents"
+    },
+    {
+        pageName: "Past Events",
+        pageRoute:"/orgPastEvents"
+    },
+    {
+        pageName: "College Events",
+        pageRoute:"/orgCollegeEvents"
+    }
+]
+
+
+const limitedRoutes = [
+    {
+        pageName: "All Events",
+        pageRoute:"/orgCurrentEvents"
+    },
+    {
+        pageName: "Past Events",
+        pageRoute:"/orgPastEvents"
+    }
+]
+
+
 
 export default function OrgNavBar() : JSX.Element {
-
+    var routes;
+    if (sessionStorage.getItem("collegeOrgs") == "true")
+    {
+        routes = allRoutes
+    }
+    else
+    {
+        routes = limitedRoutes
+    }
 
     return (
         <>
         <Box sx={{flexGrow:1, paddingBottom:'75px '}}>
             <AppBar sx={{paddingBottom:'2px', margin:0, backgroundColor:'#1f2120', flexGrow:1}}>
                 <Toolbar disableGutters sx={{flexGrow:1}}>
-                    <MenuItem key='Home' sx={{height:'100%'}} component={"a"} href={'/orgCurrentEvents'}>
-                        <Typography textAlign="center" color='white'>Our Events</Typography>
-                    </MenuItem>
-                    <MenuItem data-my-value={'Events'} sx={{height:'100%'}} component={"a"} href={'/orgPastEvents'}>
-                        <Typography textAlign="center" color='white'>Past Events</Typography>
-                    </MenuItem>
+                    {routes.map(item => 
 
+                        <MenuItem key='Home' sx={{height:'100%'}} component={"a"} href={item.pageRoute} style={
+                            item.pageRoute === sessionStorage.getItem("currRoute") ? {backgroundColor: 'black'} : {backgroundColor: ''}}>
+                            <Typography textAlign="center" color='white'>{item.pageName}</Typography>
+                        </MenuItem>
+                    )}
 
                     <IconButton
                         size="large"

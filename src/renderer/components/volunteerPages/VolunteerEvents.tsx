@@ -33,6 +33,7 @@ const modalStyle = {
 
 
 export default function VolunteerEvents() : JSX.Element {
+    sessionStorage.setItem("currRoute", "/volunteerEvents")
 
     const [cardsFromDb,setCardsFromDb] = React.useState<any[]>([])
     const [eventSlots,setEventSlots] = React.useState<any[]>([])
@@ -374,7 +375,18 @@ export default function VolunteerEvents() : JSX.Element {
             <>
                 <VolunteerNavBar/>
                 {renderedCards}
+                {renderedCards.length == 0 && errorText == '' && 
+                    <Alert severity="warning">
+                      <AlertTitle>Fetching data from API...</AlertTitle>
+                  </Alert>
 
+                }
+                { errorText != '' && 
+                    <Alert severity="error">
+                      <AlertTitle>{errorText}</AlertTitle>
+                  </Alert>
+
+                }
                 {/*This is the confirmation modal. */}
                 <Modal
                         open={confirmationModalOpen}
