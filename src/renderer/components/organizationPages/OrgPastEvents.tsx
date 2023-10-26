@@ -144,10 +144,22 @@ export default function OrgPastEvents() : JSX.Element {
                                 </Box>)
                         }
                         else{
-                            renderedSlots.push(
-                                <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#fa534d'}}>
-                                    <Typography>Role: ({eventSlotCopy[eventSlotCounter].RoleName}) was fulfilled by: {eventSlotCopy[eventSlotCounter].FirstName} {eventSlotCopy[eventSlotCounter].LastName}</Typography>
-                                </Box>)
+
+                            if (eventSlotCopy[eventSlotCounter].RoleName == null)
+                            {
+                                renderedSlots.push(
+                                    <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#fa534d'}}>
+                                        <Typography>Slot was fulfilled by: {eventSlotCopy[eventSlotCounter].FirstName} {eventSlotCopy[eventSlotCounter].LastName}</Typography>
+                                    </Box>)
+                            }
+                            else
+                            {
+                                renderedSlots.push(
+                                    <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#fa534d'}}>
+                                        <Typography>Role: ({eventSlotCopy[eventSlotCounter].RoleName}) was fulfilled by: {eventSlotCopy[eventSlotCounter].FirstName} {eventSlotCopy[eventSlotCounter].LastName}</Typography>
+                                    </Box>)
+                            }
+                            
                         }
                         
                     

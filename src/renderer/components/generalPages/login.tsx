@@ -76,7 +76,7 @@ const Login = () : JSX.Element => {
                         sessionStorage.setItem("username",getBody.Username)
                         sessionStorage.setItem("orgId", getBody.OrgId)
                         sessionStorage.setItem("email", getBody.Email)
-                        sessionStorage.setItem("phoneNumber", getBody.phoneNumber)
+                        sessionStorage.setItem("phoneNumber", getBody.PhoneNumber)
                         sessionStorage.setItem("address", getBody.Address)
                         sessionStorage.setItem("loginType","Organization")
                         sessionStorage.setItem("collegeOrgs",getBody.CollegeOrgs)

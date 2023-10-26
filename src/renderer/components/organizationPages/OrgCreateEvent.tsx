@@ -58,7 +58,7 @@ export default function OrgCreateEvent() : JSX.Element {
     const [address, setAddress] = React.useState('');
     const [email, setEmail] = React.useState('');
     const [phoneNumber, setPhoneNumber] = React.useState('');
-    const [collegeVisibility, setCollegeVisibility] = React.useState(0)
+    const [collegeVisibility, setCollegeVisibility] = React.useState('College')
 
     const maxVolunteers = 15;
 
@@ -105,6 +105,10 @@ export default function OrgCreateEvent() : JSX.Element {
             errMsg += 'Description is empty. \n'
         }
 
+        if (description == ''){
+            errMsg += 'Description is empty. \n'
+        }
+
         var currDate = new Date()
 
         if (dayjs(date?.format('MM/DD/YYYY 11:11:11')).isBefore(dayjs(dayjs(currDate).format('MM/DD/YYYY 11:11:11')))){
@@ -145,6 +149,11 @@ export default function OrgCreateEvent() : JSX.Element {
             return
         }
 
+        var getCollegeVisibility = 1;
+
+        if (collegeVisibility == "Any")
+            getCollegeVisibility = 0
+
         //check start time
         await axios.post(connectionString + `/organizationCreateEvent/`, null, { params: {
             eventName: eventName,
@@ -161,7 +170,7 @@ export default function OrgCreateEvent() : JSX.Element {
             username: sessionStorage.getItem("username"),
             token: sessionStorage.getItem("token"),
             loginType : sessionStorage.getItem("loginType"),
-            CollegeEvent: collegeVisibility
+            CollegeEvent: getCollegeVisibility
           }})
           .then(response => {
             setSuccessModal("Success")
@@ -274,9 +283,9 @@ export default function OrgCreateEvent() : JSX.Element {
                     <>
                         <br></br>
                         <InputLabel id="eventVisibility">Event Visibility</InputLabel>
-                        <Select labelId="eventVisibility" defaultValue={"Any"} label="Event Visibility" sx={{marginBottom:'10px'}} onChange={(event) => setCollegeVisibility(parseInt(event.target.value))}>
-                            <MenuItem value={0}>Any</MenuItem>
-                            <MenuItem value={1}>College</MenuItem>
+                        <Select labelId="eventVisibility" defaultValue={"Any"} label="Event Visibility" sx={{marginBottom:'10px'}} onChange={(event) => setCollegeVisibility(event.target.value)}>
+                            <MenuItem value={"Any"}>Any</MenuItem>
+                            <MenuItem value={"College"}>College</MenuItem>
                         </Select>
                     </>
                 }

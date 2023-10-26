@@ -172,12 +172,24 @@ export default function OrgEvents() : JSX.Element {
                 
                     /*Empty slots*/
                     if (eventSlotCopy[eventSlotCounter].VolunteerId == null)
-                    {
-                        renderedSlots.push(
-                            <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
-                                
-                                <Typography>Open Role: {eventSlotCopy[eventSlotCounter].RoleName}</Typography>
-                            </Box>)
+                    {   
+                        if (eventSlotCopy[eventSlotCounter].RoleName == null)
+                        {
+                            renderedSlots.push(
+                                <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
+                                    
+                                    <Typography>Open Slot</Typography>
+                                </Box>)
+                        }
+                        else
+                        {
+                            renderedSlots.push(
+                                <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
+                                    
+                                    <Typography>Open Role: {eventSlotCopy[eventSlotCounter].RoleName}</Typography>
+                                </Box>)
+                        }
+                        
                         
                     }
                     /*Closed slots*/ 
