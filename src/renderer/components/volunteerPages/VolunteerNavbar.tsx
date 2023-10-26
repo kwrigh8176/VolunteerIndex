@@ -18,21 +18,48 @@ const pagesAndRoutes = [
         pageRoute:"/volunteerEvents"
     },
     {
+        pageName: "College Events",
+        pageRoute:"/volunteerCollegeEvents"
+    },
+    {
         pageName: "Past Events",
         pageRoute:"/volunteerPastEvents"
     }
 ]
 
+const limitedRoutes = [
+    {
+        pageName: "Home",
+        pageRoute:"/volunteerHome"
+    },
+    {
+        pageName: "Events",
+        pageRoute:"/volunteerEvents"
+    },
+    {
+        pageName: "Past Events",
+        pageRoute:"/volunteerPastEvents"
+    }
+]
 
 export default function VolunteerNavBar() : JSX.Element {
 
+    var routes;
+    if (sessionStorage.getItem("collegeStudent") == "true")
+    {
+        routes = pagesAndRoutes
+    }
+    else
+    {
+        routes = limitedRoutes
+    }
 
     return (
         <>
         <Box sx={{flexGrow:1, paddingBottom:'75px '}}>
             <AppBar sx={{paddingBottom:'2px', margin:0, backgroundColor:'#1f2120', flexGrow:1}}>
                 <Toolbar disableGutters sx={{flexGrow:1}}>
-                {pagesAndRoutes.map(item => 
+                {routes.map(item => 
 
                     <MenuItem key='Home' sx={{height:'100%'}} component={"a"} href={item.pageRoute} style={
                         item.pageRoute === sessionStorage.getItem("currRoute") ? {backgroundColor: 'black'} : {backgroundColor: ''}}>

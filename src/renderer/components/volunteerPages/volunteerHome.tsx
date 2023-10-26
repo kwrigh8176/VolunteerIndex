@@ -5,11 +5,21 @@ import connectionString from '../../../../config';
 import axios from 'axios';
 import { PieChart } from '@mui/x-charts/PieChart';
 import dayjs from 'dayjs';
-import { Alert, AlertTitle, Select } from '@mui/material';
+import { Alert, AlertTitle, TextField, styled } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
 
 
-
+const StyledInput = styled(TextField)`
+& .MuiOutlinedInput-notchedOutline {
+    border-color: white;
+ }
+ & .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: white;
+ }
+ & .MuiSvgIcon-root : {
+    color: 'white',
+ }
+`;
 
 const VolunteerHome = () : JSX.Element => {
 
@@ -23,10 +33,10 @@ const VolunteerHome = () : JSX.Element => {
     const [pieChartData, setPieChartData] = React.useState<JSX.Element>(<p>Loading pie chart...</p>)
     const [loading, setLoading] = React.useState(0);
     const [errorText, setErrorText] = React.useState('');
-
+    var warningJSX = (<Alert severity="warning" sx={{marginTop:'5px'}}><AlertTitle>No data found based on the above settings.</AlertTitle></Alert>);
     const [pieChartSettings, setPieChartSettings] = React.useState({
         timeSetting: "day",
-        hours: "all",
+        hours: "All",
         collegeFlag : "0"
     })
 
@@ -80,18 +90,18 @@ const VolunteerHome = () : JSX.Element => {
     useEffect (() => {
         var data = allData
 
-        if (pieChartSettings.hours == "verified"){
-            data = allData.filter((data) => data.verifiedHours==true)
+        if (pieChartSettings.hours == "Verified"){
+            data = data.filter((data) => data.verifiedHours==true)
         }
 
         if (pieChartSettings.collegeFlag == "1")
         {
-            data = allData.filter((data) => data.CollegeEvent==true)
+            data = data.filter((data) => data.CollegeEvent==true)
         }
 
         if (data.length == 0)
         {
-            setPieChartData(<p>No events retrieved with the settings.</p>)
+            setPieChartData(warningJSX)
             return
         }
 
@@ -101,7 +111,7 @@ const VolunteerHome = () : JSX.Element => {
             data = data.filter((data) => data.Date===currDate)
             if (data.length == 0)
             {
-                setPieChartData(<p>No events retrieved with the settings.</p>)
+                setPieChartData(warningJSX)
                 return
             }
    
@@ -151,10 +161,24 @@ const VolunteerHome = () : JSX.Element => {
                     var minutes = totalHoursOnDay%60
                     if (minutes != 0)
                     {
-                        var getLabel =  '('+Math.floor(totalHoursOnDay/60) + ' hrs ' + minutes + ' m)'
+                        if (Math.floor(totalHoursOnDay/60) == 1)
+                        {
+                            var getLabel =  '('+Math.floor(totalHoursOnDay/60) + ' hr ' + minutes + ' m)'
+                        }
+                        else
+                        {
+                            var getLabel =  '('+Math.floor(totalHoursOnDay/60) + ' hrs ' + minutes + ' m)'
+                        }
                     }
                     else{
-                        var getLabel = '('+Math.floor(totalHoursOnDay/60) + ' hrs) '
+                        if (Math.floor(totalHoursOnDay/60) == 1)
+                        {
+                            var getLabel = '('+Math.floor(totalHoursOnDay/60) + ' hr) '
+                        }
+                        else
+                        {
+                            var getLabel = '('+Math.floor(totalHoursOnDay/60) + ' hrs) '
+                        }
                     }
                     
 
@@ -166,7 +190,7 @@ const VolunteerHome = () : JSX.Element => {
 
             if (dataAmt == 0)
             {
-                setPieChartData(<p>No events retrieved with the settings.</p>)
+                setPieChartData(warningJSX)
                 return
             }
 
@@ -228,10 +252,24 @@ const VolunteerHome = () : JSX.Element => {
                     var minutes = totalHoursOnDay%60
                     if (minutes != 0)
                     {
-                        var getLabel =  '('+Math.floor(totalHoursOnDay/60) + ' hrs ' + minutes + ' m)'
+                        if (Math.floor(totalHoursOnDay/60) == 1)
+                        {
+                            var getLabel =  '('+Math.floor(totalHoursOnDay/60) + ' hr ' + minutes + ' m)'
+                        }
+                        else
+                        {
+                            var getLabel =  '('+Math.floor(totalHoursOnDay/60) + ' hrs ' + minutes + ' m)'
+                        }
                     }
                     else{
-                        var getLabel =  '('+Math.floor(totalHoursOnDay/60) + ' hrs) '
+                        if (Math.floor(totalHoursOnDay/60) == 1)
+                        {
+                            var getLabel = '('+Math.floor(totalHoursOnDay/60) + ' hr) '
+                        }
+                        else
+                        {
+                            var getLabel = '('+Math.floor(totalHoursOnDay/60) + ' hrs) '
+                        }
                     }
                     
 
@@ -242,7 +280,7 @@ const VolunteerHome = () : JSX.Element => {
 
             if (dataAmt == 0)
             {
-                setPieChartData(<p>No events retrieved with the settings.</p>)
+                setPieChartData(warningJSX)
                 return
             }
             data = chartData
@@ -271,18 +309,18 @@ const VolunteerHome = () : JSX.Element => {
         setErrorText('')
         var data = allData
 
-        if (pieChartSettings.hours == "verified"){
-            data = allData.filter((data) => data.verifiedHours==true)
+        if (pieChartSettings.hours == "Verified"){
+            data = data.filter((data) => data.verifiedHours==true)
         }
 
         if (pieChartSettings.collegeFlag == "1")
         {
-            data = allData.filter((data) => data.CollegeEvent==true)
+            data = data.filter((data) => data.CollegeEvent==true)
         }
 
         if (data.length == 0)
         {
-            setPieChartData(<p>No events retrieved with the settings.</p>)
+            setPieChartData(warningJSX)
             return
         }
 
@@ -292,7 +330,7 @@ const VolunteerHome = () : JSX.Element => {
             data = data.filter((data) => data.Date===currDate)
             if (data.length == 0)
             {
-                setPieChartData(<p>No events retrieved with the settings.</p>)
+                setPieChartData(warningJSX)
                 return
             }
    
@@ -342,10 +380,25 @@ const VolunteerHome = () : JSX.Element => {
                     var minutes = totalHoursOnDay%60
                     if (minutes != 0)
                     {
-                        var getLabel =  '('+Math.floor(totalHoursOnDay/60) + ' hrs ' + minutes + ' m)'
+                        if (Math.floor(totalHoursOnDay/60) == 1)
+                        {
+                            var getLabel =  '('+Math.floor(totalHoursOnDay/60) + ' hr ' + minutes + ' m)'
+                        }
+                        else
+                        {
+                            var getLabel =  '('+Math.floor(totalHoursOnDay/60) + ' hrs ' + minutes + ' m)'
+                        }
                     }
                     else{
-                        var getLabel = '('+Math.floor(totalHoursOnDay/60) + ' hrs) '
+                        if (Math.floor(totalHoursOnDay/60) == 1)
+                        {
+                            var getLabel = '('+Math.floor(totalHoursOnDay/60) + ' hr) '
+                        }
+                        else
+                        {
+                            var getLabel = '('+Math.floor(totalHoursOnDay/60) + ' hrs) '
+                        }
+                        
                     }
                     
 
@@ -357,7 +410,7 @@ const VolunteerHome = () : JSX.Element => {
 
             if (dataAmt == 0)
             {
-                setPieChartData(<p>No events retrieved with the settings.</p>)
+                setPieChartData(warningJSX)
                 return
             }
 
@@ -419,10 +472,25 @@ const VolunteerHome = () : JSX.Element => {
                     var minutes = totalHoursOnDay%60
                     if (minutes != 0)
                     {
-                        var getLabel =  '('+Math.floor(totalHoursOnDay/60) + ' hrs ' + minutes + ' m)'
+                        if (Math.floor(totalHoursOnDay/60) == 1)
+                        {
+                            var getLabel =  '('+Math.floor(totalHoursOnDay/60) + ' hr ' + minutes + ' m)'
+                        }
+                        else
+                        {
+                            var getLabel =  '('+Math.floor(totalHoursOnDay/60) + ' hrs ' + minutes + ' m)'
+                        }
+               
                     }
                     else{
-                        var getLabel =  '('+Math.floor(totalHoursOnDay/60) + ' hrs) '
+                        if (Math.floor(totalHoursOnDay/60) == 1)
+                        {
+                            var getLabel = '('+Math.floor(totalHoursOnDay/60) + ' hr) '
+                        }
+                        else
+                        {
+                            var getLabel = '('+Math.floor(totalHoursOnDay/60) + ' hrs) '
+                        }
                     }
                     
 
@@ -433,7 +501,7 @@ const VolunteerHome = () : JSX.Element => {
 
             if (dataAmt == 0)
             {
-                setPieChartData(<p>No events retrieved with the settings.</p>)
+                setPieChartData(warningJSX)
                 return
             }
 
@@ -474,47 +542,58 @@ const VolunteerHome = () : JSX.Element => {
         return (
             <>
                 <VolunteerNavBar/>
-                {pieChartData}
                 {errorText != '' && 
                                 
                     <Alert severity="error">
                         <AlertTitle>{errorText}</AlertTitle>
                     </Alert>
                 }
-                <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
+                <StyledInput select variant={"outlined"}
                     value={pieChartSettings.timeSetting}
                     label="Time Frame"
                     onChange={(event) => setPieChartSettings({timeSetting: event.target.value, hours: pieChartSettings.hours, collegeFlag: pieChartSettings.collegeFlag})}
+
+                    InputProps={{sx : {color : "white"}  }}
+                    sx={{input: {color: 'white'},marginRight: '10px', minWidth: 125, borderColor:'white'}}
+                    InputLabelProps={{ sx: {color: "white"}}}
                 >
-                    <MenuItem value={"day"}>Day</MenuItem>
-                    <MenuItem value={"week"}>Week</MenuItem>
-                    <MenuItem value={"months"}>Month</MenuItem>
-                </Select>
-                <Select
-                    id="demo-simple-select"
+                    <MenuItem value={"day"}>Today</MenuItem>
+                    <MenuItem value={"week"}>Past Week</MenuItem>
+                    <MenuItem value={"months"}>Past Month</MenuItem>
+                </StyledInput>
+                
+                <StyledInput
+                    select
                     value={pieChartSettings.hours}
-                    label="Verified?"
+                    label="Verified Hours?"
                     onChange={(event) => setPieChartSettings({timeSetting: pieChartSettings.timeSetting, hours: event.target.value, collegeFlag: pieChartSettings.collegeFlag})}
+                    InputProps={{sx : {color : "white"}  }}
+                    sx={{input: {color: 'white'},marginRight: '10px', minWidth: 150, borderColor:'white'}}
+                    InputLabelProps={{ sx: {color: "white"}}}
                 >
-                    <MenuItem value={"all"}>No</MenuItem>
-                    <MenuItem value={"verified"}>Yes</MenuItem>
-                </Select>
+                    <MenuItem value={"All"}>No</MenuItem>
+                    <MenuItem value={"Verified"}>Yes</MenuItem>
+                </StyledInput>
+               
                 {sessionStorage.getItem("collegeStudent") == "true" &&
 
-                    <Select
-                    id="demo-simple-select"
-                    value={pieChartSettings.collegeFlag}
-                    label="College Related?"
-                    onChange={(event) => setPieChartSettings({timeSetting: pieChartSettings.timeSetting, hours: pieChartSettings.hours, collegeFlag: event.target.value})}
+                    <StyledInput 
+                        select
+                        value={pieChartSettings.collegeFlag}
+                        label="College Related?"
+                        onChange={(event) => setPieChartSettings({timeSetting: pieChartSettings.timeSetting, hours: pieChartSettings.hours, collegeFlag: event.target.value})}
+                        InputProps={{sx : {color : "white"}  }}
+                        sx={{input: {color: 'white'},marginRight: '10px', minWidth: 125, borderColor:'white'}}
+                        InputLabelProps={{ sx: {color: "white"}}}
                     >
-                    <MenuItem value={"0"}>Yes</MenuItem>
-                    <MenuItem value={"1"}>No</MenuItem>
-                    </Select>
+                        <MenuItem value={"0"}>No</MenuItem>
+                        <MenuItem value={"1"}>Yes</MenuItem>
+                        
+                    </StyledInput>
 
                 }
-
+                
+                {pieChartData}
 
             </>
         )
