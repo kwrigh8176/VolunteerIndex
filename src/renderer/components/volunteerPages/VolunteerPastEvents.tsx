@@ -17,10 +17,13 @@ import AlertTitle from "@mui/material/AlertTitle";
 
 export default function VolunteerPastEvents() : JSX.Element {
 
+    sessionStorage.setItem("currRoute", "/volunteerPastEvents")
+    
     const [cardsFromDb,setCardsFromDb] = React.useState<any[]>([])
     const [renderedCards, setRenderedCards] = React.useState<any[]>([])
     const [errorText, setErrorText] = React.useState('');
     const [loading, setLoading] = React.useState(0)
+    const [warningJSX, setWarningJSX] = React.useState(<></>)
 
     const getPastEvents = async () => {
 
@@ -102,7 +105,11 @@ export default function VolunteerPastEvents() : JSX.Element {
                 </Card>
             )        
         }
-    
+        if (cardsFromDb.length == 0){
+            setWarningJSX(<Alert severity="warning">
+            <AlertTitle>No past data found.</AlertTitle>
+        </Alert>)
+        }
         setRenderedCards(tempArray)
     }, [cardsFromDb])
 
@@ -127,6 +134,7 @@ export default function VolunteerPastEvents() : JSX.Element {
                         <AlertTitle>{errorText}</AlertTitle>
                     </Alert>
                 }
+                {warningJSX}
                 {renderedCards}
             </>
         )

@@ -100,14 +100,14 @@ export default function emailVerification() : JSX.Element {
                 position: 'absolute', left: '50%', top: '50%',
                 transform: 'translate(-50%, -50%)'
             }}>
-                {errorText != '' && 
+                {errorText != '' &&  errorText != 'Sucessful Verification' && 
                     
                             <Alert severity="error">
                                 <AlertTitle>Invalid Code</AlertTitle>
                             </Alert>
                         }
 
-                {errorText.toString() == 'Sucessful Verification' && 
+                {errorText == 'Sucessful Verification' && 
                     
                         <Alert severity="success">
                             <AlertTitle>Sucessful Verification! You will be redirected in 5 seconds.</AlertTitle>

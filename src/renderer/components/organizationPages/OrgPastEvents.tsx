@@ -16,6 +16,8 @@ import { Alert, AlertTitle } from "@mui/material";
 
 export default function OrgPastEvents() : JSX.Element {
 
+    sessionStorage.setItem("currRoute", "/orgPastEvents")
+
     const [cardsFromDb,setCardsFromDb] = React.useState<any[]>([])
     const [eventSlots,setEventSlots] = React.useState<any[]>([])
     const orgId = sessionStorage.getItem('orgId');
@@ -138,14 +140,26 @@ export default function OrgPastEvents() : JSX.Element {
                         if (eventSlotCopy[eventSlotCounter].VolunteerId == null){
                             renderedSlots.push(
                                 <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
-                                    <Typography>Role was not signed up for.</Typography>
+                                    <Typography>Role ({eventSlotCopy[eventSlotCounter].RoleName}) was not signed up for.</Typography>
                                 </Box>)
                         }
                         else{
-                            renderedSlots.push(
-                                <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#fa534d'}}>
-                                    <Typography>Fufilled by: {eventSlotCopy[eventSlotCounter].FirstName} {eventSlotCopy[eventSlotCounter].LastName}</Typography>
-                                </Box>)
+
+                            if (eventSlotCopy[eventSlotCounter].RoleName == null)
+                            {
+                                renderedSlots.push(
+                                    <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#fa534d'}}>
+                                        <Typography>Slot was fulfilled by: {eventSlotCopy[eventSlotCounter].FirstName} {eventSlotCopy[eventSlotCounter].LastName}</Typography>
+                                    </Box>)
+                            }
+                            else
+                            {
+                                renderedSlots.push(
+                                    <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#fa534d'}}>
+                                        <Typography>Role: ({eventSlotCopy[eventSlotCounter].RoleName}) was fulfilled by: {eventSlotCopy[eventSlotCounter].FirstName} {eventSlotCopy[eventSlotCounter].LastName}</Typography>
+                                    </Box>)
+                            }
+                            
                         }
                         
                     
@@ -214,6 +228,12 @@ export default function OrgPastEvents() : JSX.Element {
             <>
                 <OrgNavBar/>
                 {renderedCards}
+                { renderedCards.length == 0 && errorText == '' && 
+                    <Alert severity="warning">
+                      <AlertTitle>Fetching data from API...</AlertTitle>
+                  </Alert>
+
+                }
                 {errorText != '' && 
                     
                     <Alert severity="error">

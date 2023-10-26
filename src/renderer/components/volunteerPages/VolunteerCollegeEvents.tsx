@@ -32,8 +32,8 @@ const modalStyle = {
 
 
 
-export default function VolunteerEvents() : JSX.Element {
-    sessionStorage.setItem("currRoute", "/volunteerEvents")
+export default function volunteerCollegeEvents() : JSX.Element {
+    sessionStorage.setItem("currRoute", "/volunteerCollegeEvents")
 
     const [cardsFromDb,setCardsFromDb] = React.useState<any[]>([])
     const [eventSlots,setEventSlots] = React.useState<any[]>([])
@@ -59,8 +59,10 @@ export default function VolunteerEvents() : JSX.Element {
                 loginType: sessionStorage.getItem("loginType")
             }
         }).then(function (response){
-                setCardsFromDb(response.data)
-                tempArray.push(response.data) 
+                var email = sessionStorage.getItem("email")
+                var domain = email?.substring(email.indexOf("@")+1)
+                setCardsFromDb(response.data.filter((item: { Email: (string | null)[] }) => item.Email.includes(domain!)))
+                tempArray.push(response.data.filter((item: { Email: (string | null)[] }) => item.Email.includes(domain!))) 
         })
         .catch(function (error){
             tempText = "error";
@@ -233,7 +235,7 @@ export default function VolunteerEvents() : JSX.Element {
     const [loading, setLoading] = React.useState(0)
     const [renderedCards, setRenderedCards] = React.useState<any[]>([])
     const [successfulText, setSuccessfulText] = React.useState('');
-
+    
 
     {/*Handles when a slot button is clicked*/}
     const customRoleHandler = (slotIndexAndRoleName : string) : void => {
@@ -268,7 +270,6 @@ export default function VolunteerEvents() : JSX.Element {
         var eventSlotCopy = eventSlots
         var tempArray = []
 
-       
 
         for (var cardIndex = 0; cardIndex < cardsFromDb.length; cardIndex++){
 
@@ -351,9 +352,6 @@ export default function VolunteerEvents() : JSX.Element {
             )
             
         }
-
-
-
         setRenderedCards(tempArray)
 
     }, [eventSlots]) 
