@@ -75,7 +75,7 @@ const VolunteerHome = () : JSX.Element => {
             var duration = currLine.Duration
             var getLabel = currLine.EventName + ': ' +  Math.floor(currLine.Duration/60) + ' hours ' + currLine.Duration%60 + ' minutes'
 
-            formattedData.push({value: duration, label: getLabel, verifiedHours: currLine.VerifiedHours, Date: currLine.Date, CollegeEvent: currLine.CollegeEvent})
+            formattedData.push({value: duration, label: getLabel, verifiedHours: currLine.VerifiedHours, Date: currLine.Date, CollegeEvent: currLine.CollegeEvent, NoShow:currLine.NoShow})
         }
 
         setAllData(formattedData)
@@ -88,7 +88,7 @@ const VolunteerHome = () : JSX.Element => {
 
 
     useEffect (() => {
-        var data = allData
+        var data = allData.filter((data) => data.NoShow==null)
 
         if (pieChartSettings.hours == "Verified"){
             data = data.filter((data) => data.verifiedHours==true)
@@ -307,7 +307,7 @@ const VolunteerHome = () : JSX.Element => {
 
     useEffect (() => {
         setErrorText('')
-        var data = allData
+        var data = allData.filter((data) => data.NoShow==null)
 
         if (pieChartSettings.hours == "Verified"){
             data = data.filter((data) => data.verifiedHours==true)
