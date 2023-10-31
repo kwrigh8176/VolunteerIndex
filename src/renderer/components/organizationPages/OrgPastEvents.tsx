@@ -115,6 +115,7 @@ export default function OrgPastEvents() : JSX.Element {
     }
 
     const setNoShow = async (Id: number) => {
+        setDisableButtons(true)
         await axios.post(connectionString + "/organizationSetNoShow/", null, {params:{
             Id: Id,
             username: sessionStorage.getItem('username'),
@@ -137,11 +138,13 @@ export default function OrgPastEvents() : JSX.Element {
             {
                 setModalError(error.response.data)
             }
+            setDisableButtons(false)
             return
         }); 
     }
   
     const setHoursVerified = async (Id: number) => {
+        setDisableButtons(true)
         await axios.post(connectionString + "/organizationSetHoursVerified/", null, {params:{
             Id: Id,
             username: sessionStorage.getItem('username'),
@@ -164,6 +167,7 @@ export default function OrgPastEvents() : JSX.Element {
             {
                 setModalError(error.response.data)
             }
+            setDisableButtons(false)
             return
         }); 
 
@@ -181,6 +185,7 @@ export default function OrgPastEvents() : JSX.Element {
     const [modalError, setModalError] = React.useState('')
     const [modalSuccess, setModalSuccess] = React.useState('')
     const [modal, setModal] = React.useState(false)
+    const [disableButtons, setDisableButtons] = React.useState(false)
 
     useEffect (() => {
 
@@ -263,20 +268,20 @@ export default function OrgPastEvents() : JSX.Element {
                     }
 
                     
-                    <Button sx={{border:'1px solid gray'}} onClick={() => {setNoShow(slotInfo.Id)}}>Change no show to {new Boolean(!slotInfo.NoShow).toString()}</Button>
+                    <Button sx={{border:'1px solid gray'}} onClick={() => {setNoShow(slotInfo.Id)}}  disabled={disableButtons}>Change no show to {new Boolean(!slotInfo.NoShow).toString()}</Button>
                     <br></br>
                     {slotInfo.NoShow == null &&
                         <>
-                        <Button sx={{border:'1px solid gray', marginTop:'1px'}} onClick={() => {setHoursVerified(slotInfo.Id)}}>Change Hours Verified</Button>
+                        <Button sx={{border:'1px solid gray', marginTop:'1px'}} onClick={() => {setHoursVerified(slotInfo.Id)}}  disabled={disableButtons}>Change Hours Verified</Button>
                         <br></br>
                         </>
                     }
-                    <Button sx={{border:'1px solid gray', marginTop:'1px'}} onClick={() => setModal(false)}>Close</Button>
-                    <br></br>
+                    
                 </>
             }
             
-            
+            <Button sx={{border:'1px solid gray', marginTop:'1px'}} onClick={() => setModal(false)} disabled={disableButtons}>Close</Button>
+            <br></br>
         </>
         )
         
@@ -328,14 +333,14 @@ export default function OrgPastEvents() : JSX.Element {
                                 if (eventSlotCopy[eventSlotCounter].RoleName != null)
                                 {
                                     renderedSlots.push(
-                                        <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#fa534d'}}>
+                                        <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#57eb75'}}>
                                             <Button id={cardIndex + ','+eventCounter} fullWidth onClick={(event) => {setModalContent(event.currentTarget.id), setModal(true)}}>Role ({eventSlotCopy[eventSlotCounter].RoleName}) was fulfilled by: {eventSlotCopy[eventSlotCounter].FirstName} {eventSlotCopy[eventSlotCounter].LastName}</Button>
                                         </Box>)
                                 }
                                 else
                                 {
                                     renderedSlots.push(
-                                        <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#fa534d'}}>
+                                        <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#57eb75'}}>
                                             <Button fullWidth id={cardIndex + ','+eventCounter} onClick={(event) => {setModalContent(event.currentTarget.id), setModal(true)}}>Slot was fulfilled by: {eventSlotCopy[eventSlotCounter].FirstName} {eventSlotCopy[eventSlotCounter].LastName}</Button>
                                         </Box>)
                                 }
@@ -347,7 +352,7 @@ export default function OrgPastEvents() : JSX.Element {
                                 {
                                     
                                     renderedSlots.push(
-                                        <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#fa534d'}}>
+                                        <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#57eb75'}}>
                                             <Button fullWidth id={cardIndex + ','+eventCounter} onClick={(event) => {setModalContent(event.currentTarget.id), setModal(true)}}>Role ({eventSlotCopy[eventSlotCounter].RoleName}) was fulfilled by: {eventSlotCopy[eventSlotCounter].Name} (Manually added)</Button>
                                         </Box>)
                                 }
@@ -355,7 +360,7 @@ export default function OrgPastEvents() : JSX.Element {
                                 {
                                     
                                     renderedSlots.push(
-                                        <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#fa534d'}}>
+                                        <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#57eb75'}}>
                                             <Button fullWidth id={cardIndex + ','+eventCounter} onClick={(event) => {setModalContent(event.currentTarget.id), setModal(true)}}>Slot was fulfilled by: {eventSlotCopy[eventSlotCounter].Name} (Manually added)</Button>
                                         </Box>)
                                 }
