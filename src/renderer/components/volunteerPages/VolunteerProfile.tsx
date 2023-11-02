@@ -10,8 +10,11 @@ import VolunteerNavBar from "./VolunteerNavbar"
 import Button from "@mui/material/Button"
 import Alert from "@mui/material/Alert"
 import AlertTitle from "@mui/material/AlertTitle"
-import { Modal, Typography } from "@mui/material"
+import { IconButton, InputAdornment, InputLabel, MenuItem, Modal, Select, Typography } from "@mui/material"
 import validator from "validator"
+import Visibility from "@mui/icons-material/Visibility"
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+
 
 const modalStyle = {
     position: 'absolute' as 'absolute',
@@ -33,7 +36,16 @@ export default function VolunteerProfile() : JSX.Element {
     const [loadedInfoJSX, setLoadedInfoJSX]= React.useState<JSX.Element>(<p></p>)
 
     const [modalControl, setModalControl] = React.useState(false);
+    const [passwordModalControl, setPasswordModalControl] = React.useState(false);
     const [disabledButton, setDisabledButton] = React.useState(false)
+
+    const [oldPassword, setOldPassword] = React.useState('')
+    const [newPassword1, setNewPassword1] = React.useState('')
+    const [newPassword2, setNewPassword2] = React.useState('')
+
+    const [oldPasswordVisibility, setOldPasswordVisibility] = React.useState(false);
+    const [newPasswordVisibility1, setNewPasswordVisibility1] = React.useState(false);
+    const [newPasswordVisibility2, setNewPasswordVisibility2] = React.useState(false);
 
     const [confirmationResponse, setConfirmationResponse] = React.useState('')
     const getLoadedInfo = async () => {
@@ -47,11 +59,52 @@ export default function VolunteerProfile() : JSX.Element {
             loginType: sessionStorage.getItem("loginType")
         }}).then(function (response) {
             setLoadedInfo(response.data)
+
             
          }).catch(function (error){
-            setLoadedInfoJSX(<p>{error.response.data}</p>)
+
+            if (error.response == undefined){
+                setLoadedInfoJSX(<p>Network error connecting to the API, please try again.</p>)
+            }
+            else
+            {
+                setLoadedInfoJSX(<p>{error.response.data}</p>)
+            }
+      
         
          });  
+    }
+
+    const processPasswordChange = async() => {
+        setDisabledButton(true)
+        if (newPassword1 != newPassword2)
+        {
+            setConfirmationResponse("Passwords dont match.")
+            return
+        }
+
+        await axios.post(connectionString + "/processPasswordChange/", null, {params:{
+            Id: sessionStorage.getItem("Id"),
+            username: sessionStorage.getItem("username"),
+            token: sessionStorage.getItem("token"), 
+            loginType: sessionStorage.getItem("loginType"),
+            newPassword: newPassword1,
+            oldPassword: oldPassword,
+        }}).then(function (response) {
+            setConfirmationResponse("Data saved.")
+            
+        }).catch(function (error){
+            if (error.response == undefined){
+                setConfirmationResponse("Network error connecting to the API, please try again.")
+            }
+            else
+            {
+                setConfirmationResponse(error.response.data)
+            }
+     
+        
+         });  
+         setDisabledButton(false)
     }
 
     const processSaving = async () => {
@@ -87,19 +140,21 @@ export default function VolunteerProfile() : JSX.Element {
             return
         }
 
-        await axios.post(connectionString + "/getTakenVolunteerData/", {params:{
+        await axios.post(connectionString + "/getTakenVolunteerData/", null, {params:{
             email: loadedInfo[0].Email,
             username: loadedInfo[0].Username,
             phonenumber: loadedInfo[0].PhoneNumber,
             token:  sessionStorage.getItem("token"),
+            Id: sessionStorage.getItem("Id"),
             loginType: sessionStorage.getItem("loginType")
         }}).then(function (response) {
-            axios.post(connectionString + "/saveVolunteerProfile/", {params:{
+            axios.post(connectionString + "/saveVolunteerProfile/", null, {params:{
                 volunteerId: sessionStorage.getItem("Id"),
                 email: loadedInfo[0].Email,
                 username: loadedInfo[0].Username,
                 phonenumber: loadedInfo[0].PhoneNumber,
                 bio: loadedInfo[0].Bio,
+                State: loadedInfo[0].State,
                 token:  sessionStorage.getItem("token"),
                 loginType: sessionStorage.getItem("loginType")
             }}).then(function (response) {
@@ -150,12 +205,69 @@ export default function VolunteerProfile() : JSX.Element {
 
                                 <TextField defaultValue={loadedInfo[0].Email} label='Email'  sx={{marginRight:'5px'}} InputLabelProps={{style: { color: 'black' }}} inputProps={{ maxLength: 50 }} onChange={(event) => (loadedInfo[0].Email = event.target.value)} ></TextField>
                                 <TextField defaultValue={loadedInfo[0].PhoneNumber} label='Phone Number (No Spaces)' sx={{ marginRight:'5px'}} InputLabelProps={{style: { color: 'black' }}} inputProps={{ maxLength: 10 }} onChange={(event) => (loadedInfo[0].PhoneNumber = event.target.value)} ></TextField>
+                                
+                                <TextField select label="State" defaultValue={loadedInfo[0].State} onChange={(event) => (loadedInfo[0].State = event.target.value)}>
+                                    <MenuItem value="AL">Alabama</MenuItem>
+                                    <MenuItem value="AK">Alaska</MenuItem>
+                                    <MenuItem value="AZ">Arizona</MenuItem>
+                                    <MenuItem value="AR">Arkansas</MenuItem>
+                                    <MenuItem value="CA">California</MenuItem>
+                                    <MenuItem value="CO">Colorado</MenuItem>
+                                    <MenuItem value="DE">Delaware</MenuItem>
+                                    <MenuItem value="DC">District of Columbia</MenuItem>
+                                    <MenuItem value="FL">Florida</MenuItem>
+                                    <MenuItem value="GA">Georgia</MenuItem>
+                                    <MenuItem value="HI">Hawaii</MenuItem>
+                                    <MenuItem value="ID">Idaho</MenuItem>
+                                    <MenuItem value="IL">Illinois</MenuItem>
+                                    <MenuItem value="IN">Indiana</MenuItem>
+                                    <MenuItem value="IA">Iowa</MenuItem>
+                                    <MenuItem value="KS">Kansas</MenuItem>
+                                    <MenuItem value="LA">Louisiana</MenuItem>
+                                    <MenuItem value="ME">Maine</MenuItem>
+                                    <MenuItem value="MD">Maryland</MenuItem>
+                                    <MenuItem value="MA">Massachusetts</MenuItem>
+                                    <MenuItem value="MI">Michigan</MenuItem>
+                                    <MenuItem value="MN">Minnesota</MenuItem>
+                                    <MenuItem value="MS">Mississippi</MenuItem>
+                                    <MenuItem value="MO">Missouri</MenuItem>
+                                    <MenuItem value="MT">Montana</MenuItem>
+                                    <MenuItem value="NE">Nebraska</MenuItem>
+                                    <MenuItem value="NV">Nevada</MenuItem>
+                                    <MenuItem value="NH">New Hampshire</MenuItem>
+                                    <MenuItem value="NJ">New Jersey</MenuItem>
+                                    <MenuItem value="NM">New Mexico</MenuItem>
+                                    <MenuItem value="NY">New York</MenuItem>
+                                    <MenuItem value="NC">North Carolina</MenuItem>
+                                    <MenuItem value="ND">North Dakota</MenuItem>
+                                    <MenuItem value="OH">Ohio</MenuItem>
+                                    <MenuItem value="OK">Oklahoma</MenuItem>
+                                    <MenuItem value="OR">Oregon</MenuItem>
+                                    <MenuItem value="PA">Pennsylvania</MenuItem>
+                                    <MenuItem value="PR">Puerto Rico</MenuItem>
+                                    <MenuItem value="RI">Rhode Island</MenuItem>
+                                    <MenuItem value="SC">South Carolina</MenuItem>
+                                    <MenuItem value="SD">South Dakota</MenuItem>
+                                    <MenuItem value="TN">Tennessee</MenuItem>
+                                    <MenuItem value="TX">Texas</MenuItem>
+                                    <MenuItem value="UT">Utah</MenuItem>
+                                    <MenuItem value="VT">Vermont</MenuItem>
+                                    <MenuItem value="VI">Virgin Island</MenuItem>
+                                    <MenuItem value="VA">Virginia</MenuItem>
+                                    <MenuItem value="WA">Washington</MenuItem>
+                                    <MenuItem value="WV">West Virgnia</MenuItem>
+                                    <MenuItem value="WI">Wisconsin</MenuItem>
+                                    <MenuItem value="WY">Wyoming</MenuItem>
+                                </TextField>
                             </CardContent>
               
                             <CardHeader title="Bio" subheader="Feel free to describe yourself here. (250 characters max)" subheaderTypographyProps={{ color: 'black' }}  sx={{borderTop:'1px solid black'}} >
                             </CardHeader>
                             <CardContent>
                                 <textarea defaultValue={loadedInfo[0].Bio} onChange={(event) => (loadedInfo[0].Bio = event.target.value)}  maxLength={250}></textarea>
+                            </CardContent>
+                            <CardContent sx={{borderTop:'1px solid black'}}>
+                                <Button sx={{border:'1px solid black', color:'red'}} onClick={() => {setPasswordModalControl(true)}} disabled={disabledButton}>Reset Password </Button>
                             </CardContent>
                             <CardContent sx={{borderTop:'1px solid black'}}>
                                 <Button sx={{border:'1px solid black'}} onClick={() => setModalControl(true)} disabled={disabledButton}>Save </Button>
@@ -193,37 +305,105 @@ export default function VolunteerProfile() : JSX.Element {
                 {loadedInfoJSX}
 
                 <Modal
-                        open={modalControl}
-                        aria-labelledby="modal-modal-title"
-                        aria-describedby="modal-modal-description"
-                        
-                    >
-                        
-                        <Box sx={modalStyle}>
-                            {confirmationResponse != '' && confirmationResponse != 'Data saved.'  &&
-                                <Alert severity="error">
-                                    <AlertTitle>{confirmationResponse}</AlertTitle>
-                                </Alert>
-                            }
-                        
-                            {confirmationResponse == 'Data saved.' &&
-                                <Alert severity="success">
-                                    <AlertTitle>Data saved.</AlertTitle>
-                                </Alert>
-                            }
+                    open={modalControl}
+                    aria-labelledby="modal-modal-title"
+                    aria-describedby="modal-modal-description"      
+                >    
+                    <Box sx={modalStyle}>
+                        {confirmationResponse != '' && confirmationResponse != 'Data saved.'  &&
+                            <Alert severity="error">
+                                <AlertTitle>{confirmationResponse}</AlertTitle>
+                            </Alert>
+                        }
+                    
+                        {confirmationResponse == 'Data saved.' &&
+                            <Alert severity="success">
+                                <AlertTitle>Data saved.</AlertTitle>
+                            </Alert>
+                        }
+                    
+                        <Typography>Are you sure you want to save your data?</Typography>
+                        <br></br>
+                        <Typography sx={{color:'red'}}>If you are changing your state, you will be signed out of all events.</Typography>
 
-                            <Typography>Are you sure you want to save your data?</Typography>
+                        <Button disabled={disabledButton} onClick={() => {
+                            setConfirmationResponse('')
+                            setModalControl(false)}
+                            }>
+                            Cancel
+                        </Button>
+                        <Button disabled={disabledButton} onClick={processSaving}>
+                            Confirm
+                        </Button>
+                    </Box>
+                </Modal> 
+
+                <Modal
+                    open={passwordModalControl}
+                    aria-labelledby="modal-modal-title"
+                    aria-describedby="modal-modal-description"    
+                >
+                    <Box sx={modalStyle}>
+
+                        {confirmationResponse != '' && confirmationResponse != 'Data saved.'  &&
+                            <Alert severity="error" sx={{marginBottom: '10px'}}>
+                                <AlertTitle>{confirmationResponse}</AlertTitle>
+                            </Alert>
+                        }
+
+                        {confirmationResponse == 'Data saved.'  &&
+                            <Alert severity="success" sx={{marginBottom: '10px'}}>
+                                <AlertTitle>Password has been changed!</AlertTitle>
+                            </Alert>
+                        }
+
+                        <TextField type={oldPasswordVisibility ? 'text': 'password'} label="Old Password" onChange={(event) => {setOldPassword(event.target.value)}} sx={{marginBottom:'5px'}}
+                        InputProps={{
+                        endAdornment: <InputAdornment position="end">
+                                        <IconButton onClick={() => {setOldPasswordVisibility(!oldPasswordVisibility)}}>
+                                            
+                                            {oldPasswordVisibility ? <Visibility/>: <VisibilityOff/>}
+                                        </IconButton>
+                                      </InputAdornment>,
+                        }}>
+                        </TextField>
+
+                        <TextField type={newPasswordVisibility1 ? 'text': 'password'} label="New Password" onChange={(event) => {setNewPassword1(event.target.value)}} sx={{marginBottom:'5px'}}
+                        InputProps={{
+                        endAdornment: <InputAdornment position="end">
+                                        <IconButton onClick={() => {setNewPasswordVisibility1(!newPasswordVisibility1)}}>
+                                            
+                                            {newPasswordVisibility1 ? <Visibility/>: <VisibilityOff/>}
+                                        </IconButton>
+                                      </InputAdornment>,
+                        }}>
+                        </TextField>
+                        
+                        <TextField type={newPasswordVisibility2 ? 'text': 'password'} label="New Password (again)" onChange={(event) => {setNewPassword2(event.target.value)}} 
+                        InputProps={{
+                        endAdornment: <InputAdornment position="end">
+                                        <IconButton onClick={() => {setNewPasswordVisibility2(!newPasswordVisibility2)}}>
+                                            
+                                            {newPasswordVisibility2 ? <Visibility/>: <VisibilityOff/>}
+                                        </IconButton>
+                                      </InputAdornment>,
+                        }}>
+                        </TextField>
+                
+                        <br></br>
+                        <Button disabled={disabledButton} onClick={() => {
+                            setConfirmationResponse('')
+                            setPasswordModalControl(false)}
+                            }
+                            sx={{border: '1px solid black', marginTop:'3px'}}
                             
-                            <Button disabled={disabledButton} onClick={() => {
-                                setConfirmationResponse('')
-                                setModalControl(false)}
-                                }>
-                                Cancel
-                            </Button>
-                            <Button disabled={disabledButton} onClick={processSaving}>
-                                Confirm
-                            </Button>
-                        </Box>
+                            >
+                            Cancel
+                        </Button>
+                        <Button disabled={disabledButton} sx={{border: '1px solid black', marginLeft:'2px', marginTop:'3px'}} onClick={processPasswordChange}>
+                            Confirm
+                        </Button>
+                    </Box>
                 </Modal> 
 
             </>
