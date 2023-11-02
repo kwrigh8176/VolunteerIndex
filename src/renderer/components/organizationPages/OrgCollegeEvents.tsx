@@ -168,7 +168,7 @@ export default function orgCollegeEvents() : JSX.Element {
             {
                 
                     /*Empty slots*/
-                    if (eventSlotCopy[eventSlotCounter].VolunteerId == null)
+                    if (eventSlotCopy[eventSlotCounter].VolunteerId == null && eventSlotCopy[eventSlotCounter].OverrideUsers == null)
                     {
                         renderedSlots.push(
                             <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
@@ -181,10 +181,21 @@ export default function orgCollegeEvents() : JSX.Element {
                     else{
                         var getCard = cardsFromDb[cardIndex]
                         var getEventSlot = eventSlotCopy[eventSlotCounter]
-                        renderedSlots.push(
-                            <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#fa534d'}}>
-                                <Button fullWidth onClick={() => {setKickModalContent([getCard,getEventSlot])}}>Taken by: {eventSlotCopy[eventSlotCounter].FirstName} {eventSlotCopy[eventSlotCounter].LastName}</Button>
-                            </Box>)
+                        if (eventSlotCopy[eventSlotCounter].VolunteerId != null)
+                        {
+                            renderedSlots.push(
+                                <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#fa534d'}}>
+                                    <Button fullWidth onClick={() => {setKickModalContent([getCard,getEventSlot])}}>Taken by: {eventSlotCopy[eventSlotCounter].FirstName} {eventSlotCopy[eventSlotCounter].LastName}</Button>
+                                </Box>)
+                        }
+                        else
+                        {
+                            renderedSlots.push(
+                                <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#fa534d'}}>
+                                    <Button fullWidth onClick={() => {setKickModalContent([getCard,getEventSlot])}}>Taken by: {eventSlotCopy[eventSlotCounter].Name} </Button>
+                                </Box>)
+                        }
+                        
                     }
                     
                     counter++;

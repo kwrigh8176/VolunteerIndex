@@ -63,8 +63,12 @@ export default function VolunteerPastEvents() : JSX.Element {
 
     useEffect (() => {
         var tempArray = []
+
+        setWarningJSX(<></>)
+        
         for (var cardIndex = 0; cardIndex < cardsFromDb.length; cardIndex++)
-        {
+        { 
+        
             tempArray.push(
                 <Card sx={{marginBottom:'20px'}}>
                     <CardHeader
@@ -92,13 +96,29 @@ export default function VolunteerPastEvents() : JSX.Element {
                         <Typography variant="body2" color="text.secondary">
                             Event Description: {cardsFromDb[cardIndex].Description}
                         </Typography>
+                        
                     </CardContent>
     
-                    <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
-                        <Typography>Past role: {cardsFromDb[cardIndex].RoleName}</Typography>
-                    </Box>
+         
+                        {cardsFromDb[cardIndex].VerifiedHours == 0 && cardsFromDb[cardIndex].NoShow == null &&
+                          <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black',backgroundColor:'#f7ec6d'}}>
+                            <Typography>Past role: {cardsFromDb[cardIndex].RoleName} (Not Verified)</Typography>
+                          </Box>
+                        }
+                        {cardsFromDb[cardIndex].VerifiedHours == 1 && cardsFromDb[cardIndex].NoShow == null &&
+                            <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black',backgroundColor:'#5bf74d'}}>
+                            <Typography>Past role: {cardsFromDb[cardIndex].RoleName} (Verified)</Typography>
+                            </Box>
+                        }
+                        {cardsFromDb[cardIndex].NoShow != null &&
+                            <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black',backgroundColor:'#f74d4d'}}>
+                                <Typography>Past role: {cardsFromDb[cardIndex].RoleName} (Marked as no show.)</Typography>
+                            </Box>
+                        }
+                        
+                  
                     
-    
+                    
     
     
     

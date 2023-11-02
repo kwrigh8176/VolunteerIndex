@@ -244,7 +244,7 @@ export default function OrgCreateEvent() : JSX.Element {
                         <br></br>
                         <FormControl>
                             <FormLabel> Event Description</FormLabel>
-                            <Textarea required placeholder="Enter the event description here..." onChange={(event) => {if (event.target.value.length < 250) setDescription(event.target.value)}} value={description} ></Textarea>
+                            <Textarea required placeholder="Enter the event description here..." onChange={(event) => {if (event.target.value.length <= 250) setDescription(event.target.value)}} value={description} ></Textarea>
                         </FormControl>
                         <br></br>
                         <StaticTimePicker defaultValue={startTime} onChange={(event) => setStartTime(event)}  sx={{paddingBottom: '8px'}} slotProps={{actionBar:{actions:[]}}}/>

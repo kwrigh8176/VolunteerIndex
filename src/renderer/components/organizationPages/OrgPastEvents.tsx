@@ -8,13 +8,28 @@ import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import dayjs from "dayjs";
 import Box from "@mui/material/Box";
-import { Alert, AlertTitle } from "@mui/material";
-
-
+import { Alert, AlertTitle, Button, Modal } from "@mui/material";
+import CheckIcon from '@mui/icons-material/Check';
+import ClearIcon from '@mui/icons-material/Clear';
+import Clear from "@mui/icons-material/Clear";
 
 
 
 export default function OrgPastEvents() : JSX.Element {
+
+    const modalStyle = {
+        position: 'absolute' as 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: 400,
+        bgcolor: 'background.paper',
+        border: '2px solid #000',
+        boxShadow: 24,
+        p: 4,
+        backdrop: 'static'
+    };
+
 
     sessionStorage.setItem("currRoute", "/orgPastEvents")
 
@@ -97,17 +112,66 @@ export default function OrgPastEvents() : JSX.Element {
 
         }
         setEventSlots(holdSlots);
-        
-       
-    
-
     }
 
-  
+    const setNoShow = async (Id: number) => {
+        setDisableButtons(true)
+        await axios.post(connectionString + "/organizationSetNoShow/", null, {params:{
+            Id: Id,
+            username: sessionStorage.getItem('username'),
+            token: sessionStorage.getItem('token'),
 
-
-   
+        }}).then(function (response){
+            setModalError('')
+            setModalSuccess(response.data)
+            setTimeout(() => {
+                window.location.reload();
+            }, 5000)
+         })
+        .catch(function (error){
+            setModalSuccess('')
+            if (error.response == undefined){
+                setModalError("Network error connecting to the API, please try again.")
+        
+            }
+            else
+            {
+                setModalError(error.response.data)
+            }
+            setDisableButtons(false)
+            return
+        }); 
+    }
   
+    const setHoursVerified = async (Id: number) => {
+        setDisableButtons(true)
+        await axios.post(connectionString + "/organizationSetHoursVerified/", null, {params:{
+            Id: Id,
+            username: sessionStorage.getItem('username'),
+            token: sessionStorage.getItem('token'),
+
+        }}).then(function (response){
+            setModalError('')
+            setModalSuccess(response.data)
+            setTimeout(() => {
+                window.location.reload();
+            }, 5000)
+         })
+        .catch(function (error){
+            setModalSuccess('')
+            if (error.response == undefined){
+                setModalError("Network error connecting to the API, please try again.")
+        
+            }
+            else
+            {
+                setModalError(error.response.data)
+            }
+            setDisableButtons(false)
+            return
+        }); 
+
+    }
 
    
 
@@ -116,55 +180,197 @@ export default function OrgPastEvents() : JSX.Element {
     const [loading, setLoading] = React.useState(0)
     const [renderedCards, setRenderedCards] = React.useState<any[]>([])
 
-    
+    const [modalContent, setModalContent] = React.useState('')
+    const [modalJSX, setModalJSX] = React.useState(<></>) 
+    const [modalError, setModalError] = React.useState('')
+    const [modalSuccess, setModalSuccess] = React.useState('')
+    const [modal, setModal] = React.useState(false)
+    const [disableButtons, setDisableButtons] = React.useState(false)
 
-  
-    
+    useEffect (() => {
+
+        if (modalContent == '')
+        return
+
+        var indexes = modalContent.split(",")
+
+        
+        var slotInfo = eventSlots[parseInt(indexes[1])]
+        var eventInfo = cardsFromDb[parseInt(indexes[0])]
+
+
+        setModalJSX(
+            <>
+            {modalError != '' &&
+                <Alert severity="error">
+                    <AlertTitle>{modalError}</AlertTitle>
+                </Alert>
+            }
+            {modalSuccess != '' &&
+                <Alert severity="success">
+                    <AlertTitle>{modalSuccess}</AlertTitle>
+                </Alert>
+            }
+            <Typography sx={{textDecoration:'underline', fontSize:17}}>Event Info</Typography>
+            <br></br>
+            <Typography>Event Name: {eventInfo.EventName}</Typography>
+            <br></br>
+            <Typography>Start Time: {eventInfo.StartTime}</Typography>
+            <br></br>
+            <Typography>End Time: {eventInfo.EndTime}</Typography>
+            <br></br>
+            <Typography>Description: {eventInfo.Description}</Typography>
+            <br></br>
+            <Typography sx={{textDecoration:'underline', fontSize:17}}>Volunteer Information</Typography>
+            <br></br>
+            {slotInfo.OverrideUsers != null &&
+            <>
+                 <Typography>Overriden Slot Volunteer: {slotInfo.Name}</Typography>
+                 <br></br>
+                 <Typography>Misc Info: {slotInfo.ContactInfo}</Typography>
+                 <br></br>
+                 <Typography>Role Name: {slotInfo.RoleName}</Typography>
+                 <br></br>
+             </>
+
+            }
+            {slotInfo.OverrideUsers == null &&
+                <>
+                    <Typography>Name of Volunteer: {slotInfo.FirstName} {slotInfo.LastName}</Typography>
+                    <br></br>
+                    <Typography>Username: {slotInfo.Username}</Typography>
+                    <br></br>
+                    <Typography>Role Name: {slotInfo.RoleName}</Typography>
+                    <br></br>
+                    {slotInfo.VerifiedHours == false && slotInfo.NoShow == null &&
+                        <>
+                        <Typography>Hours Verified: <ClearIcon/></Typography>
+                        <br></br>
+                        </>
+                    }
+                    {slotInfo.VerifiedHours == true && slotInfo.NoShow == null &&
+                        <>
+                        <Typography>Hours Verified: <CheckIcon/></Typography>
+                        <br></br>
+                        </>
+                    }
+                    {slotInfo.NoShow == 1 &&
+                        <>
+                        <Typography>No Show: <CheckIcon/></Typography>
+                        <br></br>
+                        </>
+                    }
+                    {slotInfo.NoShow == null &&
+                        <>
+                        <Typography>No Show: <ClearIcon/></Typography>
+                        <br></br>
+                        </>
+                    }
+
+                    
+                    <Button sx={{border:'1px solid gray'}} onClick={() => {setNoShow(slotInfo.Id)}}  disabled={disableButtons}>Change no show to {new Boolean(!slotInfo.NoShow).toString()}</Button>
+                    <br></br>
+                    {slotInfo.NoShow == null &&
+                        <>
+                        <Button sx={{border:'1px solid gray', marginTop:'1px'}} onClick={() => {setHoursVerified(slotInfo.Id)}}  disabled={disableButtons}>Change Hours Verified</Button>
+                        <br></br>
+                        </>
+                    }
+                    
+                </>
+            }
+            
+            <Button sx={{border:'1px solid gray', marginTop:'1px'}} onClick={() => setModal(false)} disabled={disableButtons}>Close</Button>
+            <br></br>
+        </>
+        )
+        
+        setModal(true)
+        
+
+    },[modalContent, modalError, modalSuccess])
 
     useEffect (() => {
         var eventSlotCopy = eventSlots
         var tempArray = []
 
-
+        var eventCounter = 0;
         for (var cardIndex = 0; cardIndex < cardsFromDb.length; cardIndex++){
 
             var renderedSlots = new Array<JSX.Element>
-            {/*Query needs to filter the date and time from events, events from different states also shouldn't be shown*/}
-        
-            
-            
 
-            for (let eventSlotCounter = 0; eventSlotCounter < cardsFromDb[cardIndex].VolunteerLimit; eventSlotCounter++) 
+            for (var eventSlotCounter = 0; eventSlotCounter < cardsFromDb[cardIndex].VolunteerLimit; eventSlotCounter++) 
             {
                 
-                        if (eventSlotCopy[eventSlotCounter].VolunteerId == null){
-                            renderedSlots.push(
-                                <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
-                                    <Typography>Role ({eventSlotCopy[eventSlotCounter].RoleName}) was not signed up for.</Typography>
-                                </Box>)
-                        }
-                        else{
+                        if (eventSlotCopy[eventSlotCounter].VolunteerId == null && eventSlotCopy[eventSlotCounter].OverrideUsers == null)
+                        {
 
-                            if (eventSlotCopy[eventSlotCounter].RoleName == null)
+                            if (eventSlotCopy[eventSlotCounter].RoleName != null)
                             {
                                 renderedSlots.push(
-                                    <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#fa534d'}}>
-                                        <Typography>Slot was fulfilled by: {eventSlotCopy[eventSlotCounter].FirstName} {eventSlotCopy[eventSlotCounter].LastName}</Typography>
+                                    <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
+                                        <Typography>Role ({eventSlotCopy[eventSlotCounter].RoleName}) was not signed up for.</Typography>
                                     </Box>)
                             }
                             else
                             {
                                 renderedSlots.push(
-                                    <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#fa534d'}}>
-                                        <Typography>Role: ({eventSlotCopy[eventSlotCounter].RoleName}) was fulfilled by: {eventSlotCopy[eventSlotCounter].FirstName} {eventSlotCopy[eventSlotCounter].LastName}</Typography>
+                                    <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
+                                        <Typography>Slot was not signed up for.</Typography>
                                     </Box>)
+
                             }
+
+
+                           
+                        }
+                        else
+                        {
+                 
+
+                            if (eventSlotCopy[eventSlotCounter].VolunteerId != null)
+                            {
+                                if (eventSlotCopy[eventSlotCounter].RoleName != null)
+                                {
+                                    renderedSlots.push(
+                                        <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#57eb75'}}>
+                                            <Button id={cardIndex + ','+eventCounter} fullWidth onClick={(event) => {setModalContent(event.currentTarget.id), setModal(true)}}>Role ({eventSlotCopy[eventSlotCounter].RoleName}) was fulfilled by: {eventSlotCopy[eventSlotCounter].FirstName} {eventSlotCopy[eventSlotCounter].LastName}</Button>
+                                        </Box>)
+                                }
+                                else
+                                {
+                                    renderedSlots.push(
+                                        <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#57eb75'}}>
+                                            <Button fullWidth id={cardIndex + ','+eventCounter} onClick={(event) => {setModalContent(event.currentTarget.id), setModal(true)}}>Slot was fulfilled by: {eventSlotCopy[eventSlotCounter].FirstName} {eventSlotCopy[eventSlotCounter].LastName}</Button>
+                                        </Box>)
+                                }
+                            }
+                            else
+                            {
+
+                                if (eventSlotCopy[eventSlotCounter].RoleName != null)
+                                {
+                                    
+                                    renderedSlots.push(
+                                        <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#57eb75'}}>
+                                            <Button fullWidth id={cardIndex + ','+eventCounter} onClick={(event) => {setModalContent(event.currentTarget.id), setModal(true)}}>Role ({eventSlotCopy[eventSlotCounter].RoleName}) was fulfilled by: {eventSlotCopy[eventSlotCounter].Name} (Manually added)</Button>
+                                        </Box>)
+                                }
+                                else
+                                {
+                                    
+                                    renderedSlots.push(
+                                        <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#57eb75'}}>
+                                            <Button fullWidth id={cardIndex + ','+eventCounter} onClick={(event) => {setModalContent(event.currentTarget.id), setModal(true)}}>Slot was fulfilled by: {eventSlotCopy[eventSlotCounter].Name} (Manually added)</Button>
+                                        </Box>)
+                                }
+
+                            }
+                      
                             
                         }
-                        
-                    
-                    
 
+                        eventCounter++;        
             }
 
             eventSlotCopy = eventSlotCopy.slice(cardsFromDb[cardIndex].VolunteerLimit)
@@ -228,6 +434,11 @@ export default function OrgPastEvents() : JSX.Element {
             <>
                 <OrgNavBar/>
                 {renderedCards}
+                <Modal open={modal}>
+                <Box sx={modalStyle}>
+                    {modalJSX}
+                </Box>
+                </Modal>
                 { renderedCards.length == 0 && errorText == '' && 
                     <Alert severity="warning">
                       <AlertTitle>Fetching data from API...</AlertTitle>
