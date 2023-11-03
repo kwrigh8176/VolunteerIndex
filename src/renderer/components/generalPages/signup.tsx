@@ -225,7 +225,7 @@ const SignUp = () : JSX.Element => {
                             <MenuItem value="DC">District of Columbia</MenuItem>
                             <MenuItem value="FL">Florida</MenuItem>
                             <MenuItem value="GA">Georgia</MenuItem>
-                            <MenuItem value="DE">Hawaii</MenuItem>
+                            <MenuItem value="HI">Hawaii</MenuItem>
                             <MenuItem value="ID">Idaho</MenuItem>
                             <MenuItem value="IL">Illinois</MenuItem>
                             <MenuItem value="IN">Indiana</MenuItem>
@@ -264,7 +264,7 @@ const SignUp = () : JSX.Element => {
                             <MenuItem value="VA">Virginia</MenuItem>
                             <MenuItem value="WA">Washington</MenuItem>
                             <MenuItem value="WV">West Virgnia</MenuItem>
-                            <MenuItem value="TX">Wisconsin</MenuItem>
+                            <MenuItem value="WI">Wisconsin</MenuItem>
                             <MenuItem value="WY">Wyoming</MenuItem>
                             
                         
@@ -325,7 +325,7 @@ const SignUp = () : JSX.Element => {
                             <MenuItem value="DC">District of Columbia</MenuItem>
                             <MenuItem value="FL">Florida</MenuItem>
                             <MenuItem value="GA">Georgia</MenuItem>
-                            <MenuItem value="DE">Hawaii</MenuItem>
+                            <MenuItem value="HI">Hawaii</MenuItem>
                             <MenuItem value="ID">Idaho</MenuItem>
                             <MenuItem value="IL">Illinois</MenuItem>
                             <MenuItem value="IN">Indiana</MenuItem>
@@ -364,7 +364,7 @@ const SignUp = () : JSX.Element => {
                             <MenuItem value="VA">Virginia</MenuItem>
                             <MenuItem value="WA">Washington</MenuItem>
                             <MenuItem value="WV">West Virgnia</MenuItem>
-                            <MenuItem value="TX">Wisconsin</MenuItem>
+                            <MenuItem value="WI">Wisconsin</MenuItem>
                             <MenuItem value="WY">Wyoming</MenuItem>
                             
                         

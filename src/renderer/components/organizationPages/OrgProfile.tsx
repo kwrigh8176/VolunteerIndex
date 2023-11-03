@@ -6,7 +6,7 @@ import TextField from "@mui/material/TextField"
 import Card from "@mui/material/Card"
 import CardHeader from "@mui/material/CardHeader"
 import CardContent from "@mui/material/CardContent"
-import VolunteerNavBar from "./VolunteerNavbar"
+import OrgNavbar from "./OrgNavbar"
 import Button from "@mui/material/Button"
 import Alert from "@mui/material/Alert"
 import AlertTitle from "@mui/material/AlertTitle"
@@ -29,7 +29,7 @@ const modalStyle = {
     backdrop: 'static'
   };
 
-export default function VolunteerProfile() : JSX.Element {
+export default function OrgProfile() : JSX.Element {
 
     const [loading, setLoading] = React.useState(0)
     const [loadedInfo, setLoadedInfo] = React.useState<any[]>([])
@@ -52,8 +52,8 @@ export default function VolunteerProfile() : JSX.Element {
         setConfirmationResponse('')
 
      
-        await axios.get(connectionString + "/getVolunteerProfile/", {params:{
-            volunteerId: sessionStorage.getItem("Id"),
+        await axios.get(connectionString + "/getOrgProfile/", {params:{
+            OrgId: sessionStorage.getItem("orgId"),
             username: sessionStorage.getItem("username"),
             token: sessionStorage.getItem("token"), 
             loginType: sessionStorage.getItem("loginType")
@@ -84,7 +84,7 @@ export default function VolunteerProfile() : JSX.Element {
         }
 
         await axios.post(connectionString + "/processPasswordChange/", null, {params:{
-            Id: sessionStorage.getItem("Id"),
+            Id: sessionStorage.getItem("orgId"),
             username: sessionStorage.getItem("username"),
             token: sessionStorage.getItem("token"), 
             loginType: sessionStorage.getItem("loginType"),
@@ -114,7 +114,7 @@ export default function VolunteerProfile() : JSX.Element {
         var checkVariable = false
         var errMsg = ""
 
-        if (loadedInfo[0].Username == '' || loadedInfo[0].Email == '' || loadedInfo[0].PhoneNumber == '')
+        if (loadedInfo[0].Username == '' || loadedInfo[0].Email == '' || loadedInfo[0].PhoneNumber == '' || loadedInfo[0].Address == '')
         {
             checkVariable = true 
             errMsg += 'One or more fields are empty.' + '\n'
@@ -140,29 +140,31 @@ export default function VolunteerProfile() : JSX.Element {
             return
         }
 
-        await axios.post(connectionString + "/getTakenVolunteerData/", null, {params:{
+        await axios.post(connectionString + "/getTakenOrgData/", null, {params:{
             email: loadedInfo[0].Email,
-            username: loadedInfo[0].Username,
+            username: sessionStorage.getItem("username"),
             phonenumber: loadedInfo[0].PhoneNumber,
             token:  sessionStorage.getItem("token"),
-            Id: sessionStorage.getItem("Id"),
+            orgId: sessionStorage.getItem("orgId"),
             loginType: sessionStorage.getItem("loginType"),
-            oldUsername: sessionStorage.getItem("username"),
+            newUsername: loadedInfo[0].Username,
+
         }}).then(function (response) {
-            axios.post(connectionString + "/saveVolunteerProfile/", null, {params:{
-                volunteerId: sessionStorage.getItem("Id"),
+            axios.post(connectionString + "/saveOrgProfile/", null, {params:{
+                orgId: sessionStorage.getItem("orgId"),
                 email: loadedInfo[0].Email,
                 username: loadedInfo[0].Username,
                 phonenumber: loadedInfo[0].PhoneNumber,
                 bio: loadedInfo[0].Bio,
                 State: loadedInfo[0].State,
+                Address: loadedInfo[0].Address,
+                orgName: loadedInfo[0].OrgName,
                 token:  sessionStorage.getItem("token"),
                 loginType: sessionStorage.getItem("loginType"),
                 oldUsername: sessionStorage.getItem("username"),
             }}).then(function (response) {
                 setConfirmationResponse('Data saved.')
                 sessionStorage.setItem("username", loadedInfo[0].Username)
-                sessionStorage.setItem("state", loadedInfo[0].State)
              }).catch(function (error){
                 if (error.response == undefined){
                     setConfirmationResponse("Network error connecting to the API, please try again.")
@@ -199,7 +201,7 @@ export default function VolunteerProfile() : JSX.Element {
                     <Box>
                         
                         <Card>
-                            <CardHeader title={"Welcome, " + loadedInfo[0].FirstName} >
+                            <CardHeader title={"Welcome, " + loadedInfo[0].OrgName} >
                             </CardHeader>
                             <CardHeader title="Your Info" subheader="Click on a field to edit. Click the save button below to save." subheaderTypographyProps={{ color: 'black' }}  sx={{borderTop:'1px solid black'}} >
                             </CardHeader>
@@ -263,11 +265,9 @@ export default function VolunteerProfile() : JSX.Element {
                                     <MenuItem value="WY">Wyoming</MenuItem>
                                 </TextField>
                             </CardContent>
-              
-                            <CardHeader title="Bio" subheader="Feel free to describe yourself here. (250 characters max)" subheaderTypographyProps={{ color: 'black' }}  sx={{borderTop:'1px solid black'}} >
-                            </CardHeader>
-                            <CardContent>
-                                <textarea defaultValue={loadedInfo[0].Bio} onChange={(event) => (loadedInfo[0].Bio = event.target.value)}  maxLength={250}></textarea>
+                            <CardContent sx={{borderBottom:'1px white'}}>
+                            <TextField defaultValue={loadedInfo[0].Address} label='Address' sx={{marginRight:'5px'}} InputLabelProps={{style: { color: 'black' }}} inputProps={{ maxLength: 50 }} onChange={(event) => (loadedInfo[0].Address = event.target.value)} ></TextField>
+                            <TextField defaultValue={loadedInfo[0].OrgName} label='Organization Name' sx={{marginRight:'5px'}} InputLabelProps={{style: { color: 'black' }}} inputProps={{ maxLength: 50 }} onChange={(event) => (loadedInfo[0].OrgName = event.target.value)} ></TextField>
                             </CardContent>
                             <CardContent sx={{borderTop:'1px solid black'}}>
                                 <Button sx={{border:'1px solid black', color:'red'}} onClick={() => {setPasswordModalControl(true)}} disabled={disabledButton}>Reset Password </Button>
@@ -304,7 +304,7 @@ export default function VolunteerProfile() : JSX.Element {
     else{
         return (
             <>
-                <VolunteerNavBar/>
+                <OrgNavbar/>
                 {loadedInfoJSX}
 
                 <Modal
@@ -327,7 +327,7 @@ export default function VolunteerProfile() : JSX.Element {
                     
                         <Typography>Are you sure you want to save your data?</Typography>
                         <br></br>
-                        <Typography sx={{color:'red'}}>If you are changing your state, you will be signed out of all events.</Typography>
+                        <Typography sx={{color:'red'}}>If you are changing your state, all the currently active events you have will be deleted.</Typography>
 
                         <Button disabled={disabledButton} onClick={() => {
                             setConfirmationResponse('')

@@ -59,8 +59,21 @@ export default function VolunteerEvents() : JSX.Element {
                 loginType: sessionStorage.getItem("loginType")
             }
         }).then(function (response){
-                setCardsFromDb(response.data)
-                tempArray.push(response.data) 
+            if (response.data.length != 0){
+                const sorted = response.data.sort((objA : any,objB:any)=>{
+                    const dateA = new Date(`${objA.Date}`).valueOf();
+                    const dateB = new Date(`${objB.Date}`).valueOf();
+                    if(dateA > dateB){
+                      return 1
+                    }
+                    return -1
+                });
+                setCardsFromDb(sorted)
+                tempArray = sorted
+            }
+            else{
+                setErrorText('Events not found.')
+            }
         })
         .catch(function (error){
             tempText = "error";
@@ -88,8 +101,8 @@ export default function VolunteerEvents() : JSX.Element {
             
         }
 
-        for (var i = 0; i < tempArray[0].length; i++){
-            var eventId = tempArray[0][i].EventId
+        for (var i = 0; i < tempArray.length; i++){
+            var eventId = tempArray[i].EventId
 
     
             await axios.get(connectionString + "/getEventSlots/", {

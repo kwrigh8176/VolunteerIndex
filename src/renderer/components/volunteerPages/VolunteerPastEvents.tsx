@@ -46,7 +46,7 @@ export default function VolunteerPastEvents() : JSX.Element {
                     setCardsFromDb(sorted)
                 }
                 else{
-                    setCardsFromDb(response.data)
+                    setErrorText('Events not found.')
                 }
                 
         })
