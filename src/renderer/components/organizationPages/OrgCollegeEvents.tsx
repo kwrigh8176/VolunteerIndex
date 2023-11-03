@@ -60,6 +60,10 @@ export default function orgCollegeEvents() : JSX.Element {
         }}).then(function (response){
                 setCardsFromDb(response.data)
                 tempArray.push(response.data) 
+                if (response.data.length == 0)
+                {
+                    setErrorText('Events not found.')
+                }
         })
         .catch(function (error){
             if (error.response == undefined){

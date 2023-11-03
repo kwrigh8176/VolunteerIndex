@@ -81,6 +81,7 @@ export default function OrgNavBar() : JSX.Element {
                         aria-haspopup="true"
                         color="inherit"
                         component={`a`}
+                        href={'/orgProfile'}
                     >
                         <AccountCircle />
                     </IconButton>

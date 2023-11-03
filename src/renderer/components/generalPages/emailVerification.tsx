@@ -110,7 +110,7 @@ export default function emailVerification() : JSX.Element {
                 {errorText == 'Sucessful Verification' && 
                     
                         <Alert severity="success">
-                            <AlertTitle>Sucessful Verification! You will be redirected in 5 seconds.</AlertTitle>
+                            <AlertTitle>Successful Verification! You will be redirected in 5 seconds.</AlertTitle>
                         </Alert>
                 }
                 <h1>Input the code to login. You can reset the code if necessary (30 second cooldown).</h1>

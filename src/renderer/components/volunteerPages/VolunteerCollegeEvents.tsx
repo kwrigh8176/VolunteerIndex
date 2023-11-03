@@ -63,7 +63,11 @@ export default function volunteerCollegeEvents() : JSX.Element {
                 var domain = email?.substring(email.indexOf("@")+1)
                 setCardsFromDb(response.data.filter((item: { Email: (string | null)[] }) => item.Email.includes(domain!)))
                 tempArray.push(response.data.filter((item: { Email: (string | null)[] }) => item.Email.includes(domain!))) 
-        })
+                if (response.data.length == 0)
+                {
+                    setErrorText('Events not found.')
+                }
+            })
         .catch(function (error){
             tempText = "error";
             if (error.response == undefined){

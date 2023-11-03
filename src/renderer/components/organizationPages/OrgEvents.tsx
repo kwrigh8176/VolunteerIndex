@@ -62,8 +62,21 @@ export default function OrgEvents() : JSX.Element {
             token: sessionStorage.getItem('token'),
             getCollegeEvents: "0"
         }}).then(function (response){
-                setCardsFromDb(response.data)
-                tempArray.push(response.data) 
+            if (response.data.length != 0){
+                const sorted = response.data.sort((objA : any,objB:any)=>{
+                    const dateA = new Date(`${objA.Date}`).valueOf();
+                    const dateB = new Date(`${objB.Date}`).valueOf();
+                    if(dateA > dateB){
+                      return 1
+                    }
+                    return -1
+                });
+                setCardsFromDb(sorted)
+                tempArray = sorted
+            }
+            else{
+                setErrorText('Events not found.')
+            }
         })
         .catch(function (error){
             if (error.response == undefined){
@@ -85,8 +98,8 @@ export default function OrgEvents() : JSX.Element {
             return 
         }
             
-        for (var i = 0; i < tempArray[0].length; i++){
-            var eventId = tempArray[0][i].EventId
+        for (var i = 0; i < tempArray.length; i++){
+            var eventId = tempArray[i].EventId
 
            
             await axios.get(connectionString + "/getOrganizationEventSlots/",{params:{
@@ -100,6 +113,7 @@ export default function OrgEvents() : JSX.Element {
                         holdSlots.push(response.data[dataindex])
                     }
                 }
+                
                    
             }).catch(function (error){
                 if (error.response == undefined){
@@ -378,7 +392,6 @@ export default function OrgEvents() : JSX.Element {
         getEvents()
         return (
             <>
-            <p>Loading Events...</p>
             </>
         )
     }
