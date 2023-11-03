@@ -162,6 +162,7 @@ export default function VolunteerProfile() : JSX.Element {
             }}).then(function (response) {
                 setConfirmationResponse('Data saved.')
                 sessionStorage.setItem("username", loadedInfo[0].Username)
+                sessionStorage.setItem("state", loadedInfo[0].State)
              }).catch(function (error){
                 if (error.response == undefined){
                     setConfirmationResponse("Network error connecting to the API, please try again.")

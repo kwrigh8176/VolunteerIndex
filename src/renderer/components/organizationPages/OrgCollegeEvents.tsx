@@ -58,12 +58,23 @@ export default function orgCollegeEvents() : JSX.Element {
             token: sessionStorage.getItem('token'),
             getCollegeEvents: "1"
         }}).then(function (response){
-                setCardsFromDb(response.data)
-                tempArray.push(response.data) 
-                if (response.data.length == 0)
-                {
-                    setErrorText('Events not found.')
-                }
+            if (response.data.length != 0){
+                const sorted = response.data.sort((objA : any,objB:any)=>{
+                    const dateA = new Date(`${objA.Date}`).valueOf();
+                    const dateB = new Date(`${objB.Date}`).valueOf();
+                    if(dateA > dateB){
+                      return 1
+                    }
+                    return -1
+                });
+                setCardsFromDb(response.data.filter((item: { CollegeEvent: number }) => item.CollegeEvent == 1))
+                tempArray.push(response.data.filter((item: { CollegeEvent: number }) => item.CollegeEvent == 1)) 
+            }
+            else{
+                setErrorText('Events not found.')
+            }
+             
+             
         })
         .catch(function (error){
             if (error.response == undefined){

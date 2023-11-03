@@ -58,7 +58,7 @@ export default function OrgCreateEvent() : JSX.Element {
     const [address, setAddress] = React.useState('');
     const [email, setEmail] = React.useState('');
     const [phoneNumber, setPhoneNumber] = React.useState('');
-    const [collegeVisibility, setCollegeVisibility] = React.useState('College')
+    const [collegeVisibility, setCollegeVisibility] = React.useState('Any')
 
     const maxVolunteers = 15;
 
