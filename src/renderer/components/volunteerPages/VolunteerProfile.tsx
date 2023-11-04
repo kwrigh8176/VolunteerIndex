@@ -304,7 +304,7 @@ export default function VolunteerProfile() : JSX.Element {
     else{
         return (
             <>
-                <VolunteerNavBar/>
+                <VolunteerNavBar pageName="Profile"/>
                 {loadedInfoJSX}
 
                 <Modal

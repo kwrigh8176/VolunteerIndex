@@ -33,7 +33,7 @@ const modalStyle = {
 
 
 export default function volunteerCollegeEvents() : JSX.Element {
-    sessionStorage.setItem("currRoute", "/volunteerCollegeEvents")
+ 
 
     const [cardsFromDb,setCardsFromDb] = React.useState<any[]>([])
     const [eventSlots,setEventSlots] = React.useState<any[]>([])
@@ -59,14 +59,21 @@ export default function volunteerCollegeEvents() : JSX.Element {
                 loginType: sessionStorage.getItem("loginType")
             }
         }).then(function (response){
-                var email = sessionStorage.getItem("email")
-                var domain = email?.substring(email.indexOf("@")+1)
-                setCardsFromDb(response.data.filter((item: { Email: (string | null)[] }) => item.Email.includes(domain!)))
-                tempArray.push(response.data.filter((item: { Email: (string | null)[] }) => item.Email.includes(domain!))) 
-                if (response.data.length == 0)
-                {
-                    setErrorText('Events not found.')
-                }
+            if (response.data.length != 0){
+                    const sorted = response.data.sort((objA : any,objB:any)=>{
+                    const dateA = new Date(`${objA.Date}`).valueOf();
+                    const dateB = new Date(`${objB.Date}`).valueOf();
+                    if(dateA > dateB){
+                      return 1
+                    }
+                    return -1
+                });
+                setCardsFromDb(sorted.filter((item: { CollegeEvent: number }) => item.CollegeEvent == 1))
+                tempArray.push(sorted.filter((item: { CollegeEvent: number }) => item.CollegeEvent == 1)) 
+            }
+            else{
+                setErrorText('Events not found.')
+            }
             })
         .catch(function (error){
             tempText = "error";
@@ -379,7 +386,7 @@ export default function volunteerCollegeEvents() : JSX.Element {
 
        return(
             <>
-                <VolunteerNavBar/>
+                <VolunteerNavBar pageName="College Events"/>
                 {renderedCards}
                 {renderedCards.length == 0 && errorText == '' && 
                     <Alert severity="warning">

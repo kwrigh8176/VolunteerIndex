@@ -67,8 +67,8 @@ export default function orgCollegeEvents() : JSX.Element {
                     }
                     return -1
                 });
-                setCardsFromDb(response.data.filter((item: { CollegeEvent: number }) => item.CollegeEvent == 1))
-                tempArray.push(response.data.filter((item: { CollegeEvent: number }) => item.CollegeEvent == 1)) 
+                setCardsFromDb(sorted.filter((item: { CollegeEvent: number }) => item.CollegeEvent == 1))
+                tempArray.push(sorted.filter((item: { CollegeEvent: number }) => item.CollegeEvent == 1)) 
             }
             else{
                 setErrorText('Events not found.')
@@ -329,7 +329,7 @@ export default function orgCollegeEvents() : JSX.Element {
 
        return(
             <>
-                <OrgNavBar/>
+                <OrgNavBar pageName="College Events"/>
                 { renderedCards.length == 0 && errorText == '' && 
                     <Alert severity="warning">
                       <AlertTitle>Fetching data from API...</AlertTitle>
