@@ -232,7 +232,7 @@ export default function OrgCreateEvent() : JSX.Element {
    
     return (
     <>
-        <OrgNavBar/>
+        <OrgNavBar pageName="Create Event"/>
         <Card sx={{marginBottom:'20px'}}>
                 <CardHeader title={"Create Event"} sx={{borderBottom:'1px solid grey'}}/>
                 <CardHeader title={"General Info"} sx={{borderBottom: '1px solid grey'}}/>

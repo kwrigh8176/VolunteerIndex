@@ -403,7 +403,7 @@ export default function OrgEvents() : JSX.Element {
 
        return(
             <>
-                <OrgNavBar/>
+                <OrgNavBar pageName="All Events"/>
                 { renderedCards.length == 0 && errorText == '' && 
                     <Alert severity="warning">
                       <AlertTitle>Fetching data from API...</AlertTitle>

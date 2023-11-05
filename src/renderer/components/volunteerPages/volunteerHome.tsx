@@ -541,7 +541,7 @@ const VolunteerHome = () : JSX.Element => {
     else{
         return (
             <>
-                <VolunteerNavBar/>
+                <VolunteerNavBar pageName="Home"/>
                 {errorText != '' && 
                                 
                     <Alert severity="error">

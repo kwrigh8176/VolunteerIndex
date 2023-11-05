@@ -304,7 +304,7 @@ export default function OrgProfile() : JSX.Element {
     else{
         return (
             <>
-                <OrgNavbar/>
+                <OrgNavbar pageName="Profile"/>
                 {loadedInfoJSX}
 
                 <Modal

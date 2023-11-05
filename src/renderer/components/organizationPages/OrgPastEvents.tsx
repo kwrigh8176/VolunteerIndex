@@ -445,7 +445,7 @@ export default function OrgPastEvents() : JSX.Element {
 
        return(
             <>
-                <OrgNavBar/>
+                <OrgNavBar pageName="Past Events"/>
                 {renderedCards}
                 <Modal open={modal}>
                 <Box sx={modalStyle}>

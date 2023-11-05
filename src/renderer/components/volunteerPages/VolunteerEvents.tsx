@@ -33,7 +33,7 @@ const modalStyle = {
 
 
 export default function VolunteerEvents() : JSX.Element {
-    sessionStorage.setItem("currRoute", "/volunteerEvents")
+
 
     const [cardsFromDb,setCardsFromDb] = React.useState<any[]>([])
     const [eventSlots,setEventSlots] = React.useState<any[]>([])
@@ -390,7 +390,7 @@ export default function VolunteerEvents() : JSX.Element {
 
        return(
             <>
-                <VolunteerNavBar/>
+                <VolunteerNavBar pageName="Events"/>
                 {renderedCards}
                 {renderedCards.length == 0 && errorText == '' && 
                     <Alert severity="warning">
