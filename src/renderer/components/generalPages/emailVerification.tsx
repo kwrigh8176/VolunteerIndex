@@ -6,6 +6,8 @@ import AlertTitle from "@mui/material/AlertTitle";
 import { useNavigate } from "react-router-dom";
 import connectionString from "../../../../config";
 import axios from "axios";
+import { Box } from "@mui/material";
+import { Typography } from "@mui/joy";
 
 
 export default function emailVerification() : JSX.Element {
@@ -14,7 +16,6 @@ export default function emailVerification() : JSX.Element {
     const [verifyTextBox, setVerifyTextBox] = React.useState('')
 
     const [errorText, setErrorText] = React.useState('')
-    const [successText, setSuccessText] = React.useState('')
 
     const navigate = useNavigate();
     
@@ -28,7 +29,7 @@ export default function emailVerification() : JSX.Element {
                 loginType: sessionStorage.getItem("loginType"),
             }
         }).then(function (response) {
-
+            setErrorText('')
         }).catch(function(error){
             if (error.response == undefined)
             {
@@ -57,7 +58,7 @@ export default function emailVerification() : JSX.Element {
             }
 
         }).then(function (response) {
-                setErrorText('Sucessful Verification')
+                setErrorText('Successful Verification')
                 sessionStorage.setItem("token",response.data)
                 if (sessionStorage.getItem("loginType")  == "Volunteer")
                 {
@@ -100,27 +101,26 @@ export default function emailVerification() : JSX.Element {
                 position: 'absolute', left: '50%', top: '50%',
                 transform: 'translate(-50%, -50%)'
             }}>
-                {errorText != '' &&  errorText != 'Sucessful Verification' && 
+                <Box sx={{backgroundColor:'grey', flex:1}}>
+                {errorText != '' &&  errorText != 'Successful Verification' && 
                     
                             <Alert severity="error">
-                                <AlertTitle>Invalid Code</AlertTitle>
+                                <AlertTitle>{errorText}</AlertTitle>
                             </Alert>
                         }
 
-                {errorText == 'Sucessful Verification' && 
+                {errorText == 'Successful Verification' && 
                     
                         <Alert severity="success">
                             <AlertTitle>Successful Verification! You will be redirected in 5 seconds.</AlertTitle>
                         </Alert>
                 }
-                <h1>Input the code to login. You can reset the code if necessary (30 second cooldown).</h1>
-                <br></br>
-                <p>Don't forget to check spam folders!</p>
-                <br></br>
-                <TextField label="Enter code here: " onChange={(event) => setVerifyTextBox(event.target.value)} inputProps={{maxLength: 10}}></TextField>
-                <Button disabled={verifyButtonDisable} onClick={processCode} >Verify Code</Button> 
-                <br></br>
-                <Button disabled={buttonDisable} onClick={resetCode}>Reset Code</Button>
+                <Typography sx={{color:'black'}}>Input the code to login. You can reset the code if necessary (Codes expire after 10 minutes).</Typography>
+                <Typography sx={{color:'black', fontWeight:'bold', marginBottom:'5px'}} >(Don't forget to check spam folders!)</Typography>
+                <TextField label="Enter code here: " onChange={(event) => setVerifyTextBox(event.target.value)} inputProps={{maxLength: 10}} sx={{width:'100%', marginBottom:'5px'}}></TextField>
+                <Button disabled={verifyButtonDisable} onClick={processCode} variant="contained" sx={{marginRight:'5px'}}>Verify Code</Button> 
+                <Button disabled={buttonDisable} onClick={resetCode} variant="outlined">Reset Code</Button>
+                </Box>
             </div>
         </>
     )

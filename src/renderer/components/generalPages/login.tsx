@@ -131,7 +131,7 @@ const Login = () : JSX.Element => {
                             <h1 style={{textAlign: 'center', color:'white', width:'100%'}}>Welcome to VolunteerIndex!</h1>
                             <StyledInput select value={loginType}  label="Login Type" onChange={(event) => setLoginType(event.target.value)}
                             InputProps={{sx : {color : "white"}  }}
-                            sx={{input: {color: 'white'},marginRight: '10px', minWidth: 150, borderColor:'white'}}
+                            sx={{input: {color: 'white'},marginRight: '10px', minWidth: 150, borderColor:'white', marginTop:'5px'}}
                             InputLabelProps={{ sx: {color: "white"}}}
                             >
                                 <MenuItem value='Volunteer'>Volunteer</MenuItem>
@@ -139,21 +139,21 @@ const Login = () : JSX.Element => {
                             </StyledInput>
                             <StyledInput id="outlined-basic" label="Username" onChange={(event) => setUsername(event.target.value)} variant="outlined" 
                             InputProps={{sx : {color : "white"}  }}
-                            sx={{input: {color: 'white'},marginRight: '10px', minWidth: 150, borderColor:'white' , width:'100%'}}
+                            sx={{input: {color: 'white'},marginRight: '10px', minWidth: 150, borderColor:'white' , width:'100%', marginTop:'5px'}}
                             InputLabelProps={{ sx: {color: "white"}}}
                             />
                             <br></br>
                             <StyledInput id="outlined-basic" label="Password" onChange={(event) => setPassword(event.target.value)} type="password" variant="outlined" 
                             InputProps={{sx : {color : "white"}  }}
-                            sx={{input: {color: 'white'},marginRight: '10px', minWidth: 150, borderColor:'white', width:'100%'}}
+                            sx={{input: {color: 'white'},marginRight: '10px', minWidth: 150, borderColor:'white', width:'100%', marginTop:'5px', marginBottom:'5px'}}
                             InputLabelProps={{ sx: {color: "white"}}}
                             />
                             <br></br>
-                            <Button variant="outlined" disabled={disableLoginButton} onClick={() => {VerifyLogin()}}>
+                            <Button variant="contained" disabled={disableLoginButton} onClick={() => {VerifyLogin()}}>
                                 Login
                             </Button>
 
-                            <Button href={`/signup`} disabled={disableLoginButton} variant="contained" color="primary">Sign Up Here</Button>
+                            <Button href={`/signup`} disabled={disableLoginButton} variant="outlined" color="primary">Sign Up Here</Button>
                             </Card>
                         </div>
         </>
