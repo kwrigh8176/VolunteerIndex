@@ -198,6 +198,10 @@ const SignUp = () : JSX.Element => {
                                 
                             </Alert>
                         }
+                        <Select labelId="demo-simple-select-label" value={signUpType}  label="Sign Up Type" onChange={(event) => setSignUpType(event.target.value)}>
+                            <MenuItem value='Volunteer'>Volunteer</MenuItem>
+                            <MenuItem value='Organization'>Organization</MenuItem>
+                        </Select>
                         <TextField id="outlined-basic" label="First Name" inputProps={{maxLength: 50}} onChange={(event) => setFirstName(event.target.value)} variant="outlined"/>
                         <br></br>
                         <TextField id="outlined-basic" label="Middle Initial (Optional)"  inputProps={{maxLength: 1}} onChange={(event) => setMiddleInitial(event.target.value)} variant="outlined"/>
@@ -299,7 +303,10 @@ const SignUp = () : JSX.Element => {
                             {errorText} 
                         </Alert>
                     }
-                    
+                    <Select labelId="demo-simple-select-label" value={signUpType}  label="Sign Up Type" onChange={(event) => setSignUpType(event.target.value)}>
+                        <MenuItem value='Volunteer'>Volunteer</MenuItem>
+                        <MenuItem value='Organization'>Organization</MenuItem>
+                    </Select>
                     <TextField id="outlined-basic" label="Organization Name" variant="outlined" inputProps={{maxLength: 50}} onChange={(event) => setOrgName(event.target.value)}/> 
                     <br></br>
                     <TextField id="outlined-basic" label="Address" variant="outlined" inputProps={{maxLength: 50}} onChange={(event) => setAddress(event.target.value)}/>
@@ -383,10 +390,7 @@ const SignUp = () : JSX.Element => {
     return (
 
         <>
-            <Select labelId="demo-simple-select-label" value={signUpType}  label="Sign Up Type" onChange={(event) => setSignUpType(event.target.value)}>
-                <MenuItem value='Volunteer'>Volunteer</MenuItem>
-                <MenuItem value='Organization'>Organization</MenuItem>
-            </Select>
+            
             {signUpType.toString() == 'Volunteer' && volunteerSignUp()}
             {signUpType.toString() == 'Organization' && orgSignUp()}
         </>
