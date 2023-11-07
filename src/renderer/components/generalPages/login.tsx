@@ -8,7 +8,19 @@ import connectionString from '../../../../config';
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import axios from 'axios';
+import { Card, styled } from '@mui/material';
 
+const StyledInput = styled(TextField)`
+& .MuiOutlinedInput-notchedOutline {
+    border-color: white;
+ }
+ & .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: white;
+ }
+ & .MuiSvgIcon-root : {
+    color: 'white',
+ }
+`;
 
 const Login = () : JSX.Element => {
     
@@ -102,11 +114,12 @@ const Login = () : JSX.Element => {
 
     return(
         <>
-                    <h1 style={{textAlign: 'center'}}>Welcome to VolunteerIndex!</h1>
+                    
                         <div 
                             style={{
                                 position: 'absolute', left: '50%', top: '50%',
-                                transform: 'translate(-50%, -50%)'
+                                transform: 'translate(-50%, -50%)',
+                                flex: 1
                             }}>
                             {errorText != '' && 
                     
@@ -114,19 +127,34 @@ const Login = () : JSX.Element => {
                                     <AlertTitle>{errorText}</AlertTitle>
                                 </Alert>
                             }
-                            <Select labelId="demo-simple-select-label" value={loginType}  label="Login Type" onChange={(event) => setLoginType(event.target.value)}>
+                            <Card sx={{backgroundColor:'#706e6e'}}>
+                            <h1 style={{textAlign: 'center', color:'white', width:'100%'}}>Welcome to VolunteerIndex!</h1>
+                            <StyledInput select value={loginType}  label="Login Type" onChange={(event) => setLoginType(event.target.value)}
+                            InputProps={{sx : {color : "white"}  }}
+                            sx={{input: {color: 'white'},marginRight: '10px', minWidth: 150, borderColor:'white', marginTop:'5px'}}
+                            InputLabelProps={{ sx: {color: "white"}}}
+                            >
                                 <MenuItem value='Volunteer'>Volunteer</MenuItem>
                                 <MenuItem value='Organization'>Organization</MenuItem>
-                            </Select>
-                            <TextField id="outlined-basic" label="Username" onChange={(event) => setUsername(event.target.value)} variant="outlined" />
+                            </StyledInput>
+                            <StyledInput id="outlined-basic" label="Username" onChange={(event) => setUsername(event.target.value)} variant="outlined" 
+                            InputProps={{sx : {color : "white"}  }}
+                            sx={{input: {color: 'white'},marginRight: '10px', minWidth: 150, borderColor:'white' , width:'100%', marginTop:'5px'}}
+                            InputLabelProps={{ sx: {color: "white"}}}
+                            />
                             <br></br>
-                            <TextField id="outlined-basic" label="Password" onChange={(event) => setPassword(event.target.value)} type="password" variant="outlined" />
+                            <StyledInput id="outlined-basic" label="Password" onChange={(event) => setPassword(event.target.value)} type="password" variant="outlined" 
+                            InputProps={{sx : {color : "white"}  }}
+                            sx={{input: {color: 'white'},marginRight: '10px', minWidth: 150, borderColor:'white', width:'100%', marginTop:'5px', marginBottom:'5px'}}
+                            InputLabelProps={{ sx: {color: "white"}}}
+                            />
                             <br></br>
-                            <Button variant="outlined" disabled={disableLoginButton} onClick={() => {VerifyLogin()}}>
+                            <Button variant="contained" disabled={disableLoginButton} onClick={() => {VerifyLogin()}}>
                                 Login
                             </Button>
 
-                            <Button href={`/signup`} disabled={disableLoginButton} variant="contained" color="primary">Sign Up Here</Button>
+                            <Button href={`/signup`} disabled={disableLoginButton} variant="outlined" color="primary">Sign Up Here</Button>
+                            </Card>
                         </div>
         </>
     );
