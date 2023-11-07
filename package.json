@@ -18,7 +18,7 @@
     "package:dist": "electron-builder --dir"
   },
   "keywords": [],
-  "author": "HelloSoftware",
+  "author": "Kyle Wright",
   "license": "MIT",
   "dependencies": {
     "@emotion/react": "^11.9.3",
@@ -74,7 +74,7 @@
   },
   "build": {
     "appId": "com.company.app",
-    "productName": "App Name",
+    "productName": "VolunteerIndex",
     "mac": {
       "category": "public.app-category.video"
     },
