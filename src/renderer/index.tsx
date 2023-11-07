@@ -1,7 +1,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import Login from "./components/generalPages/login";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, HashRouter, Navigate, Route, Routes } from "react-router-dom";
 import SignUp from "./components/generalPages/signup";
 import EmailVerification from "./components/generalPages/emailVerification";
 import VolunteerEvents from "./components/volunteerPages/VolunteerEvents";
@@ -22,7 +22,7 @@ const root = createRoot(rootElement!);
 
 root.render(
 
-<BrowserRouter>
+<HashRouter>
     <Routes>
         <Route key="Login"  path='/' element={<Login />} />
                     
@@ -52,7 +52,7 @@ root.render(
 
         <Route key="orgHome"  path="/orgProfile" element={<OrgProfile />} />
     </Routes>
-</BrowserRouter>
+</HashRouter>
 
 );
  
