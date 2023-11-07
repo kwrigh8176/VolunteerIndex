@@ -9,6 +9,7 @@ import VolunteerNavBar from "./VolunteerNavbar"
 import dayjs from "dayjs"
 import connectionString from "../../../../config"
 import axios from 'axios';
+import moment from "moment"
 
 
 /*
@@ -56,7 +57,8 @@ export default function VolunteerEvents() : JSX.Element {
                 state: state,
                 username: sessionStorage.getItem("username"),
                 token: sessionStorage.getItem("token"),
-                loginType: sessionStorage.getItem("loginType")
+                loginType: sessionStorage.getItem("loginType"),
+                locale:  moment.tz.guess(true)
             }
         }).then(function (response){
             if (response.data.length != 0){

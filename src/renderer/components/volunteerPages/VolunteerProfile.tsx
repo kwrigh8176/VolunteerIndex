@@ -14,6 +14,7 @@ import { IconButton, InputAdornment, InputLabel, MenuItem, Modal, Select, Typogr
 import validator from "validator"
 import Visibility from "@mui/icons-material/Visibility"
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import moment from "moment"
 
 
 const modalStyle = {
@@ -159,6 +160,7 @@ export default function VolunteerProfile() : JSX.Element {
                 token:  sessionStorage.getItem("token"),
                 loginType: sessionStorage.getItem("loginType"),
                 oldUsername: sessionStorage.getItem("username"),
+                locale:  moment.tz.guess()
             }}).then(function (response) {
                 setConfirmationResponse('Data saved.')
                 sessionStorage.setItem("username", loadedInfo[0].Username)

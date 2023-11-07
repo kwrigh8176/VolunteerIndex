@@ -7,6 +7,7 @@ import { PieChart } from '@mui/x-charts/PieChart';
 import dayjs from 'dayjs';
 import { Alert, AlertTitle, TextField, styled } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
+import moment from 'moment';
 
 
 const StyledInput = styled(TextField)`
@@ -50,7 +51,8 @@ const VolunteerHome = () : JSX.Element => {
             state: sessionStorage.getItem("state"),
             username: sessionStorage.getItem('username'),
             token: sessionStorage.getItem('token'),
-            loginType: sessionStorage.getItem('loginType')
+            loginType: sessionStorage.getItem('loginType'),
+            locale:  moment.tz.guess(true)
         }}).then(function (response) {
             getValue = response.data
         }).catch(function (error){

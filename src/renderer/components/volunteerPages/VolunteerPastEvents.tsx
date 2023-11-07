@@ -11,6 +11,7 @@ import dayjs from "dayjs";
 import Box from "@mui/material/Box";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
+import moment from "moment";
 
 
 
@@ -30,7 +31,8 @@ export default function VolunteerPastEvents() : JSX.Element {
             volunteerId: sessionStorage.getItem("Id"),
             username: sessionStorage.getItem("username"),
             token: sessionStorage.getItem("token"),
-            loginType: sessionStorage.getItem("loginType")
+            loginType: sessionStorage.getItem("loginType"),
+            locale:  moment.tz.guess(true)
         }}).then(function (response){
 
                 if (response.data.length != 0){

@@ -24,6 +24,7 @@ import validator from "validator";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 import InputLabel from "@mui/material/InputLabel";
+import moment from "moment-timezone";
 
 
 
@@ -158,8 +159,8 @@ export default function OrgCreateEvent() : JSX.Element {
         await axios.post(connectionString + `/organizationCreateEvent/`, null, { params: {
             eventName: eventName,
             date: date,
-            startTime: dayjs(startTime).format('HH:mm:ss'),
-            endTime: dayjs(endTime).format('HH:mm:ss'),
+            startTime: dayjs(startTime).format('HH:mm:00'),
+            endTime: dayjs(endTime).format('HH:mm:00'),
             description: description,
             volunteerLimit: volunteerLimit,
             address: getAddress,
@@ -170,7 +171,8 @@ export default function OrgCreateEvent() : JSX.Element {
             username: sessionStorage.getItem("username"),
             token: sessionStorage.getItem("token"),
             loginType : sessionStorage.getItem("loginType"),
-            CollegeEvent: getCollegeVisibility
+            CollegeEvent: getCollegeVisibility,
+            locale:  moment.tz.guess(),
           }})
           .then(response => {
             setSuccessModal("Success")
@@ -328,9 +330,9 @@ export default function OrgCreateEvent() : JSX.Element {
                 <br></br>
                 <Typography>Date: {date?.format('MM/DD/YYYY')}</Typography>
                 <br></br>
-                <Typography>Start Time: {startTime?.format('hh:mm:ss a')}</Typography>
+                <Typography>Start Time: {startTime?.format('hh:mm a')}</Typography>
                 <br></br>
-                <Typography>End Time: {endTime?.format('hh:mm:ss a')}</Typography>
+                <Typography>End Time: {endTime?.format('hh:mm a')}</Typography>
                 <br></br>
                 <Typography>Description: {description}</Typography>
                 <br></br>

@@ -12,6 +12,7 @@ import { Alert, AlertTitle, Button, Modal } from "@mui/material";
 import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
 import Clear from "@mui/icons-material/Clear";
+import moment from "moment";
 
 
 
@@ -52,7 +53,8 @@ export default function OrgPastEvents() : JSX.Element {
             orgId: orgId,
             username: sessionStorage.getItem("username"),
             token: sessionStorage.getItem("token"),
-            loginType: sessionStorage.getItem("loginType")
+            loginType: sessionStorage.getItem("loginType"),
+            locale:  moment.tz.guess(true)
         }}).then(function (response){
             if (response.data.length != 0){
                 const sorted = response.data.sort((objA : any,objB:any)=>{

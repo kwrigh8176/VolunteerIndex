@@ -3,6 +3,7 @@ import * as React from 'react'
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import AddIcon from '@mui/icons-material/Add';
 import MenuIcon from '@mui/icons-material/Menu';
+import { useNavigate } from 'react-router-dom'
 /*
 Home 
 Events
@@ -50,6 +51,7 @@ export default function OrgNavBar(pageName: any) : JSX.Element {
         routes = limitedRoutes
     }
     
+    const navigate = useNavigate()
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [openMenu, setOpenMenu] = React.useState<boolean>(false);
 
@@ -92,8 +94,7 @@ export default function OrgNavBar(pageName: any) : JSX.Element {
                         aria-controls="menu-appbar"
                         aria-haspopup="true"
                         color="inherit"
-                        component={`a`}
-                        href={'/orgCreateEvents'}
+                        onClick={() => navigate('/orgCreateEvents')}
                     >
                         <AddIcon />
                 </IconButton>
@@ -104,7 +105,7 @@ export default function OrgNavBar(pageName: any) : JSX.Element {
                 aria-controls="menu-appbar"
                 aria-haspopup="true"
                 color="inherit"
-                component={`a`} href={`/orgProfile`}
+                onClick={() => navigate('/orgProfile')}
                 >
                     <AccountCircle />
                 </IconButton>
@@ -112,7 +113,7 @@ export default function OrgNavBar(pageName: any) : JSX.Element {
 
                 <Menu open={openMenu} anchorEl={anchorEl} sx={{backgroundColor:'#'}} onClose={handleClose}>
                     {routes.map(item => 
-                        <MenuItem key='Home' sx={{height:'100%'}} component={"a"} href={item.pageRoute}>
+                        <MenuItem key='Home' sx={{height:'100%'}} onClick={() => navigate(item.pageRoute)}>
                             <Typography textAlign="center" color='black'>{item.pageName}</Typography>
                         </MenuItem>
                     )}

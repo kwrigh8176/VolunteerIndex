@@ -95,7 +95,13 @@ export default function orgCollegeEvents() : JSX.Element {
         if (tempText != ''){
             return 
         }
-            
+        
+        if (tempArray[0] == undefined)
+        {
+            setErrorText('Events not found.')
+            return
+        }
+
         for (var i = 0; i < tempArray[0].length; i++){
             var eventId = tempArray[0][i].EventId
 

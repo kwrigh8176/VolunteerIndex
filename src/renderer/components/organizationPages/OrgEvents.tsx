@@ -10,6 +10,7 @@ import connectionString from "../../../../config"
 import axios from 'axios';
 import EditIcon from '@mui/icons-material/Edit';
 import Textarea from "@mui/joy/Textarea"
+import moment from "moment"
 
 /*
     This is meant to be the main event feed. Where all current events are displayed.
@@ -60,7 +61,8 @@ export default function OrgEvents() : JSX.Element {
             orgId: orgId,
             username: sessionStorage.getItem('username'),
             token: sessionStorage.getItem('token'),
-            getCollegeEvents: "0"
+            getCollegeEvents: "0",
+            locale:  moment.tz.guess(true)
         }}).then(function (response){
             if (response.data.length != 0){
                 const sorted = response.data.sort((objA : any,objB:any)=>{

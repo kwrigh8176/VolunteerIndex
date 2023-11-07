@@ -1,6 +1,8 @@
 import { app, BrowserWindow } from "electron";
+import { createFileRoute, createURLRoute } from 'electron-router-dom';
+
 import * as path from "path";
-import * as url from "url";
+
 
 let mainWindow: Electron.BrowserWindow | null;
 
@@ -17,15 +19,21 @@ function createWindow() {
   });
 
   if (process.env.NODE_ENV === "development") {
-    mainWindow.loadURL("http://localhost:4000");
-  } else {
     mainWindow.loadURL(
-      url.format({
-        pathname: path.join(__dirname, "renderer/index.html"),
-        protocol: "file:",
-        slashes: true,
-      })
+      createURLRoute(
+        'http://localhost:4000',
+        'main'
+      )
+    )
+  } else {
+
+    mainWindow.loadFile(
+      ...createFileRoute(
+        path.join(__dirname, '../renderer/index.html'),
+        'main'
+      )
     );
+
   }
 
   mainWindow.on("closed", () => {

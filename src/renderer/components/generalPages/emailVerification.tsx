@@ -8,6 +8,7 @@ import connectionString from "../../../../config";
 import axios from "axios";
 import { Box } from "@mui/material";
 import { Typography } from "@mui/joy";
+import dayjs from "dayjs";
 
 
 export default function emailVerification() : JSX.Element {
@@ -27,6 +28,7 @@ export default function emailVerification() : JSX.Element {
                 username: sessionStorage.getItem("username"),
                 email: sessionStorage.getItem("email"),
                 loginType: sessionStorage.getItem("loginType"),
+                dateTime: dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss.000')
             }
         }).then(function (response) {
             setErrorText('')
@@ -55,6 +57,7 @@ export default function emailVerification() : JSX.Element {
                 username: sessionStorage.getItem("username"),
                 loginType: sessionStorage.getItem("loginType"),
                 keyProvided: verifyTextBox,
+                dateTime: dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss.000')
             }
 
         }).then(function (response) {

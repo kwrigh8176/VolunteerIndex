@@ -2,6 +2,8 @@ import { AppBar, Box, IconButton, Menu, MenuItem, Toolbar, Typography } from '@m
 import * as React from 'react'
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import MenuIcon from '@mui/icons-material/Menu';
+import { useNavigate } from 'react-router-dom'
+
 /*
 Home 
 Events
@@ -55,6 +57,8 @@ export default function VolunteerNavBar(pageName: any) : JSX.Element {
         routes = limitedRoutes
     }
 
+    const navigate = useNavigate()
+
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [openMenu, setOpenMenu] = React.useState<boolean>(false);
 
@@ -92,19 +96,19 @@ export default function VolunteerNavBar(pageName: any) : JSX.Element {
                 <Typography sx={{fontSize:32}}>{pageName.pageName}</Typography>
 
                 <IconButton
-                size="large"
-                aria-label="account of current user"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                color="inherit"
-                component={`a`} href={`/volunteerProfile`}
+                    size="large"
+                    aria-label="account of current user"
+                    aria-controls="menu-appbar"
+                    aria-haspopup="true"
+                    color="inherit"
+                    onClick={() => navigate('/volunteerProfile')}
                 >
                     <AccountCircle />
                 </IconButton>
 
                 <Menu open={openMenu} anchorEl={anchorEl} sx={{backgroundColor:'#'}} onClose={handleClose}>
                     {routes.map(item => 
-                        <MenuItem key='Home' sx={{height:'100%'}} component={"a"} href={item.pageRoute}>
+                        <MenuItem key='Home' sx={{height:'100%'}} onClick={() => navigate(item.pageRoute)}>
                             <Typography textAlign="center" color='black'>{item.pageName}</Typography>
                         </MenuItem>
                     )}
