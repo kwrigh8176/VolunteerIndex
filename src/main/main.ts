@@ -1,7 +1,8 @@
 import { app, BrowserWindow } from "electron";
 import { createFileRoute, createURLRoute } from 'electron-router-dom';
+import path from "path";
 
-import * as path from "path";
+
 
 
 let mainWindow: Electron.BrowserWindow | null;
@@ -14,7 +15,7 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
-      devTools: process.env.NODE_ENV !== "production",
+      //devTools: process.env.NODE_ENV !== "production",
     },
   });
 

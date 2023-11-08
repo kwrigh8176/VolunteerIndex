@@ -21,7 +21,7 @@ const root = createRoot(rootElement!);
 
 
 root.render(
-
+  <>
 <Router
   main={
     <>
@@ -54,9 +54,10 @@ root.render(
         <Route key="orgHome"  path="/orgProfile" element={<OrgProfile />} />
     </>
   }
+
 />
 
-
+</>
 
         
 
