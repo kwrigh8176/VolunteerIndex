@@ -1,9 +1,10 @@
 {
-  "name": "electron-typescript-react-mui",
+  "name": "VolunteerIndex",
   "version": "1.0.0",
   "private": true,
   "description": "Lightweight, modern boilerplate built with electron, typescript, and react.",
   "main": "./dist/main.js",
+  "homepage": "./",
   "scripts": {
     "dev": "npm-run-all -p dev:react electron:serve",
     "dev:electron": "cross-env NODE_ENV=development webpack --config webpack/electron.webpack.ts --mode=development && npm run start:electron",
