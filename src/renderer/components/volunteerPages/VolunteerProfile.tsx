@@ -284,7 +284,9 @@ export default function VolunteerProfile() : JSX.Element {
             )
         }
         else{
-            setLoadedInfoJSX(<p>Data is being retrieved...</p>)
+            setLoadedInfoJSX(<Alert severity="warning">
+            <AlertTitle>Fetching data from API...</AlertTitle>
+        </Alert>)
         }
         
 

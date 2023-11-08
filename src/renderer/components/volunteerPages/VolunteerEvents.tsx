@@ -157,20 +157,6 @@ export default function VolunteerEvents() : JSX.Element {
                 loginType: sessionStorage.getItem("loginType")
             }
         }).then(function (response) {
-            if (response.data.length != 0){
-                const sorted = response.data.sort((objA : any,objB:any)=>{
-                    const dateA = new Date(`${objA.Date}`).valueOf();
-                    const dateB = new Date(`${objB.Date}`).valueOf();
-                    if(dateA > dateB){
-                        return 1
-                    }
-                    return -1
-                });
-                setCardsFromDb(sorted)
-            }
-            else{
-                setCardsFromDb(response.data)
-            }
             setSuccessfulText('Successful sign up!')
             getValue = 'Successfully signed up for the event.'
         }).catch(function (error){
