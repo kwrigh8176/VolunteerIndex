@@ -1,22 +1,21 @@
 import React from "react";
-import { createRoot } from "react-dom/client";
-import Login from "./components/generalPages/login";
-import {Route, Router, Router as eRouter } from "electron-router-dom";
-import SignUp from "./components/generalPages/signup";
-import EmailVerification from "./components/generalPages/emailVerification";
-import VolunteerEvents from "./components/volunteerPages/VolunteerEvents";
-import VolunteerPastEvents from "./components/volunteerPages/VolunteerPastEvents";
-import VolunteerProfile from "./components/volunteerPages/VolunteerProfile";
-import OrgEvents from "./components/organizationPages/OrgEvents";
-import OrgPastEvents from "./components/organizationPages/OrgPastEvents";
-import OrgCreateEvent from "./components/organizationPages/OrgCreateEvent";
-import OrgCollegeEvents from "./components/organizationPages/OrgCollegeEvents";
-import VolunteerCollegeEvents from "./components/volunteerPages/VolunteerCollegeEvents";
-import OrgProfile from "./components/organizationPages/OrgProfile";
-import VolunteerHome from "./components/volunteerPages/volunteerHome";
+import Login from "./generalPages/login";
+import {Route, Router } from "electron-router-dom";
+import SignUp from "./generalPages/signup";
+import EmailVerification from "./generalPages/emailVerification";
+import VolunteerEvents from "./volunteerPages/VolunteerEvents";
+import VolunteerPastEvents from "./volunteerPages/VolunteerPastEvents";
+import VolunteerProfile from "./volunteerPages/VolunteerProfile";
+import OrgEvents from "./organizationPages/OrgEvents";
+import OrgPastEvents from "./organizationPages/OrgPastEvents";
+import OrgCreateEvent from "./organizationPages/OrgCreateEvent";
+import OrgCollegeEvents from "./organizationPages/OrgCollegeEvents";
+import VolunteerCollegeEvents from "./volunteerPages/VolunteerCollegeEvents";
+import OrgProfile from "./organizationPages/OrgProfile";
+import VolunteerHome from "./volunteerPages/volunteerHome";
 
 
-export default function AppRoutes(){
+export function AppRoutes(){
   
   return (
         <Router

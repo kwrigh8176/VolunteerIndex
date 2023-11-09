@@ -1,6 +1,6 @@
 import { app, BrowserWindow, BrowserWindowConstructorOptions as WindowOptions} from "electron";
 import path, { join } from "path";
-import * as url from "url";
+
 import { createFileRoute, createURLRoute } from 'electron-router-dom'
 
 
@@ -19,18 +19,19 @@ function createWindow(id: string, options: WindowOptions = {}) {
     },
   });
 
-  var newPath = path.join(__dirname, "../../dist/index.html")
+  const devServerURL = createURLRoute('http://localhost:4000', id)
 
-  const fileRoute = createFileRoute(
-    newPath,
-    id)
+  
+  const prodRoute = createFileRoute(join(__dirname, '../dist/renderer/index.html'),id)
+  
 
   if (process.env.NODE_ENV === "development") {
-    mainWindow.loadURL(createURLRoute('http://localhost:4000', id))
- 
+    mainWindow.loadURL(devServerURL)
+   
     
   } else {
-    mainWindow.loadURL(createURLRoute(newPath,id));
+    mainWindow.loadFile(...prodRoute);
+  
   }
 
 
@@ -44,9 +45,7 @@ function createWindow(id: string, options: WindowOptions = {}) {
 app.whenReady().then(() => {
   createWindow('main', {
     
-    webPreferences: {
-      sandbox: false
-    },
+    
   })
 
 

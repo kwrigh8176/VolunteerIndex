@@ -1,7 +1,12 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import AppRoutes from "./routes";
+import {AppRoutes} from "./components/routes";
 
-const root = createRoot(document.body!);
 
-root.render(<AppRoutes />)
+createRoot(document.querySelector('app') as HTMLElement).render(
+    <React.StrictMode>
+
+        <AppRoutes />
+    </React.StrictMode>
+)
+
