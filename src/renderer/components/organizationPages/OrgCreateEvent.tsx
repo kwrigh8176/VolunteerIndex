@@ -25,6 +25,7 @@ import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 import InputLabel from "@mui/material/InputLabel";
 import moment from "moment-timezone";
+import { useNavigate } from "react-router-dom";
 
 
 
@@ -46,7 +47,8 @@ export default function OrgCreateEvent() : JSX.Element {
         backdrop: 'static'
     };
 
-
+    const navigate = useNavigate();
+    
     //Required fields
     const [eventName, setEventName] = React.useState('')
     const [date, setDate] = React.useState<Dayjs | null>(dayjs(new Date()));
@@ -60,6 +62,9 @@ export default function OrgCreateEvent() : JSX.Element {
     const [email, setEmail] = React.useState('');
     const [phoneNumber, setPhoneNumber] = React.useState('');
     const [collegeVisibility, setCollegeVisibility] = React.useState('Any')
+    const [cadence, setCadence] = React.useState('None')
+
+    const [disableButtons, setDisableButtons] = React.useState(false)
 
     const maxVolunteers = 15;
 
@@ -173,9 +178,14 @@ export default function OrgCreateEvent() : JSX.Element {
             loginType : sessionStorage.getItem("loginType"),
             CollegeEvent: getCollegeVisibility,
             locale:  moment.tz.guess(),
+            cadence: cadence,
           }})
           .then(response => {
             setSuccessModal("Success")
+            setDisableButtons(true)
+            setTimeout(() =>{
+                navigate("/orgCurrentEvents")
+            }, 5000)
           })
           .catch(error => {
             if (error.response == undefined)
@@ -292,6 +302,16 @@ export default function OrgCreateEvent() : JSX.Element {
                     </>
                 }
 
+                <br></br>
+                        <InputLabel id="Repeat Event?">Repeat Event?</InputLabel>
+                        <Select labelId="Repeat Event?" defaultValue={"None"} label="Event Visibility" sx={{marginBottom:'10px'}} onChange={(event) => setCadence(event.target.value)}>
+                            <MenuItem value={"None"}>None</MenuItem>
+                            <MenuItem value={"Weekly"}>Weekly</MenuItem>
+                            <MenuItem value={"Biweekly"}>Biweekly</MenuItem>
+                            <MenuItem value={"Four-week"}>Four-week</MenuItem>
+                            <MenuItem value={"Monthly"}>Monthly</MenuItem>
+                        </Select>
+
                 </CardContent>
                 <CardContent sx={{borderTop: '1px solid grey'}}>
                     <Button onClick={() => {setConfirmationModalOpen(true)}}>Create Event</Button>
@@ -318,7 +338,7 @@ export default function OrgCreateEvent() : JSX.Element {
 
                 <>
                     <Alert severity='success'>
-                        <AlertTitle>Event successfully created!</AlertTitle>
+                        <AlertTitle>Event successfully created! Redirecting...</AlertTitle>
                     </Alert>
                 </>
                 
@@ -349,8 +369,8 @@ export default function OrgCreateEvent() : JSX.Element {
                     
                 })
                 }
-                <Button onClick={() => {setConfirmationModalOpen(false); setErrorModal(""); setSuccessModal("");}}>Cancel</Button>
-                <Button onClick={processEventCreation}>Create</Button>
+                <Button  disabled={disableButtons} onClick={() => {setConfirmationModalOpen(false); setErrorModal(""); setSuccessModal("");} }>Cancel</Button>
+                <Button onClick={processEventCreation} disabled={disableButtons}>Create</Button>
             </Box>
         </Modal>
     </>)
