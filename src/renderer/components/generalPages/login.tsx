@@ -58,7 +58,15 @@ const Login = () : JSX.Element => {
                             sessionStorage.setItem("email", getBody.Email)
                             sessionStorage.setItem("loginType","Volunteer")
                             sessionStorage.setItem("collegeStudent",getBody.CollegeStudent)
-                            navigate('/emailverification')
+
+                            if (getBody.ResetPassword == 0)
+                            {
+                                navigate('/emailverification')
+                            }
+                            else
+                            {
+                                navigate('/resetpassword')
+                            }
                         
                     }).catch(function (error){
                         if (error.response == undefined)
@@ -92,7 +100,16 @@ const Login = () : JSX.Element => {
                         sessionStorage.setItem("address", getBody.Address)
                         sessionStorage.setItem("loginType","Organization")
                         sessionStorage.setItem("collegeOrgs",getBody.CollegeOrgs)
-                        navigate('/emailverification')
+
+                        if (getBody.ResetPassword == 0)
+                        {
+                            navigate('/emailverification')
+                        }
+                        else
+                        {
+                            navigate('/resetpassword')
+                        }
+                        
                     
 
                 }).catch(function (error){
@@ -165,10 +182,10 @@ const Login = () : JSX.Element => {
                                     <Button disabled={disableLoginButton} variant="outlined" color="primary" sx={{marginLeft: '1rem'}} onClick={() => navigate('/signup')}>Sign Up Here</Button>
                                 </div>
                                 <div style={{justifyContent:'center', alignItems:'center', width:'100%', display:'flex', paddingTop:'3px'}}>
-                                    <Button component={Link} onClick={() => navigate('/')} variant='text'>Forgot Password?</Button>
+                                    <Button component={Link} onClick={() => navigate('/forgotpassword')} variant='text'>Forgot Password?</Button>
                                 </div>
                                 <div style={{justifyContent:'center', alignItems:'center', width:'100%', display:'flex', paddingTop:'3px'}}>
-                                <Button component={Link} onClick={() => navigate('/')}>Forgot Username?</Button>
+                                <Button component={Link} onClick={() => navigate('/forgotusername')}>Forgot Username?</Button>
                                 </div>
                             </div>
                         </div>

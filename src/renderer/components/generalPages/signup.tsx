@@ -9,7 +9,6 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs, { Dayjs } from 'dayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import InputLabel from '@mui/material/InputLabel';
 import { useNavigate } from 'react-router-dom';
 import connectionString from '../../../../config';
 import axios from 'axios';
@@ -29,8 +28,7 @@ function checkIllegalChars(str:string){
 const SignUp = () : JSX.Element => {
 
     const navigate = useNavigate();
-    const sql = require('mssql');
-
+   
     {/*Volunteer specific data*/}
     const [firstName, setFirstName] = React.useState<string >('');
     const [middleInitial, setMiddleInitial] = React.useState<string >('');
@@ -276,7 +274,7 @@ const SignUp = () : JSX.Element => {
                     <TextField id="outlined-basic" label="Password" type="password" variant="outlined" onChange={(event) => setPassword(event.target.value)} inputProps={{maxLength: 25}} sx={{width:'100%', marginBottom:'5px'}}/>
                     <br></br>
                     <Button variant="contained"  disabled={disableSignUpButton} onClick={processVolunterSignUp}>Sign Up</Button>
-                    <Button href="/" variant="outlined" disabled={disableSignUpButton}>Login Here</Button>
+                    <Button onClick={() => navigate('/')} variant="outlined" disabled={disableSignUpButton}>Login Here</Button>
             </>
         )
 
@@ -369,7 +367,7 @@ const SignUp = () : JSX.Element => {
                     <TextField id="outlined-basic" label="Password" type="password" variant="outlined" inputProps={{maxLength: 25}} onChange={(event) => setPassword(event.target.value)} sx={{width:'100%',marginBottom:'5px'}}/>
                     <br></br>
                     <Button variant="contained" disabled={disableSignUpButton} onClick={processOrgSignUp}>Sign Up</Button>
-                    <Button href="/" variant="outlined" color="primary" disabled={disableSignUpButton}>Login Here</Button>
+                    <Button onClick={() => navigate('/')} variant="outlined" color="primary" disabled={disableSignUpButton}>Login Here</Button>
                 
             </>
         )

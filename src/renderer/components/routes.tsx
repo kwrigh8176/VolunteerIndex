@@ -13,6 +13,9 @@ import OrgCollegeEvents from "./organizationPages/OrgCollegeEvents";
 import VolunteerCollegeEvents from "./volunteerPages/VolunteerCollegeEvents";
 import OrgProfile from "./organizationPages/OrgProfile";
 import VolunteerHome from "./volunteerPages/volunteerHome";
+import ForgotPassword from "./generalPages/forgotPassword";
+import ForgotUsername from "./generalPages/forgotUsername";
+import ResetPassword from "./generalPages/resetPassword";
 
 
 export function AppRoutes(){
@@ -27,6 +30,12 @@ export function AppRoutes(){
 
                     <Route key="emailVerification"  path="/emailverification" element={<EmailVerification/>} />
                     
+                    <Route key="forgotPassword"  path="/forgotpassword" element={<ForgotPassword/>} />
+
+                    <Route key="forgotUsername"  path="/forgotusername" element={<ForgotUsername/>} />
+
+                    <Route key="resetPassword"  path="/resetpassword" element={<ResetPassword/>} />
+
                     <Route key="volunteerHome"  path="/volunteerHome" element={<VolunteerHome/> } />
 
                     <Route key="volunteerEvents"  path="/volunteerEvents" element={<VolunteerEvents />} />

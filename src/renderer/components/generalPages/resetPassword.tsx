@@ -16,26 +16,38 @@ const StyledInput = styled(TextField)`
  }
 `;
 
-const ForgotUsername = () : JSX.Element => {
+const ResetPassword = () : JSX.Element => {
 
     const navigate = useNavigate();
-    const [loginType, setLoginType] = React.useState<string>('Volunteer');
-    const [email, setEmail] = React.useState<string>('');
+    const [password1, setPassword1] = React.useState<string>('');
+    const [password2, setPassword2] = React.useState<string>('');
     const [disableButton, setDisableButton] = React.useState(false);
 
     const [resCode, setResCode] = React.useState(0)
     const [resText, setResText] = React.useState('')
-    async function forgotUsername(){
+    async function resetPassword(){
         setDisableButton(true)
-        await axios.post(connectionString + "/forgotusername/", null, {
+
+         if (password1 != password2)
+         {
+            setResCode(400)
+            setResText("Passwords do not match.")
+            setDisableButton(false)
+            return
+         }
+
+        await axios.post(connectionString + "/resetpassword/", null, {
             params: {
-                loginType: loginType,
-                Email: email,
+                loginType: sessionStorage.getItem("loginType"),
+                username: sessionStorage.getItem("username"),
+                password: password1,
             }
         }).then(function (response) {
             setResCode(response.status)
             setResText(response.data)
-
+            setTimeout(() =>{
+                navigate("/")
+            }, 5000)
 
         }).catch(function (error){
             setResCode(error.response.status)
@@ -46,9 +58,9 @@ const ForgotUsername = () : JSX.Element => {
             else{
                 setResText(error.response.data)
             }
-            
+            setDisableButton(false)
         });  
-        setDisableButton(false)
+        
     }
 
     return (
@@ -76,30 +88,32 @@ const ForgotUsername = () : JSX.Element => {
                         </Alert>
 
                     }
-                   <div style={{width:'100%', display:'flex', flexDirection:'row', flexWrap: 'wrap' , alignItems:'center', justifyContent:'center', paddingTop:'1rem'}}>
-                        <StyledInput select value={loginType}  label="Login Type" onChange={(event) => setLoginType(event.target.value)}
-                        InputProps={{sx : {color : "white"}  }}
-                        sx={{input: {color: 'white'},marginRight: '10px', minWidth: 150, borderColor:'white', marginTop:'5px'}}
-                        InputLabelProps={{ sx: {color: "white"}}}
-                        >
-                            <MenuItem value='Volunteer'>Volunteer</MenuItem>
-                            <MenuItem value='Organization'>Organization</MenuItem>
-                        </StyledInput>
-                    </div>
-                    <div style={{width: '100%',display: 'flex'}}>
-                        <Typography sx={{color:'white'}}>Enter your email below to find your username. You will be emailed the username you signed up with.</Typography>
+
+                    <div style={{width: '100%',display: 'flex' , justifyContent:'center'}}>
+                        <Typography sx={{color:'white'}}>Enter a new password in.</Typography>
                     </div>
              
                     <div style={{width: '100%',display: 'flex', justifyContent:'center', paddingTop:'1rem'}}>
-                        <StyledInput label="Email" 
+                        <StyledInput label="New Password" 
                         InputProps={{sx : {color : "white"}  }}
+                        inputProps={{maxLength: 50}}
                         sx={{input: {color: 'white'},marginRight: '10px', minWidth: 150, borderColor:'white', marginTop:'5px', marginBottom:'5px'}}
                         InputLabelProps={{ sx: {color: "white"}}}
-                        onChange={(event) => setEmail(event.target.value)}>
+                        onChange={(event) => setPassword1(event.target.value)}>
                         
                         </StyledInput>
                     </div>
-                    <Button disabled={disableButton} onClick={() => forgotUsername()}>Find Username</Button>
+                    <div style={{width: '100%',display: 'flex', justifyContent:'center', paddingTop:'1rem'}}>
+                        <StyledInput label="New Password (again)" 
+                        InputProps={{sx : {color : "white"}  }}
+                        inputProps={{maxLength: 50}}
+                        sx={{input: {color: 'white'},marginRight: '10px', minWidth: 150, borderColor:'white', marginTop:'5px', marginBottom:'5px'}}
+                        InputLabelProps={{ sx: {color: "white"}}}
+                        onChange={(event) => setPassword2(event.target.value)}>
+                        
+                        </StyledInput>
+                    </div>
+                    <Button disabled={disableButton} onClick={() => resetPassword()}>Confirm Password</Button>
             </div>
         </>
     )
@@ -107,4 +121,4 @@ const ForgotUsername = () : JSX.Element => {
 
 }
 
-export default ForgotUsername
+export default ResetPassword
