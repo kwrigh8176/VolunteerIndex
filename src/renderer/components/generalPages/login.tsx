@@ -7,7 +7,7 @@ import connectionString from '../../../../config';
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import axios from 'axios';
-import { Card, styled } from '@mui/material';
+import { Card, Link, styled } from '@mui/material';
 
 
 const StyledInput = styled(TextField)`
@@ -58,7 +58,15 @@ const Login = () : JSX.Element => {
                             sessionStorage.setItem("email", getBody.Email)
                             sessionStorage.setItem("loginType","Volunteer")
                             sessionStorage.setItem("collegeStudent",getBody.CollegeStudent)
-                            navigate('/emailverification')
+
+                            if (getBody.ResetPassword == 0)
+                            {
+                                navigate('/emailverification')
+                            }
+                            else
+                            {
+                                navigate('/resetpassword')
+                            }
                         
                     }).catch(function (error){
                         if (error.response == undefined)
@@ -92,7 +100,16 @@ const Login = () : JSX.Element => {
                         sessionStorage.setItem("address", getBody.Address)
                         sessionStorage.setItem("loginType","Organization")
                         sessionStorage.setItem("collegeOrgs",getBody.CollegeOrgs)
-                        navigate('/emailverification')
+
+                        if (getBody.ResetPassword == 0)
+                        {
+                            navigate('/emailverification')
+                        }
+                        else
+                        {
+                            navigate('/resetpassword')
+                        }
+                        
                     
 
                 }).catch(function (error){
@@ -127,34 +144,50 @@ const Login = () : JSX.Element => {
                                     <AlertTitle>{errorText}</AlertTitle>
                                 </Alert>
                             }
-                            <Card sx={{backgroundColor:'#706e6e'}}>
-                            <h1 style={{textAlign: 'center', color:'white', width:'100%'}}>Welcome to VolunteerIndex!</h1>
-                            <StyledInput select value={loginType}  label="Login Type" onChange={(event) => setLoginType(event.target.value)}
-                            InputProps={{sx : {color : "white"}  }}
-                            sx={{input: {color: 'white'},marginRight: '10px', minWidth: 150, borderColor:'white', marginTop:'5px'}}
-                            InputLabelProps={{ sx: {color: "white"}}}
-                            >
-                                <MenuItem value='Volunteer'>Volunteer</MenuItem>
-                                <MenuItem value='Organization'>Organization</MenuItem>
-                            </StyledInput>
-                            <StyledInput id="outlined-basic" label="Username" onChange={(event) => setUsername(event.target.value)} variant="outlined" 
-                            InputProps={{sx : {color : "white"}  }}
-                            sx={{input: {color: 'white'},marginRight: '10px', minWidth: 150, borderColor:'white' , width:'100%', marginTop:'5px'}}
-                            InputLabelProps={{ sx: {color: "white"}}}
-                            />
-                            <br></br>
-                            <StyledInput id="outlined-basic" label="Password" onChange={(event) => setPassword(event.target.value)} type="password" variant="outlined" 
-                            InputProps={{sx : {color : "white"}  }}
-                            sx={{input: {color: 'white'},marginRight: '10px', minWidth: 150, borderColor:'white', width:'100%', marginTop:'5px', marginBottom:'5px'}}
-                            InputLabelProps={{ sx: {color: "white"}}}
-                            />
-                            <br></br>
-                            <Button variant="contained" disabled={disableLoginButton} onClick={() => {VerifyLogin()}}>
-                                Login
-                            </Button>
+                            <div style={{display:'flex', flexDirection:'row', flexWrap: 'wrap' , alignItems:'center', justifyContent:'center'}}>
+                                <span style={{width:'100%'}}>
+                                    <h1 style={{textAlign: 'center', color:'white'}}>Welcome to VolunteerIndex!</h1>
+                                </span>
+                                <div style={{width:'100%', display:'flex', flexDirection:'row', flexWrap: 'wrap' , alignItems:'center', justifyContent:'center'}}>
+                                    <StyledInput select value={loginType}  label="Login Type" onChange={(event) => setLoginType(event.target.value)}
+                                    InputProps={{sx : {color : "white"}  }}
+                                    sx={{input: {color: 'white'},marginRight: '10px', minWidth: 150, borderColor:'white', marginTop:'5px'}}
+                                    InputLabelProps={{ sx: {color: "white"}}}
+                                    >
+                                        <MenuItem value='Volunteer'>Volunteer</MenuItem>
+                                        <MenuItem value='Organization'>Organization</MenuItem>
+                                    </StyledInput>
+                                </div>
+                                <div style={{width:'100%', display:'flex', flexDirection:'row', flexWrap: 'wrap' , alignItems:'center', justifyContent:'center'}}>
+                                        <StyledInput id="outlined-basic" label="Username" onChange={(event) => setUsername(event.target.value)} variant="outlined" 
+                                    InputProps={{sx : {color : "white"}  }}
+                                    sx={{input: {color: 'white'},marginRight: '10px', minWidth: 150, borderColor:'white' , marginTop:'5px'}}
+                                    InputLabelProps={{ sx: {color: "white"}}}
+                                    />
 
-                            <Button href={`/signup`} disabled={disableLoginButton} variant="outlined" color="primary">Sign Up Here</Button>
-                            </Card>
+                                </div>
+                                <div style={{width:'100%', display:'flex', flexDirection:'row', flexWrap: 'wrap' , alignItems:'center', justifyContent:'center'}}>
+                                    <StyledInput id="outlined-basic" label="Password" onChange={(event) => setPassword(event.target.value)} type="password" variant="outlined" 
+                                        InputProps={{sx : {color : "white"}  }}
+                                        sx={{input: {color: 'white'},marginRight: '10px', minWidth: 150, borderColor:'white', marginTop:'5px', marginBottom:'5px'}}
+                                        InputLabelProps={{ sx: {color: "white"}}}
+                                        />
+
+                                </div>
+                                <div style={{justifyContent:'center', alignItems:'center', width:'100%', display:'flex'}}>
+                                    <Button variant="contained" disabled={disableLoginButton} onClick={() => {VerifyLogin()}}>
+                                        Login
+                                    </Button>
+
+                                    <Button disabled={disableLoginButton} variant="outlined" color="primary" sx={{marginLeft: '1rem'}} onClick={() => navigate('/signup')}>Sign Up Here</Button>
+                                </div>
+                                <div style={{justifyContent:'center', alignItems:'center', width:'100%', display:'flex', paddingTop:'3px'}}>
+                                    <Button component={Link} onClick={() => navigate('/forgotpassword')} variant='text'>Forgot Password?</Button>
+                                </div>
+                                <div style={{justifyContent:'center', alignItems:'center', width:'100%', display:'flex', paddingTop:'3px'}}>
+                                <Button component={Link} onClick={() => navigate('/forgotusername')}>Forgot Username?</Button>
+                                </div>
+                            </div>
                         </div>
         </>
     );
