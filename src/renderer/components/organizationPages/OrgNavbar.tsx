@@ -1,15 +1,26 @@
-import { AppBar, Box, IconButton, Menu, MenuItem, Toolbar, Typography } from '@mui/material'
+import { AppBar, Box, Button, IconButton, Menu, MenuItem, Modal, Toolbar, Typography } from '@mui/material'
 import * as React from 'react'
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import AddIcon from '@mui/icons-material/Add';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useNavigate } from 'react-router-dom'
-/*
-Home 
-Events
-College Events (*if college email domain was used)
-Settings
-*/
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+
+const modalStyle = {
+    position: 'absolute' as 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+    backdrop: 'static',
+    display: 'flex',
+    flexDirection:'row', 
+    flexWrap: 'wrap' , 
+  };
 
 const allRoutes = [
     {
@@ -54,6 +65,7 @@ export default function OrgNavBar(pageName: any) : JSX.Element {
     const navigate = useNavigate()
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [openMenu, setOpenMenu] = React.useState<boolean>(false);
+    const [openExitModal, setOpenExitModal] = React.useState<boolean>(false);
 
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -87,29 +99,43 @@ export default function OrgNavBar(pageName: any) : JSX.Element {
 
                 <Typography sx={{fontSize:32}}>{pageName.pageName}</Typography>
 
-                <Box>
-                <IconButton
+            
+                <div>
+                    <IconButton
+                            size="large"
+                            aria-label="account of current organization"
+                            aria-controls="menu-appbar"
+                            aria-haspopup="true"
+                            color="inherit"
+                            onClick={() => navigate('/orgCreateEvents')}
+                        >
+                            <AddIcon />
+                    </IconButton>
+
+                    
+                    <IconButton
+                    size="large"
+                    aria-label="account of current user"
+                    aria-controls="menu-appbar"
+                    aria-haspopup="true"
+                    color="inherit"
+                    onClick={() => navigate('/orgProfile')}
+                    >
+                        <AccountCircle />
+                    </IconButton>
+                    
+
+                    <IconButton
                         size="large"
-                        aria-label="account of current organization"
+                        aria-label="account of current user"
                         aria-controls="menu-appbar"
                         aria-haspopup="true"
                         color="inherit"
-                        onClick={() => navigate('/orgCreateEvents')}
+                        onClick={() =>  setOpenExitModal(true)}
                     >
-                        <AddIcon />
-                </IconButton>
-
-                <IconButton
-                size="large"
-                aria-label="account of current user"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                color="inherit"
-                onClick={() => navigate('/orgProfile')}
-                >
-                    <AccountCircle />
-                </IconButton>
-                </Box>
+                        <ExitToAppIcon />
+                    </IconButton>
+                </div>
 
                 <Menu open={openMenu} anchorEl={anchorEl} sx={{backgroundColor:'#'}} onClose={handleClose}>
                     {routes.map(item => 
@@ -123,6 +149,19 @@ export default function OrgNavBar(pageName: any) : JSX.Element {
                 </Toolbar>
             </AppBar>
         </Box>
+
+        <Modal open={openExitModal}>
+            <Box sx={modalStyle}>
+                <div style={{width: '100%',display: 'flex' , justifyContent:'center'}}>
+                    <Typography>Would you like to log out?</Typography>
+                </div>
+
+                <div style={{width: '100%',display: 'flex' , justifyContent:'center'}}>
+                    <Button onClick={() => setOpenExitModal(false)} variant="contained">Cancel</Button>
+                    <Button onClick={() => {sessionStorage.clear(); navigate('/')}} variant="outlined" sx={{marginLeft:'10px'}}>Confirm</Button>
+                </div>
+            </Box>
+        </Modal>
         </>
     )
 }
