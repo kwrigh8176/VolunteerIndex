@@ -7,7 +7,7 @@ import Typography from "@mui/material/Typography"
 import { Alert, AlertTitle, Box, Button, Modal } from "@mui/material"
 import VolunteerNavBar from "./VolunteerNavbar"
 import dayjs from "dayjs"
-import connectionString from "../../../../config"
+import connectionString from '../../../../config';
 import axios from 'axios';
 
 
@@ -32,7 +32,7 @@ const modalStyle = {
 
 
 
-export default function volunteerCollegeEvents() : JSX.Element {
+export default function VolunteerCollegeEvents() : JSX.Element {
  
 
     const [cardsFromDb,setCardsFromDb] = React.useState<any[]>([])
@@ -329,18 +329,36 @@ export default function volunteerCollegeEvents() : JSX.Element {
 
             eventSlotCopy = eventSlotCopy.slice(cardsFromDb[cardIndex].VolunteerLimit)
 
+            var connString = connectionString + "/getProfilePicture/?username=" + cardsFromDb[cardIndex].Username +  "&" + "loginType=Organization"
            
             tempArray.push(
                 <Card sx={{marginBottom:'20px'}}>
-                    <CardHeader
+
+                    
+                    {cardsFromDb[cardIndex].ProfilePicture != null && 
+                    <>
+                            <CardHeader
+                            avatar={
+                                <Avatar src={connString}>
+                                    {cardsFromDb[cardIndex].OrgName.charAt(0)}
+                                </Avatar>
+                            }
+                            title={cardsFromDb[cardIndex].EventName}
+                            subheader={cardsFromDb[cardIndex].OrgName}
+                            />
+                            </>
+                    }
+                    {cardsFromDb[cardIndex].ProfilePicture == null &&
+                        <CardHeader
                         avatar={
                             <Avatar aria-label="recipe">
                                 {cardsFromDb[cardIndex].OrgName.charAt(0)}
                             </Avatar>
+                        }
+                        title={cardsFromDb[cardIndex].EventName}
+                        subheader={cardsFromDb[cardIndex].OrgName}
+                        />
                     }
-                    title={cardsFromDb[cardIndex].EventName}
-                    subheader={cardsFromDb[cardIndex].OrgName}
-                    />
                     <CardContent sx={{borderTop: '1px solid black'}}>
                         <Typography variant="body2" color="text.secondary">
                                 Address: {cardsFromDb[cardIndex].Address}

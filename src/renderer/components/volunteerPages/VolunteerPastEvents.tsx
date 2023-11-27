@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import connectionString from "../../../../config";
+import connectionString from '../../../../config';
 import axios from "axios";
 import VolunteerNavBar from "./VolunteerNavbar";
 import CardHeader from "@mui/material/CardHeader";
@@ -69,18 +69,34 @@ export default function VolunteerPastEvents() : JSX.Element {
         
         for (var cardIndex = 0; cardIndex < cardsFromDb.length; cardIndex++)
         { 
-        
+            var connString = connectionString + "/getProfilePicture/?username=" + cardsFromDb[cardIndex].Username +  "&" + "loginType=Organization"
+            
             tempArray.push(
                 <Card sx={{marginBottom:'20px'}}>
-                    <CardHeader
+                    {cardsFromDb[cardIndex].ProfilePicture != null && 
+                    <>
+                            <CardHeader
+                            avatar={
+                                <Avatar src={connString}>
+                                    {cardsFromDb[cardIndex].OrgName.charAt(0)}
+                                </Avatar>
+                            }
+                            title={cardsFromDb[cardIndex].EventName}
+                            subheader={cardsFromDb[cardIndex].OrgName}
+                            />
+                            </>
+                    }
+                    {cardsFromDb[cardIndex].ProfilePicture == null &&
+                        <CardHeader
                         avatar={
                             <Avatar aria-label="recipe">
                                 {cardsFromDb[cardIndex].OrgName.charAt(0)}
                             </Avatar>
+                        }
+                        title={cardsFromDb[cardIndex].EventName}
+                        subheader={cardsFromDb[cardIndex].OrgName}
+                        />
                     }
-                    title={cardsFromDb[cardIndex].EventName}
-                    subheader={cardsFromDb[cardIndex].OrgName}
-                    />
                     <CardContent sx={{borderTop: '1px solid black'}}>
                         <Typography variant="body2" color="text.secondary">
                                 Address: {cardsFromDb[cardIndex].Address}
