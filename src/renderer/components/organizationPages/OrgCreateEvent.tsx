@@ -129,23 +129,6 @@ export default function OrgCreateEvent() : JSX.Element {
 
         }
 
-        if (getPhone != null)
-        {
-            if (validator.isMobilePhone(getPhone) == false)
-            {
-                errMsg += 'Phone Number is not valid. \n'  
-            }
-        }
-        
-        if (getEmail != null)
-        {
-            if (validator.isEmail(getEmail) == false)
-            {
-                errMsg += 'Email is not valid. \n';
-            }
-            
-        }
-
         if (dayjs('1/1/1 ' + startTime).isAfter(dayjs('1/1/1 '+ endTime)) ){
             errMsg += 'Start time is after end time. \n';
         }
@@ -289,7 +272,7 @@ export default function OrgCreateEvent() : JSX.Element {
                 <br></br>
                 <TextField defaultValue={email} onChange={(event) => setEmail(event.target.value)} label="Alternate Email" sx={{paddingBottom: '8px', minWidth:250}} inputProps={{maxLength:50}}></TextField> 
                 <br></br>
-                <TextField defaultValue={phoneNumber} onChange={(event) => setPhoneNumber(event.target.value)} label="Alternate Phone Number" sx={{paddingBottom: '8px', minWidth:250}} inputProps={{maxLength:10}}></TextField>
+                <TextField defaultValue={phoneNumber} onChange={(event) => setPhoneNumber(event.target.value)} label="Alternate Phone Number" sx={{paddingBottom: '8px', minWidth:250}} inputProps={{maxLength:50}}></TextField>
 
                 {sessionStorage.getItem("collegeOrgs") == "true" &&
                     <>
