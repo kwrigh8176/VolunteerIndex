@@ -1,5 +1,5 @@
 import React, { useEffect } from "react"
-import connectionString from "../../../../config"
+import connectionString from '../../../../config';
 import axios from "axios"
 import Box from "@mui/material/Box"
 import TextField from "@mui/material/TextField"
@@ -10,11 +10,13 @@ import VolunteerNavBar from "./VolunteerNavbar"
 import Button from "@mui/material/Button"
 import Alert from "@mui/material/Alert"
 import AlertTitle from "@mui/material/AlertTitle"
-import { IconButton, InputAdornment, InputLabel, MenuItem, Modal, Select, Typography } from "@mui/material"
+import { Avatar, IconButton, InputAdornment, InputLabel, MenuItem, Modal, Select, Typography } from "@mui/material"
 import validator from "validator"
 import Visibility from "@mui/icons-material/Visibility"
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import moment from "moment"
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { styled } from '@mui/material/styles';
 
 
 const modalStyle = {
@@ -29,6 +31,18 @@ const modalStyle = {
     p: 4,
     backdrop: 'static'
   };
+
+  const VisuallyHiddenInput = styled('input')({
+    clip: 'rect(0 0 0 0)',
+    clipPath: 'inset(50%)',
+    height: 1,
+    overflow: 'hidden',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    whiteSpace: 'nowrap',
+    width: 1,
+  });
 
 export default function VolunteerProfile() : JSX.Element {
 
@@ -48,7 +62,13 @@ export default function VolunteerProfile() : JSX.Element {
     const [newPasswordVisibility1, setNewPasswordVisibility1] = React.useState(false);
     const [newPasswordVisibility2, setNewPasswordVisibility2] = React.useState(false);
 
+    const [profilePicture, setProfilePicture] = React.useState<boolean>();
+    const [profilePictureText, setProfilePictureText] = React.useState<string>('');
+
     const [confirmationResponse, setConfirmationResponse] = React.useState('')
+
+    var connString = connectionString + "/getProfilePicture/?username=" + sessionStorage.getItem("username") +  "&" + "loginType=" + sessionStorage.getItem("loginType")
+    
     const getLoadedInfo = async () => {
         setConfirmationResponse('')
 
@@ -59,8 +79,7 @@ export default function VolunteerProfile() : JSX.Element {
             token: sessionStorage.getItem("token"), 
             loginType: sessionStorage.getItem("loginType")
         }}).then(function (response) {
-            setLoadedInfo(response.data)
-
+            setLoadedInfo(response.data)    
             
          }).catch(function (error){
 
@@ -74,8 +93,81 @@ export default function VolunteerProfile() : JSX.Element {
       
         
          });  
+
+         await axios.get(connString)
+         .then(function (response) {
+            if (response.data == null)
+            {
+                setProfilePicture(false)
+            }   
+            else
+            {
+                setProfilePicture(true)
+            }
+            
+         }).catch(function (error){
+
+            if (error.response == undefined){
+                setLoadedInfoJSX(<p>Network error connecting to the API, please try again.</p>)
+            }
+            else
+            {
+                setLoadedInfoJSX(<p>{error.response.data}</p>)
+            }
+      
+        
+         });   
     }
 
+    async function handleProfilePicture(e: React.FormEvent<HTMLInputElement>) {
+        const target = e.target as HTMLInputElement & {
+          files: FileList;
+        }
+
+       
+
+        if(target.files[0].size > 2097152){
+            alert("File is too big! (2MB only)");
+            return
+         }
+
+         
+
+        const formData = new FormData();
+        formData.append("avatar",target.files[0]);
+
+        await axios.post(connectionString + "/uploadProfilePicture/", formData, {
+            
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            },
+
+            params:{
+                Id: sessionStorage.getItem("Id"),
+                username: sessionStorage.getItem("username"),
+                token: sessionStorage.getItem("token"), 
+                loginType: sessionStorage.getItem("loginType"),
+                profileImageLink: loadedInfo[0].ProfilePicture
+            }
+    
+        }).then(function (response) {
+            window.location.reload()
+            
+        }).catch(function (error){
+            if (error.response == undefined){
+                setConfirmationResponse("Network error connecting to the API, please try again.")
+            }
+            else
+            {
+                setConfirmationResponse(error.response.data)
+            }
+     
+        
+         });  
+         setDisabledButton(false)
+    }
+
+    
     const processPasswordChange = async() => {
         setDisabledButton(true)
         if (newPassword1 != newPassword2)
@@ -201,8 +293,49 @@ export default function VolunteerProfile() : JSX.Element {
                     <Box>
                         
                         <Card>
-                            <CardHeader title={"Welcome, " + loadedInfo[0].FirstName} >
+                            <CardHeader title={"Welcome, " + loadedInfo[0].FirstName}>
                             </CardHeader>
+                            {profilePicture == false && 
+                                    <CardHeader
+                                avatar={
+                                            <Avatar sx={{ bgcolor: 'grey' }}>
+                                                {loadedInfo[0].FirstName.charAt(0)}
+                                            </Avatar>
+                                        }
+                
+                                sx={{borderTop:'1px solid black'}}
+                                title = {
+                                    <Button component="label" variant="contained" startIcon={<CloudUploadIcon />}>
+                                        Upload Profile Picture (Reloads Page)
+                                        <VisuallyHiddenInput type="file" accept="image/png, image/jpg, image/jpeg" onChange={handleProfilePicture}/>
+                      
+                                    </Button>
+                                }
+                                >
+                                </CardHeader>
+                            }
+
+                            {profilePicture != true && 
+                                     <CardHeader
+                                        avatar={
+                                                    <Avatar src={connString}>
+                                                    </Avatar>
+                                                }
+                        
+                                        sx={{borderTop:'1px solid black'}}
+                                        title = {
+                                            <>
+                                            <Button component="label" variant="contained" startIcon={<CloudUploadIcon />}>
+                                                Upload Profile Picture (Reloads Page)
+                                                <VisuallyHiddenInput type="file" accept="image/png, image/jpg, image/jpeg" onChange={handleProfilePicture}/>
+                                            </Button>
+                                            </>
+                                        }
+                                     >
+                                     
+                                     </CardHeader>
+                            }
+                           
                             <CardHeader title="Your Info" subheader="Click on a field to edit. Click the save button below to save." subheaderTypographyProps={{ color: 'black' }}  sx={{borderTop:'1px solid black'}} >
                             </CardHeader>
                             <CardContent sx={{borderBottom:'1px white'}}>
@@ -290,7 +423,7 @@ export default function VolunteerProfile() : JSX.Element {
         }
         
 
-    }, [loadedInfo])
+    }, [loadedInfo, profilePictureText])
 
 
 

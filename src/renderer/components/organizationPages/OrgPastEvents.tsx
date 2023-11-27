@@ -11,7 +11,6 @@ import Box from "@mui/material/Box";
 import { Alert, AlertTitle, Button, Modal } from "@mui/material";
 import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
-import Clear from "@mui/icons-material/Clear";
 import moment from "moment";
 
 
@@ -139,9 +138,7 @@ export default function OrgPastEvents() : JSX.Element {
         }}).then(function (response){
             setModalError('')
             setModalSuccess(response.data)
-            setTimeout(() => {
-                window.location.reload();
-            }, 5000)
+            getEvents()
          })
         .catch(function (error){
             setModalSuccess('')
@@ -153,9 +150,9 @@ export default function OrgPastEvents() : JSX.Element {
             {
                 setModalError(error.response.data)
             }
-            setDisableButtons(false)
-            return
+
         }); 
+        
     }
   
     const setHoursVerified = async (Id: number) => {
@@ -168,9 +165,7 @@ export default function OrgPastEvents() : JSX.Element {
         }}).then(function (response){
             setModalError('')
             setModalSuccess(response.data)
-            setTimeout(() => {
-                window.location.reload();
-            }, 5000)
+            getEvents()
          })
         .catch(function (error){
             setModalSuccess('')
@@ -182,10 +177,8 @@ export default function OrgPastEvents() : JSX.Element {
             {
                 setModalError(error.response.data)
             }
-            setDisableButtons(false)
-            return
         }); 
-
+        
     }
 
    
@@ -301,9 +294,9 @@ export default function OrgPastEvents() : JSX.Element {
         )
         
         setModal(true)
-        
+        setDisableButtons(false)
 
-    },[modalContent, modalError, modalSuccess])
+    },[modalContent, modalError, modalSuccess,eventSlots])
 
     useEffect (() => {
         var eventSlotCopy = eventSlots

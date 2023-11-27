@@ -137,19 +137,19 @@ export default function OrgEvents() : JSX.Element {
     }
 
     const kickUser = async (Id : number) => {
+        setKickModalError('')
+        setKickModalSuccess('')
+
         await axios.post(connectionString + "/organizationKickIndividual/", null, {params:{
             slotId: Id,
             username: sessionStorage.getItem("username"),
             token: sessionStorage.getItem("token"),
             loginType: sessionStorage.getItem("loginType")
         }}).then(function (response) {
-            setKickModalError('')
             setKickModalSuccess(response.data)
-            setTimeout(() => {
-                window.location.reload();
-            }, 5000)
+            getEvents();
+   
         }).catch(function (error){
-            setKickModalSuccess('')
             if (error.response == undefined){
                 setKickModalError("Network error connecting to the API, please try again.")
             }
@@ -160,9 +160,12 @@ export default function OrgEvents() : JSX.Element {
             
             return
         })
+        setDisableButtons(false)
     }
 
     const overrideUser = async (Id : number) => {
+        setKickModalError('')
+        setKickModalSuccess('')
 
         await axios.post(connectionString + "/organizationOverrideIndividual/", null, {params:{
             slotId: Id,
@@ -172,13 +175,10 @@ export default function OrgEvents() : JSX.Element {
             overriddenName: overriddenName,
             overriddenMisc: overriddenMisc
         }}).then(function (response) {
-            setKickModalError('')
             setKickModalSuccess(response.data)
-            setTimeout(() => {
-                window.location.reload();
-            }, 5000)
+            getEvents();
+   
         }).catch(function (error){
-            setKickModalSuccess('')
             if (error.response == undefined){
                 setKickModalError("Network error connecting to the API, please try again.")
             }
@@ -189,6 +189,8 @@ export default function OrgEvents() : JSX.Element {
             
             return
         })
+
+        setDisableButtons(false)
     }
 
     const [errorText, setErrorText] = React.useState('');
@@ -226,15 +228,14 @@ export default function OrgEvents() : JSX.Element {
                             renderedSlots.push(
                                 <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
                                     
-                                    <Typography>Open Slot</Typography>
+                                    <Button fullWidth id={cardIndex + ','+eventCounter} onClick={(event) => {setKickModalContent(event.currentTarget.id); setKickUserModal(true)}}>Open Slot</Button>
                                 </Box>)
                         }
                         else
                         {
                             renderedSlots.push(
                                 <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
-                                    
-                                    <Typography>Open Role: {eventSlotCopy[eventSlotCounter].RoleName}</Typography>
+                                    <Button fullWidth id={cardIndex + ','+eventCounter} onClick={(event) => {setKickModalContent(event.currentTarget.id); setKickUserModal(true)}}>Open Role: {eventSlotCopy[eventSlotCounter].RoleName}</Button>
                                 </Box>)
                         }
                         
@@ -247,13 +248,13 @@ export default function OrgEvents() : JSX.Element {
                         {
                             renderedSlots.push(
                                 <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#fa534d'}}>
-                                    <Button fullWidth id={cardIndex + ','+eventCounter} onClick={(event) => {setKickModalContent(event.currentTarget.id); setKickUserModal(true)}} >Taken by: {eventSlotCopy[eventSlotCounter].Name}</Button>
+                                    <Button fullWidth id={cardIndex + ','+eventCounter} onClick={(event) => {setKickModalContent(event.currentTarget.id); setKickModalError(''); setKickModalSuccess(''); setKickUserModal(true);}} >Taken by: {eventSlotCopy[eventSlotCounter].Name}</Button>
                                 </Box>)
                         }
                         else{
                             renderedSlots.push(
                                 <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#fa534d'}}>
-                                    <Button fullWidth id={cardIndex + ','+eventCounter} onClick={(event) => {setKickModalContent(event.currentTarget.id); setKickUserModal(true)}}>Taken by: {eventSlotCopy[eventSlotCounter].FirstName} {eventSlotCopy[eventSlotCounter].LastName}</Button>
+                                    <Button fullWidth id={cardIndex + ','+eventCounter} onClick={(event) => {setKickModalContent(event.currentTarget.id); setKickModalError(''); setKickModalSuccess('');  setKickUserModal(true)}}>Taken by: {eventSlotCopy[eventSlotCounter].FirstName} {eventSlotCopy[eventSlotCounter].LastName}</Button>
                                 </Box>)
                         }
                         
@@ -291,6 +292,12 @@ export default function OrgEvents() : JSX.Element {
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
                             Event Description: {cardsFromDb[cardIndex].Description}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            Email: {cardsFromDb[cardIndex].Email}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            Phone Number: {cardsFromDb[cardIndex].PhoneNumber}
                         </Typography>
                     </CardContent>
                     {renderedSlots}
@@ -331,40 +338,48 @@ export default function OrgEvents() : JSX.Element {
             <br></br>
             <Typography>Event Name: {eventInfo.EventName}</Typography>
             <br></br>
-            <Typography>Start Time: {eventInfo.StartTime}</Typography>
+            <Typography>Start Time: {dayjs('1/1/1 ' + eventInfo.StartTime).format('h:mm:ss a')}</Typography>
             <br></br>
-            <Typography>End Time: {eventInfo.EndTime}</Typography>
+            <Typography>End Time: {dayjs('1/1/1 ' + eventInfo.EndTime).format('h:mm:ss a')}</Typography>
             <br></br>
             <Typography>Description: {eventInfo.Description}</Typography>
             <br></br>
             <Typography sx={{textDecoration:'underline', fontSize:17}}>Volunteer Information</Typography>
             <br></br>
-            {slotInfo.OverrideUsers != null &&
-                 <>
-                 <Typography>Overriden Slot Volunteer: {slotInfo.Name}</Typography>
-                 <br></br>
-                 <Typography>Misc Info: {slotInfo.ContactInfo}</Typography>
-                 <br></br>
-                 <Typography>Role Name: {slotInfo.RoleName}</Typography>
-                 <br></br>
-             </>
-
-            }
-            {slotInfo.OverrideUsers == null &&
+            {slotInfo.Username != null &&
+            
                 <>
+
                     <Typography>Name of Volunteer: {slotInfo.FirstName} {slotInfo.LastName}</Typography>
                     <br></br>
                     <Typography>Username: {slotInfo.Username}</Typography>
                     <br></br>
+                </>
+            }
+            {slotInfo.Username == null &&
+                <>
+                    <Typography>Overriden Slot Volunteer: {slotInfo.Name}</Typography>
+                    <br></br>
+                    <Typography>Misc Info: {slotInfo.ContactInfo}</Typography>
+                    <br></br>
+                </>
+
+            }
+            {slotInfo.RoleName != null &&
+                <>
                     <Typography>Role Name: {slotInfo.RoleName}</Typography>
                     <br></br>
                 </>
             }
+            <Button onClick={() => setKickUserModal(false)} disabled={disableButtons}>Close</Button>
+
+            {slotInfo.Username != null &&
             
-            <Button onClick={() => setKickUserModal(false)} disabled={disableButtons}>Cancel</Button>
             <Button onClick={() => {setDisableButtons(true); kickUser(slotInfo.Id)}} disabled={disableButtons}>Kick</Button>
+    
+            }
             <FormGroup>
-                <FormControlLabel control={<Checkbox />} label="Override User?" onChange={(event,checked) => {
+                <FormControlLabel control={<Checkbox />} label="Override Slot?" onChange={(event,checked) => {
                     setOveriddenValue(checked)
                     if (checked){
                         setDisableButtons(true)
@@ -386,7 +401,7 @@ export default function OrgEvents() : JSX.Element {
         )
 
         setKickUserModal(true)
-    },[kickModalContent, kickModalError, kickModalSuccess, overiddenValue, overriddenMisc])
+    },[kickModalContent, kickModalError, kickModalSuccess, overiddenValue, overriddenMisc, eventSlots])
 
   
     if (loading == 0){
