@@ -38,6 +38,12 @@ export default function VolunteerCollegeEvents() : JSX.Element {
     const [cardsFromDb,setCardsFromDb] = React.useState<any[]>([])
     const [eventSlots,setEventSlots] = React.useState<any[]>([])
     const volunteerId = sessionStorage.getItem('Id');
+    const [stopLoad, setStopLoad] = React.useState(false)
+
+    const [loadJSX,setLoadJSX] = React.useState(
+        <Alert severity="warning">
+            <AlertTitle>Loading Events..</AlertTitle>
+        </Alert>)
 
     useEffect(() => {
         getEvents()
@@ -70,9 +76,17 @@ export default function VolunteerCollegeEvents() : JSX.Element {
                 });
                 setCardsFromDb(sorted.filter((item: { CollegeEvent: number }) => item.CollegeEvent == 1))
                 tempArray.push(sorted.filter((item: { CollegeEvent: number }) => item.CollegeEvent == 1)) 
+                setLoadJSX(
+                    <></>
+                )
             }
-            else{
-                setErrorText('Events not found.')
+            else
+            {
+                setLoadJSX(
+                    <Alert severity="error">
+                        <AlertTitle>No Events Found.</AlertTitle>
+                    </Alert>
+                )
             }
             })
         .catch(function (error){
@@ -103,7 +117,6 @@ export default function VolunteerCollegeEvents() : JSX.Element {
 
         if (tempArray[0] == undefined)
         {
-            setErrorText('Events not found.')
             return
         }
         
@@ -137,7 +150,7 @@ export default function VolunteerCollegeEvents() : JSX.Element {
 
         }
         setEventSlots(holdSlots);
-        
+        setStopLoad(true)
        
     
 
@@ -287,6 +300,7 @@ export default function VolunteerCollegeEvents() : JSX.Element {
         var eventSlotCopy = eventSlots
         var tempArray = []
 
+        
 
         for (var cardIndex = 0; cardIndex < cardsFromDb.length; cardIndex++){
 
@@ -375,6 +389,11 @@ export default function VolunteerCollegeEvents() : JSX.Element {
                         <Typography variant="body2" color="text.secondary">
                             Event Description: {cardsFromDb[cardIndex].Description}
                         </Typography>
+                        {cardsFromDb[cardIndex].Club != null &&
+                            <Typography variant="body2" color="text.secondary" style={{textDecoration:'underline'}}>
+                                Club: {cardsFromDb[cardIndex].Club}
+                            </Typography>
+                        }
                     </CardContent>
                     {renderedSlots}
                     
@@ -391,15 +410,15 @@ export default function VolunteerCollegeEvents() : JSX.Element {
 
     }, [eventSlots]) 
 
-
+    
   
     if (loading == 0){
         setLoading(1)
         getEvents()
         return (
-            <>
-            <p>Loading Events...</p>
-            </>
+            <Alert severity="warning">
+                <AlertTitle>Loading Events..</AlertTitle>
+            </Alert>
         )
     }
     else{
@@ -412,12 +431,7 @@ export default function VolunteerCollegeEvents() : JSX.Element {
             <>
                 <VolunteerNavBar pageName="College Events"/>
                 {renderedCards}
-                {renderedCards.length == 0 && errorText == '' && 
-                    <Alert severity="warning">
-                      <AlertTitle>Fetching data from API...</AlertTitle>
-                  </Alert>
-
-                }
+                {loadJSX}
                 { errorText != '' && 
                     <Alert severity="error">
                       <AlertTitle>{errorText}</AlertTitle>

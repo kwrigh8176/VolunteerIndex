@@ -61,6 +61,7 @@ export default function OrgCreateEvent() : JSX.Element {
     const [address, setAddress] = React.useState('');
     const [email, setEmail] = React.useState('');
     const [phoneNumber, setPhoneNumber] = React.useState('');
+    const [club, setClub] = React.useState('');
     const [collegeVisibility, setCollegeVisibility] = React.useState('Any')
     const [cadence, setCadence] = React.useState('None')
 
@@ -162,6 +163,7 @@ export default function OrgCreateEvent() : JSX.Element {
             CollegeEvent: getCollegeVisibility,
             locale:  moment.tz.guess(),
             cadence: cadence,
+            club: club
           }})
           .then(response => {
             setSuccessModal("Success")
@@ -274,16 +276,7 @@ export default function OrgCreateEvent() : JSX.Element {
                 <br></br>
                 <TextField defaultValue={phoneNumber} onChange={(event) => setPhoneNumber(event.target.value)} label="Alternate Phone Number" sx={{paddingBottom: '8px', minWidth:250}} inputProps={{maxLength:50}}></TextField>
 
-                {sessionStorage.getItem("collegeOrgs") == "true" &&
-                    <>
-                        <br></br>
-                        <InputLabel id="eventVisibility">Event Visibility</InputLabel>
-                        <Select labelId="eventVisibility" defaultValue={"Any"} label="Event Visibility" sx={{marginBottom:'10px'}} onChange={(event) => setCollegeVisibility(event.target.value)}>
-                            <MenuItem value={"Any"}>Any</MenuItem>
-                            <MenuItem value={"College"}>College</MenuItem>
-                        </Select>
-                    </>
-                }
+               
 
                 <br></br>
                         <InputLabel id="Repeat Event?">Repeat Event?</InputLabel>
@@ -296,6 +289,21 @@ export default function OrgCreateEvent() : JSX.Element {
                         </Select>
 
                 </CardContent>
+                {sessionStorage.getItem("collegeOrgs") == "true" &&
+                    <>
+                        <CardHeader title={"College Settings"} sx={{borderTop: '1px solid grey'}}/>
+                        <br></br>
+                        <CardContent sx={{borderTop: '1px solid grey'}}>
+                        <InputLabel id="eventVisibility">Event Visibility</InputLabel>
+                        <Select labelId="eventVisibility" defaultValue={"Any"} label="Event Visibility" sx={{marginBottom:'10px'}} onChange={(event) => setCollegeVisibility(event.target.value)}>
+                            <MenuItem value={"Any"}>Any</MenuItem>
+                            <MenuItem value={"College"}>College Students Only</MenuItem>
+                        </Select>
+                        <br></br>
+                        <TextField defaultValue={club} onChange={(event) => setClub(event.target.value)} label="Club" sx={{paddingBottom: '8px', minWidth:250}} inputProps={{maxLength:50}}></TextField>
+                        </CardContent>
+                    </>
+                }
                 <CardContent sx={{borderTop: '1px solid grey'}}>
                     <Button onClick={() => {setConfirmationModalOpen(true)}}>Create Event</Button>
                 </CardContent>
@@ -341,8 +349,19 @@ export default function OrgCreateEvent() : JSX.Element {
                 <br></br>
                 <Typography>Volunteer Slots: {volunteerLimit}</Typography>
                 <br></br>
-                {
-                optionalRoleInfo.map(function(object, index){
+                {sessionStorage.getItem("collegeOrgs") == "true" && 
+                    <>
+                        <Typography>Event Visibility: {collegeVisibility}</Typography>
+                        <br></br>
+                    </>
+                }
+                {club != '' && 
+                    <>
+                        <Typography>Club: {club}</Typography>
+                        <br></br>
+                    </>
+                }
+                {optionalRoleInfo.map(function(object, index){
                     if (object== null){
                         return (<><Typography>Slot {index+1}: (No role name)</Typography><br></br></>)
                     }

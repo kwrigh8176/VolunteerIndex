@@ -240,7 +240,7 @@ export default function OrgProfile() : JSX.Element {
                 token:  sessionStorage.getItem("token"),
                 loginType: sessionStorage.getItem("loginType"),
                 oldUsername: sessionStorage.getItem("username"),
-                locale:  moment.tz.guess(true)
+                locale:  moment.tz.guess(true) 
             }}).then(function (response) {
                 setConfirmationResponse('Data saved.')
                 sessionStorage.setItem("username", loadedInfo[0].Username)
@@ -399,7 +399,9 @@ export default function OrgProfile() : JSX.Element {
             )
         }
         else{
-            setLoadedInfoJSX(<p>Data is being retrieved...</p>)
+            setLoadedInfoJSX(<Alert severity="warning">
+            <AlertTitle>Fetching data from API...</AlertTitle>
+        </Alert>)
         }
         
 
@@ -413,8 +415,9 @@ export default function OrgProfile() : JSX.Element {
         {/*Just a temporary message for signaling data is being retrieved */}
         return (
             <>
-                <p>
-                </p>
+                <Alert severity="warning">
+                      <AlertTitle>Fetching data from API...</AlertTitle>
+                  </Alert>
             </>
         )
     }
