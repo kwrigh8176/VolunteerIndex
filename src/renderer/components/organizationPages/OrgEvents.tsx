@@ -299,6 +299,11 @@ export default function OrgEvents() : JSX.Element {
                         <Typography variant="body2" color="text.secondary">
                             Phone Number: {cardsFromDb[cardIndex].PhoneNumber}
                         </Typography>
+                        {cardsFromDb[cardIndex].Club != null &&
+                            <Typography variant="body2" color="text.secondary" style={{textDecoration:'underline'}}>
+                                Club: {cardsFromDb[cardIndex].Club}
+                            </Typography>
+                        }
                     </CardContent>
                     {renderedSlots}
     
