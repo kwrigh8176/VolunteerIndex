@@ -78,7 +78,9 @@ export default function VolunteerPastEvents() : JSX.Element {
                             <CardHeader
                             avatar={
                                 <Avatar src={connString}>
-                                    {cardsFromDb[cardIndex].OrgName.charAt(0)}
+                                    {cardsFromDb[cardIndex].OrgName &&
+                                        cardsFromDb[cardIndex].OrgName.charAt(0)
+                                    }
                                 </Avatar>
                             }
                             title={cardsFromDb[cardIndex].EventName}
@@ -90,7 +92,9 @@ export default function VolunteerPastEvents() : JSX.Element {
                         <CardHeader
                         avatar={
                             <Avatar aria-label="recipe">
-                                {cardsFromDb[cardIndex].OrgName.charAt(0)}
+                                    {cardsFromDb[cardIndex].OrgName &&
+                                        cardsFromDb[cardIndex].OrgName.charAt(0)
+                                    }
                             </Avatar>
                         }
                         title={cardsFromDb[cardIndex].EventName}
@@ -111,8 +115,15 @@ export default function VolunteerPastEvents() : JSX.Element {
                             End Time: {dayjs('1/1/1 ' + cardsFromDb[cardIndex].EndTime).format('h:mm A')}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
+                            Phone Number: {cardsFromDb[cardIndex].PhoneNumber}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            Email: {cardsFromDb[cardIndex].Email}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
                             Event Description: {cardsFromDb[cardIndex].Description}
                         </Typography>
+                       
                         {cardsFromDb[cardIndex].Club != null &&
                             <Typography variant="body2" color="text.secondary" style={{textDecoration:'underline'}}>
                                 Club: {cardsFromDb[cardIndex].Club}
@@ -146,11 +157,13 @@ export default function VolunteerPastEvents() : JSX.Element {
                 </Card>
             )        
         }
+
         if (cardsFromDb.length == 0){
             setWarningJSX(<Alert severity="warning">
-            <AlertTitle>No past data found.</AlertTitle>
+            <AlertTitle>Loading past data....</AlertTitle>
         </Alert>)
         }
+        
         setRenderedCards(tempArray)
     }, [cardsFromDb])
 
