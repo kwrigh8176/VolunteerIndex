@@ -187,6 +187,10 @@ export default function VolunteerCollegeEvents() : JSX.Element {
             }
             else{
                 setCardsFromDb(response.data)
+                setLoadJSX(<Alert severity="error">
+                    <AlertTitle>No college events found.</AlertTitle>
+                </Alert>)
+
             }
             setSuccessfulText('Successful sign up!')
             getValue = 'Successfully signed up for the event.'
@@ -387,6 +391,12 @@ export default function VolunteerCollegeEvents() : JSX.Element {
                             End Time: {dayjs('1/1/1 ' + cardsFromDb[cardIndex].EndTime).format('h:mm A')}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
+                            Phone Number: {cardsFromDb[cardIndex].PhoneNumber}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            Email: {cardsFromDb[cardIndex].Email}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
                             Event Description: {cardsFromDb[cardIndex].Description}
                         </Typography>
                         {cardsFromDb[cardIndex].Club != null &&
@@ -406,9 +416,17 @@ export default function VolunteerCollegeEvents() : JSX.Element {
             )
             
         }
+
+        if (cardsFromDb.length == 0){
+            setLoadJSX(<Alert severity="error">
+            <AlertTitle>No college events found.</AlertTitle>
+        </Alert>)
+        }
+
+        
         setRenderedCards(tempArray)
 
-    }, [eventSlots]) 
+    }, [eventSlots, loadJSX]) 
 
     
   
@@ -416,17 +434,11 @@ export default function VolunteerCollegeEvents() : JSX.Element {
         setLoading(1)
         getEvents()
         return (
-            <Alert severity="warning">
-                <AlertTitle>Loading Events..</AlertTitle>
-            </Alert>
+            <>{loadJSX}</>
+            
         )
     }
     else{
-
-        
-        
-       
-
        return(
             <>
                 <VolunteerNavBar pageName="College Events"/>

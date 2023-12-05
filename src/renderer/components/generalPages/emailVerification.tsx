@@ -6,10 +6,21 @@ import AlertTitle from "@mui/material/AlertTitle";
 import { useNavigate } from "react-router-dom";
 import connectionString from "../../../../config";
 import axios from "axios";
-import { Box } from "@mui/material";
+import { Box, styled } from "@mui/material";
 import { Typography } from "@mui/joy";
 import dayjs from "dayjs";
 
+const StyledInput = styled(TextField)`
+& .MuiOutlinedInput-notchedOutline {
+    border-color: white;
+ }
+ & .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: white;
+ }
+ & .MuiSvgIcon-root : {
+    color: 'white',
+ }
+`;
 
 export default function emailVerification() : JSX.Element {
     const [buttonDisable, setbuttonDisable] = React.useState(false)
@@ -104,7 +115,7 @@ export default function emailVerification() : JSX.Element {
                 position: 'absolute', left: '50%', top: '50%',
                 transform: 'translate(-50%, -50%)'
             }}>
-                <Box sx={{backgroundColor:'grey', flex:1}}>
+                <Box sx={{flex:1}}>
                 {errorText != '' &&  errorText != 'Successful Verification' && 
                     
                             <Alert severity="error">
@@ -118,9 +129,12 @@ export default function emailVerification() : JSX.Element {
                             <AlertTitle>Successful Verification! You will be redirected in 5 seconds.</AlertTitle>
                         </Alert>
                 }
-                <Typography sx={{color:'black'}}>Input the code to login. You can reset the code if necessary (Codes expire after 10 minutes).</Typography>
-                <Typography sx={{color:'black', fontWeight:'bold', marginBottom:'5px'}} >(Don't forget to check spam folders!)</Typography>
-                <TextField label="Enter code here: " onChange={(event) => setVerifyTextBox(event.target.value)} inputProps={{maxLength: 10}} sx={{width:'100%', marginBottom:'5px'}}></TextField>
+                <Typography sx={{color:'white'}}>Input the code to login. You can reset the code if necessary (Codes expire after 10 minutes).</Typography>
+                <Typography sx={{color:'white', fontWeight:'bold', marginBottom:'5px'}} >(Don't forget to check spam folders!)</Typography>
+                <StyledInput label="Enter code here: " onChange={(event) => setVerifyTextBox(event.target.value)} inputProps={{maxLength: 10}} sx={{width:'100%', marginBottom:'5px', marginTop:'5px'}}
+                InputProps={{sx : {color : "white"}  }}
+                InputLabelProps={{sx : {color : "white"}  }}
+                ></StyledInput>
                 <Button disabled={verifyButtonDisable} onClick={processCode} variant="contained" sx={{marginRight:'5px'}}>Verify Code</Button> 
                 <Button disabled={buttonDisable} onClick={resetCode} variant="outlined">Reset Code</Button>
                 </Box>

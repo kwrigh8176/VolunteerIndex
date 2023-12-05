@@ -17,6 +17,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import moment from "moment"
 import { styled } from '@mui/material/styles';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { useNavigate } from "react-router-dom";
 
 const modalStyle = {
     position: 'absolute' as 'absolute',
@@ -51,6 +52,7 @@ export default function OrgProfile() : JSX.Element {
     const [modalControl, setModalControl] = React.useState(false);
     const [passwordModalControl, setPasswordModalControl] = React.useState(false);
     const [disabledButton, setDisabledButton] = React.useState(false)
+    const [deleteAccountModal, setDeleteAccountModal] = React.useState(false);
 
     const [profilePicture, setProfilePicture] = React.useState<boolean>();
     const [counter, setCounter] = React.useState(0)
@@ -63,12 +65,21 @@ export default function OrgProfile() : JSX.Element {
     const [newPasswordVisibility1, setNewPasswordVisibility1] = React.useState(false);
     const [newPasswordVisibility2, setNewPasswordVisibility2] = React.useState(false);
 
+    const [deleteUsername, setDeleteUsername] = React.useState('');
+    const [deletePassword, setDeletePassword] = React.useState('');
+    const [deletePasswordVisibility, setDeletePasswordVisibility] = React.useState(false);
+
+    const [errorType, setErrorType] = React.useState('')
+
     const [confirmationResponse, setConfirmationResponse] = React.useState('')
 
     var connString = connectionString + "/getProfilePicture/?username=" + sessionStorage.getItem("username") +  "&" + "loginType=" + sessionStorage.getItem("loginType")
 
+    var navigate = useNavigate();
+    
     const getLoadedInfo = async () => {
         setConfirmationResponse('')
+        setErrorType('')
 
      
         await axios.get(connectionString + "/getOrgProfile/", {params:{
@@ -83,12 +94,12 @@ export default function OrgProfile() : JSX.Element {
          }).catch(function (error){
 
             if (error.response == undefined){
-                setLoadedInfoJSX(<p>Network error connecting to the API, please try again.</p>)
-            }
-            else
-            {
-                setLoadedInfoJSX(<p>{error.response.data}</p>)
-            }
+                setLoadedInfoJSX(<Alert severity="error"><AlertTitle>Network error connecting to the API, please try again.</AlertTitle></Alert>)
+           }
+           else
+           {
+               setLoadedInfoJSX(<Alert severity="error"><AlertTitle>{error.response.data}</AlertTitle></Alert>)
+           }
       
         
          });  
@@ -107,16 +118,21 @@ export default function OrgProfile() : JSX.Element {
     }
 
     async function handleProfilePicture(e: React.FormEvent<HTMLInputElement>) {
+        setConfirmationResponse("");
+        setErrorType('');
+
         const target = e.target as HTMLInputElement & {
           files: FileList;
         }
 
        
 
-        if(target.files[0].size > 2097152){
-            alert("File is too big! (2MB only)");
+        if(target.files[0].size > 2097152)
+        {
+            setErrorType('error')
+            setConfirmationResponse("File is too big! (2MB only)");
             return
-         }
+        }
 
          
 
@@ -140,6 +156,7 @@ export default function OrgProfile() : JSX.Element {
         }).then(function (response) {
             window.location.reload()
         }).catch(function (error){
+            setErrorType('error')
             if (error.response == undefined){
                 setConfirmationResponse("Network error connecting to the API, please try again.")
             }
@@ -155,6 +172,9 @@ export default function OrgProfile() : JSX.Element {
 
     const processPasswordChange = async() => {
         setDisabledButton(true)
+        setConfirmationResponse("");
+        setErrorType('');
+
         if (newPassword1 != newPassword2)
         {
             setConfirmationResponse("Passwords dont match.")
@@ -169,9 +189,11 @@ export default function OrgProfile() : JSX.Element {
             newPassword: newPassword1,
             oldPassword: oldPassword,
         }}).then(function (response) {
-            setConfirmationResponse("Data saved.")
+            setErrorType('success')
+            setConfirmationResponse(response.data)
             
         }).catch(function (error){
+            setErrorType('error')
             if (error.response == undefined){
                 setConfirmationResponse("Network error connecting to the API, please try again.")
             }
@@ -180,14 +202,51 @@ export default function OrgProfile() : JSX.Element {
                 setConfirmationResponse(error.response.data)
             }
      
-        
+            setDisabledButton(false)
+         });    
+    }
+
+    const processDeleteAccount = async() => {
+        setDisabledButton(true)
+        setConfirmationResponse("");
+        setErrorType('');
+
+
+        await axios.get(connectionString + "/deleteAccount/", {params:{
+            orgId: sessionStorage.getItem("Id"),
+            username: sessionStorage.getItem("username"),
+            token: sessionStorage.getItem("token"), 
+            loginType: sessionStorage.getItem("loginType"),
+            givenUsername: deleteUsername,
+            givenPassword: deletePassword,
+            locale:  moment.tz.guess(true) 
+        }}).then(function (response) {
+            setErrorType('success')
+            setConfirmationResponse(response.data)
+            setTimeout(() =>{
+                navigate("/")
+            }, 5000)
+            
+         }).catch(function (error){
+            setErrorType('error')
+            if (error.response == undefined){
+                setConfirmationResponse("Network error connecting to the API, please try again.")
+            }
+            else
+            {
+                setConfirmationResponse(error.response.data)
+            }
+            setDisabledButton(false)
          });  
-         setDisabledButton(false)
+         
     }
 
     const processSaving = async () => {
 
         setDisabledButton(true)
+
+        setConfirmationResponse("");
+        setErrorType('');
 
         var checkVariable = false
         var errMsg = ""
@@ -214,6 +273,7 @@ export default function OrgProfile() : JSX.Element {
         }
 
         if (checkVariable){
+            setErrorType('error');
             setConfirmationResponse(errMsg)
             return
         }
@@ -242,9 +302,12 @@ export default function OrgProfile() : JSX.Element {
                 oldUsername: sessionStorage.getItem("username"),
                 locale:  moment.tz.guess(true) 
             }}).then(function (response) {
+                setErrorType('success');
                 setConfirmationResponse('Data saved.')
                 sessionStorage.setItem("username", loadedInfo[0].Username)
+                sessionStorage.setItem("state", loadedInfo[0].State)
              }).catch(function (error){
+                setErrorType('error');
                 if (error.response == undefined){
                     setConfirmationResponse("Network error connecting to the API, please try again.")
                 }
@@ -255,6 +318,7 @@ export default function OrgProfile() : JSX.Element {
             
              });  
          }).catch(function (error){
+            setErrorType('error');
             if (error.response == undefined){
                 setConfirmationResponse("Network error connecting to the API, please try again.")
             }
@@ -387,10 +451,10 @@ export default function OrgProfile() : JSX.Element {
                             <TextField defaultValue={loadedInfo[0].OrgName} label='Organization Name' sx={{marginRight:'5px'}} inputProps={{ maxLength: 50 }} onChange={(event) => (loadedInfo[0].OrgName = event.target.value)} ></TextField>
                             </CardContent>
                             <CardContent sx={{borderTop:'1px solid black'}}>
-                                <Button sx={{border:'1px solid black', color:'red'}} onClick={() => {setPasswordModalControl(true)}} disabled={disabledButton}>Reset Password </Button>
+                                <Button sx={{border:'1px solid black', color:'red'}} onClick={() => {setPasswordModalControl(true)}} disabled={disabledButton}>Reset Password </Button> <Button sx={{border:'1px solid black'}} onClick={() => setModalControl(true)} disabled={disabledButton}>Save All Information</Button>
                             </CardContent>
                             <CardContent sx={{borderTop:'1px solid black'}}>
-                                <Button sx={{border:'1px solid black'}} onClick={() => setModalControl(true)} disabled={disabledButton}>Save </Button>
+                                <Button sx={{border:'1px solid black', color:'red'}} onClick={() => {setDeleteAccountModal(true)}} disabled={disabledButton}>Delete Account </Button>
                             </CardContent>
                         </Card>
                     </Box>
@@ -433,15 +497,15 @@ export default function OrgProfile() : JSX.Element {
                     aria-describedby="modal-modal-description"      
                 >    
                     <Box sx={modalStyle}>
-                        {confirmationResponse != '' && confirmationResponse != 'Data saved.'  &&
+                        {errorType == 'error' &&
                             <Alert severity="error">
                                 <AlertTitle>{confirmationResponse}</AlertTitle>
                             </Alert>
                         }
                     
-                        {confirmationResponse == 'Data saved.' &&
+                        {errorType == 'success'  &&
                             <Alert severity="success">
-                                <AlertTitle>Data saved.</AlertTitle>
+                                <AlertTitle>{confirmationResponse}</AlertTitle>
                             </Alert>
                         }
                     
@@ -468,15 +532,15 @@ export default function OrgProfile() : JSX.Element {
                 >
                     <Box sx={modalStyle}>
 
-                        {confirmationResponse != '' && confirmationResponse != 'Data saved.'  &&
+                        {errorType == 'error' &&
                             <Alert severity="error" sx={{marginBottom: '10px'}}>
                                 <AlertTitle>{confirmationResponse}</AlertTitle>
                             </Alert>
                         }
 
-                        {confirmationResponse == 'Data saved.'  &&
+                        {errorType == 'success' &&
                             <Alert severity="success" sx={{marginBottom: '10px'}}>
-                                <AlertTitle>Password has been changed!</AlertTitle>
+                                <AlertTitle>{confirmationResponse}</AlertTitle>
                             </Alert>
                         }
 
@@ -528,7 +592,61 @@ export default function OrgProfile() : JSX.Element {
                         </Button>
                     </Box>
                 </Modal> 
+                
+                <Modal
+                    open={deleteAccountModal}
+                    aria-labelledby="modal-modal-title"
+                    aria-describedby="modal-modal-description"    
+                >
+                    <Box sx={modalStyle}>
 
+                        {errorType == 'error' &&
+                            <Alert severity="error" sx={{marginBottom: '10px'}}>
+                                <AlertTitle>{confirmationResponse}</AlertTitle>
+                            </Alert>
+                        }
+
+                        {errorType == 'success' &&
+                            <Alert severity="success" sx={{marginBottom: '10px'}}>
+                                <AlertTitle>{confirmationResponse}</AlertTitle>
+                            </Alert>
+                        }
+
+                        <Typography sx={{color:'red'}}>Are you sure you want to delete your account? <b>This action is irreversible!</b></Typography>
+                        <Typography sx={{color:'red'}}>Type your username and password to confirm.</Typography>
+
+                        <TextField label="Username" onChange={(event) => {setDeleteUsername(event.target.value)}} sx={{marginBottom:'5px'}}>
+                        </TextField>
+                        
+                        <TextField type={deletePasswordVisibility ? 'text': 'password'} label="Password" onChange={(event) => {setDeletePassword(event.target.value)}} 
+                        InputProps={{
+                        endAdornment: <InputAdornment position="end">
+                                        <IconButton onClick={() => {setDeletePasswordVisibility(!newPasswordVisibility2)}}>
+                                            
+                                            {deletePasswordVisibility ? <Visibility/>: <VisibilityOff/>}
+                                        </IconButton>
+                                      </InputAdornment>,
+                        }}>
+                        </TextField>
+
+                        <br></br>
+                        <Button disabled={disabledButton} onClick={() => {
+                            setConfirmationResponse('')
+                            setErrorType('');
+                            setDeletePassword('')
+                            setDeleteUsername('')
+                            setDeleteAccountModal(false)}
+                            }
+                            sx={{border: '1px solid black', marginTop:'3px'}}
+                            
+                            >
+                            Cancel
+                        </Button>
+                        <Button disabled={disabledButton} sx={{border: '1px solid black', marginLeft:'2px', marginTop:'3px'}} onClick={processDeleteAccount}>
+                            Confirm
+                        </Button>
+                    </Box>
+                </Modal>
             </>
         
             )
