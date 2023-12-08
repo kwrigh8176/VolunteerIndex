@@ -12,12 +12,29 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useNavigate } from 'react-router-dom';
 import connectionString from '../../../../config';
 import axios from 'axios';
-import { Box } from '@mui/material';
+import { Box, styled } from '@mui/material';
 
 
 var validator = require('validator');
 
-require('dotenv').config()
+const StyledInput = styled(TextField)`
+& .MuiOutlinedInput-notchedOutline {
+    border-color: white;
+ }
+ & .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: white;
+ }
+ & .MuiSvgIcon-root : {
+    color: 'white',
+ }
+`;
+
+var style = {
+    input: {color: 'white'}, 
+    marginBottom: '7px', 
+    minWidth: 150,
+    borderColor:'white'
+}
 
 
 
@@ -56,6 +73,8 @@ const SignUp = () : JSX.Element => {
 
     async function processVolunterSignUp(){
         
+        setErrorText('')
+
         {/*Check for empty fields at first*/}
         if ( email.toString() == '' || phoneNumber.toString() == '' || username.toString() == '' || password.toString() == '' || firstName.toString() == '' || lastName.toString() == '' || state.toString() == '' )
         {
@@ -69,7 +88,7 @@ const SignUp = () : JSX.Element => {
             return
         }
 
-        if (validator.isMobilePhone(phoneNumber.toString()) == false)
+        if (validator.isMobilePhone(phoneNumber.toString()) == false || phoneNumber.length!=10)
         {
             setErrorText('Phone Number is not valid.');
             return
@@ -100,7 +119,7 @@ const SignUp = () : JSX.Element => {
                 middleInitial: middleInitial,
             }
         }).then(function (response) {
-            setSuccessfulText(true)
+            setSuccessfulText(false)
             setTimeout(() =>{
                 navigate("/")
             }, 5000)
@@ -124,7 +143,6 @@ const SignUp = () : JSX.Element => {
          
     }
     
-    
     async function processOrgSignUp(){
 
         {/*Check for empty fields at first*/}
@@ -134,7 +152,7 @@ const SignUp = () : JSX.Element => {
             return
         }
 
-        if (validator.isMobilePhone(phoneNumber.toString()) == false)
+        if (validator.isMobilePhone(phoneNumber.toString()) == false || phoneNumber.length!=10)
         {
             setErrorText('Phone Number is not valid.');
             return
@@ -169,49 +187,73 @@ const SignUp = () : JSX.Element => {
             else{
                 setErrorText(error.response.data)
             }
-        });  
 
             setDisableSignUpButton(false)
+        });  
+
+           
          
     }
 
     const volunteerSignUp = () : JSX.Element => {
         return (
             <>
-
-                        {errorText != '' && 
-                    
-                            <Alert severity="error">
-                                <AlertTitle>{errorText}</AlertTitle>
-                            </Alert>
-                        }
-                        {successfulText == false && 
-                    
-                            <Alert severity="success">
-                                <AlertTitle>Sign up successful. Redirecting.</AlertTitle>
-                                
-                            </Alert>
-                        }
-                        <Select labelId="demo-simple-select-label" value={signUpType}  label="Sign Up Type" onChange={(event) => setSignUpType(event.target.value)} sx={{marginBottom:'5px'}}>
-                            <MenuItem value='Volunteer'>Volunteer</MenuItem>
-                            <MenuItem value='Organization'>Organization</MenuItem>
-                        </Select>
-                        <TextField id="outlined-basic" label="First Name" inputProps={{maxLength: 50}} onChange={(event) => setFirstName(event.target.value)} variant="outlined" sx={{width:'100%', marginBottom:'5px'}}/>
-                        <br></br>
-                        <TextField id="outlined-basic" label="Middle Initial (Optional)"  inputProps={{maxLength: 1}} onChange={(event) => setMiddleInitial(event.target.value)} variant="outlined" sx={{width:'100%', marginBottom:'5px'}}/>
-                        <br></br>
-                        <TextField id="outlined-basic" label="Last Name" inputProps={{maxLength: 50}} onChange={(event) => setLastName(event.target.value)} variant="outlined" sx={{width:'100%', marginBottom:'5px'}}/>
-                        <br></br>
+                    <div style={{width:'100%'}}>
+                        <StyledInput id="outlined-basic" label="First Name" inputProps={{maxLength: 50}} onChange={(event) => setFirstName(event.target.value)} variant="outlined"
+                        InputProps={{sx : {color : "white"}  }}
+                        sx={style}
+                        InputLabelProps={{ sx: {color: "white"}}}
+                       
+                        />
+                    </div>
+                    <div>
+                        <StyledInput id="outlined-basic" label="Middle Initial (Optional)"  inputProps={{maxLength: 1}} onChange={(event) => setMiddleInitial(event.target.value)} variant="outlined" 
+                        InputProps={{sx : {color : "white"}  }}
+                        sx={style}
+                        InputLabelProps={{ sx: {color: "white"}}}/>
+                    </div>
+                    <div>
+                        <StyledInput id="outlined-basic" label="Last Name" inputProps={{maxLength: 50}} onChange={(event) => setLastName(event.target.value)} variant="outlined" 
+                            InputProps={{sx : {color : "white"}  }}
+                            sx={style}
+                            InputLabelProps={{ sx: {color: "white"}}}
+                        />
+                    </div>
+                    <div>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DatePicker label="Date of Birth" value={DOB} onChange={(val) => {setDOB(dayjs(val))}} sx={{width:'100%', marginBottom:'5px'}}/>
-                            <br></br>
+                            <DatePicker label="Date of Birth" value={DOB} onChange={(val) => {setDOB(dayjs(val))}}
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                '& fieldset':{
+                                    borderColor: 'white',
+                                }
+                                }, 
+                                marginBottom:'7px'
+                                }}
+                                slotProps={{ textField: { InputLabelProps: { sx : {color : "white"}  } , inputProps : { sx : {color : "white"} } } }}
+                            />
                         </LocalizationProvider>
-                        <TextField id="outlined-basic" type="email" label="Email" variant="outlined" onChange={(event) => setEmail(event.target.value)} inputProps={{maxLength: 50}} sx={{width:'100%', marginBottom:'5px'}}/>
-                        <br></br>
-                        <TextField id="outlined-basic" label="Phone Number (No Dashes)" inputProps={{maxLength: 10}} onChange={(event) => setPhoneNumber(event.target.value)} variant="outlined" sx={{width:'100%', marginBottom:'5px'}}/>
-                        <br></br>
-                      
-                        <TextField select label="State/Territory" value={state} onChange={(event) => setState(event.target.value)} sx={{width:'50%', marginBottom:'5px'}}>
+                    </div>
+                    <div>
+                        <StyledInput id="outlined-basic" type="email" label="Email" variant="outlined" onChange={(event) => setEmail(event.target.value)} inputProps={{maxLength: 50}} 
+                        InputProps={{sx : {color : "white"}  }}
+                        sx={style}
+                        InputLabelProps={{ sx: {color: "white"}}}
+                        />
+                    </div>
+                    <div>
+                        <StyledInput id="outlined-basic" label="Phone Number (No Dashes)" inputProps={{maxLength: 10}} onChange={(event) => setPhoneNumber(event.target.value)} variant="outlined"
+                        InputProps={{sx : {color : "white"}  }}
+                        sx={style}
+                        InputLabelProps={{ sx: {color: "white"}}}
+                        />
+                    </div>
+                    <div>
+                        <StyledInput select label="State/Territory" value={state} onChange={(event) => setState(event.target.value)} 
+                            InputProps={{sx : {color : "white"}  }}
+                            sx={style}
+                            InputLabelProps={{ sx: {color: "white"}}}
+                        >
 
                             <MenuItem value="AL">Alabama</MenuItem>
                             <MenuItem value="AK">Alaska</MenuItem>
@@ -264,17 +306,22 @@ const SignUp = () : JSX.Element => {
                             <MenuItem value="WV">West Virgnia</MenuItem>
                             <MenuItem value="WI">Wisconsin</MenuItem>
                             <MenuItem value="WY">Wyoming</MenuItem>
-                            
-                        
-                        
-                    </TextField>
-                    <br></br>
-                    <TextField id="outlined-basic" label="Username" variant="outlined" onChange={(event) => setUsername(event.target.value)} inputProps={{maxLength: 15}} sx={{width:'100%', marginBottom:'5px'}}/>
-                    <br></br>
-                    <TextField id="outlined-basic" label="Password" type="password" variant="outlined" onChange={(event) => setPassword(event.target.value)} inputProps={{maxLength: 25}} sx={{width:'100%', marginBottom:'5px'}}/>
-                    <br></br>
-                    <Button variant="contained"  disabled={disableSignUpButton} onClick={processVolunterSignUp}>Sign Up</Button>
-                    <Button onClick={() => navigate('/')} variant="outlined" disabled={disableSignUpButton}>Login Here</Button>
+                        </StyledInput>
+                    </div>
+                    <div>
+                        <StyledInput id="outlined-basic" label="Username" variant="outlined" onChange={(event) => setUsername(event.target.value)} inputProps={{maxLength: 15}}
+                            InputProps={{sx : {color : "white"}  }}
+                            sx={style}
+                            InputLabelProps={{ sx: {color: "white"}}}
+                        />
+                    </div>
+                    <div>
+                        <StyledInput id="outlined-basic" label="Password" type="password" variant="outlined" onChange={(event) => setPassword(event.target.value)} inputProps={{maxLength: 25}}
+                            InputProps={{sx : {color : "white"}  }}
+                            sx={style}
+                            InputLabelProps={{ sx: {color: "white"}}}
+                        />
+                    </div>
             </>
         )
 
@@ -285,26 +332,35 @@ const SignUp = () : JSX.Element => {
         return (
             <>
                 
-                    {errorText.toString() != '' && 
-                    
-                        <Alert severity="error">
-                            <AlertTitle>Invalid Inputs</AlertTitle>
-                            {errorText} 
-                        </Alert>
-                    }
-                    <Select value={signUpType}  label="Sign Up Type" onChange={(event) => setSignUpType(event.target.value)} sx={{marginBottom:'5px'}}>
-                        <MenuItem value='Volunteer'>Volunteer</MenuItem>
-                        <MenuItem value='Organization'>Organization</MenuItem>
-                    </Select>
-                    <TextField id="outlined-basic" label="Organization Name" variant="outlined" inputProps={{maxLength: 50}} onChange={(event) => setOrgName(event.target.value)} sx={{width:'100%',marginBottom:'5px'}}/> 
+                    <StyledInput id="outlined-basic" label="Organization Name" variant="outlined" inputProps={{maxLength: 50}} onChange={(event) => setOrgName(event.target.value)}
+                        InputProps={{sx : {color : "white"}  }}
+                        sx={style}
+                        InputLabelProps={{ sx: {color: "white"}}}
+                    /> 
                     <br></br>
-                    <TextField id="outlined-basic" label="Address" variant="outlined" inputProps={{maxLength: 50}} onChange={(event) => setAddress(event.target.value)} sx={{width:'100%',marginBottom:'5px'}}/>
+                    <StyledInput id="outlined-basic" label="Address" variant="outlined" inputProps={{maxLength: 50}} onChange={(event) => setAddress(event.target.value)}
+                        InputProps={{sx : {color : "white"}  }}
+                        sx={style}
+                        InputLabelProps={{ sx: {color: "white"}}}
+                    />
                     <br></br>
-                    <TextField id="outlined-basic" label="Email" variant="outlined"  inputProps={{maxLength: 50}} onChange={(event) => setEmail(event.target.value)} sx={{width:'100%',marginBottom:'5px'}}/>
+                    <StyledInput id="outlined-basic" label="Email" variant="outlined"  inputProps={{maxLength: 50}} onChange={(event) => setEmail(event.target.value)}
+                        InputProps={{sx : {color : "white"}  }}
+                        sx={style}
+                        InputLabelProps={{ sx: {color: "white"}}}
+                    />
                     <br></br>
-                    <TextField id="outlined-basic" label="Phone Number" variant="outlined" inputProps={{maxLength: 10}} onChange={(event) => setPhoneNumber(event.target.value)} sx={{width:'100%',marginBottom:'5px'}}/>
+                    <StyledInput id="outlined-basic" label="Phone Number" variant="outlined" inputProps={{maxLength: 10}} onChange={(event) => setPhoneNumber(event.target.value)}
+                        InputProps={{sx : {color : "white"}  }}
+                        sx={style}
+                        InputLabelProps={{ sx: {color: "white"}}}
+                    />
                     <br></br>
-                        <TextField select label="State/Territory" value={state} onChange={(event) => setState(event.target.value)} sx={{width:'100%',marginBottom:'5px'}}>
+                        <StyledInput select label="State/Territory" value={state} onChange={(event) => setState(event.target.value)}
+                            InputProps={{sx : {color : "white"}  }}
+                            sx={style}
+                            InputLabelProps={{ sx: {color: "white"}}}
+                        >
 
                             <MenuItem value="AL">Alabama</MenuItem> 
                             <MenuItem value="AK">Alaska</MenuItem>
@@ -357,18 +413,20 @@ const SignUp = () : JSX.Element => {
                             <MenuItem value="WV">West Virgnia</MenuItem>
                             <MenuItem value="WI">Wisconsin</MenuItem>
                             <MenuItem value="WY">Wyoming</MenuItem>
-                            
-                        
-                        
-                    </TextField>
+                    </StyledInput>
                     <br></br>
-                    <TextField id="outlined-basic" label="Username" variant="outlined" inputProps={{maxLength: 15}} onChange={(event) => setUsername(event.target.value)} sx={{width:'100%',marginBottom:'5px'}}/>
+                    <StyledInput id="outlined-basic" label="Username" variant="outlined" inputProps={{maxLength: 15}} onChange={(event) => setUsername(event.target.value)}
+                        InputProps={{sx : {color : "white"}  }}
+                        sx={style}
+                        InputLabelProps={{ sx: {color: "white"}}}
+                    />
                     <br></br>
-                    <TextField id="outlined-basic" label="Password" type="password" variant="outlined" inputProps={{maxLength: 25}} onChange={(event) => setPassword(event.target.value)} sx={{width:'100%',marginBottom:'5px'}}/>
+                    <StyledInput id="outlined-basic" label="Password" type="password" variant="outlined" inputProps={{maxLength: 25}} onChange={(event) => setPassword(event.target.value)}
+                        InputProps={{sx : {color : "white"}  }}
+                        sx={style}
+                        InputLabelProps={{ sx: {color: "white"}}}
+                    />
                     <br></br>
-                    <Button variant="contained" disabled={disableSignUpButton} onClick={processOrgSignUp}>Sign Up</Button>
-                    <Button onClick={() => navigate('/')} variant="outlined" color="primary" disabled={disableSignUpButton}>Login Here</Button>
-                
             </>
         )
     }
@@ -383,9 +441,36 @@ const SignUp = () : JSX.Element => {
                 position: 'absolute', left: '50%', top: '50%',
                 transform: 'translate(-50%, -50%)'
             }}>
-                <Box sx={{backgroundColor:'grey', flex:1}}>
-                    {signUpType.toString() == 'Volunteer' && volunteerSignUp()}
-                    {signUpType.toString() == 'Organization' && orgSignUp()}
+                <Box sx={{flex:1, flexDirection:'row', flexWrap:'wrap'}}>
+                    {errorText != '' && 
+                    
+                        <Alert severity="error">
+                            <AlertTitle>{errorText}</AlertTitle>
+                        </Alert>
+                    }
+                    {successfulText == false && 
+                
+                        <Alert severity="success">
+                            <AlertTitle>Sign up successful. Redirecting...</AlertTitle>
+                            
+                        </Alert>
+                    }
+                    <div style={{width:'100%', paddingTop:'7px'}}>
+                        <StyledInput select value={signUpType}  label="Sign Up Type" 
+                                    onChange={(event) => setSignUpType(event.target.value)} 
+                                    InputProps={{sx : {color : "white"}  }}
+                                    sx={style}
+                                    InputLabelProps={{ sx: {color: "white"}}}
+                                >
+                                    <MenuItem value='Volunteer'>Volunteer</MenuItem>
+                                    <MenuItem value='Organization'>Organization</MenuItem>
+                        </StyledInput>
+                    </div>
+                    
+                    {signUpType.toString() == 'Volunteer' && <>{volunteerSignUp()} <Button variant="contained" disabled={disableSignUpButton} onClick={processVolunterSignUp} sx={{marginRight:'5px'}}>Sign Up</Button> </>}
+                    {signUpType.toString() == 'Organization' && <>{orgSignUp()} <Button variant="contained" disabled={disableSignUpButton} onClick={processOrgSignUp} sx={{marginRight:'5px'}}>Sign Up</Button></>}
+                    <Button onClick={() => navigate('/')} variant="outlined" color="primary" disabled={disableSignUpButton}>Login Here</Button> 
+                    
                 </Box>
             </div>
         </>

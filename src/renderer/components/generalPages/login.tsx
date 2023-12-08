@@ -185,7 +185,7 @@ const Login = () : JSX.Element => {
                                     <Button component={Link} onClick={() => navigate('/forgotpassword')} variant='text'>Forgot Password?</Button>
                                 </div>
                                 <div style={{justifyContent:'center', alignItems:'center', width:'100%', display:'flex', paddingTop:'3px'}}>
-                                <Button component={Link} onClick={() => navigate('/forgotusername')}>Forgot Username?</Button>
+                                <Button component={Link} onClick={() => navigate('/forgotusername')} variant='text'>Forgot Username?</Button>
                                 </div>
                             </div>
                         </div>

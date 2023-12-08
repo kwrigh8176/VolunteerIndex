@@ -38,7 +38,7 @@ const ForgotUsername = () : JSX.Element => {
 
 
         }).catch(function (error){
-            setResCode(error.response.status)
+            setResCode(400)
             if (error.response == undefined)
             {
                 setResText('Error connecting to the API. Please try again.')
@@ -76,6 +76,9 @@ const ForgotUsername = () : JSX.Element => {
                         </Alert>
 
                     }
+                    <div style={{width: '100%',display: 'flex'}}>
+                        <Typography sx={{color:'white'}}>Enter your email below to find your username. You will be emailed the username you signed up with.</Typography>
+                    </div>
                    <div style={{width:'100%', display:'flex', flexDirection:'row', flexWrap: 'wrap' , alignItems:'center', justifyContent:'center', paddingTop:'1rem'}}>
                         <StyledInput select value={loginType}  label="Login Type" onChange={(event) => setLoginType(event.target.value)}
                         InputProps={{sx : {color : "white"}  }}
@@ -86,11 +89,7 @@ const ForgotUsername = () : JSX.Element => {
                             <MenuItem value='Organization'>Organization</MenuItem>
                         </StyledInput>
                     </div>
-                    <div style={{width: '100%',display: 'flex'}}>
-                        <Typography sx={{color:'white'}}>Enter your email below to find your username. You will be emailed the username you signed up with.</Typography>
-                    </div>
-             
-                    <div style={{width: '100%',display: 'flex', justifyContent:'center', paddingTop:'1rem'}}>
+                    <div style={{width: '100%',display: 'flex', justifyContent:'center', paddingTop:'4px'}}>
                         <StyledInput label="Email" 
                         InputProps={{sx : {color : "white"}  }}
                         sx={{input: {color: 'white'},marginRight: '10px', minWidth: 150, borderColor:'white', marginTop:'5px', marginBottom:'5px'}}
