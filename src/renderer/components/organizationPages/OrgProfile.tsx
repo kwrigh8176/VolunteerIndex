@@ -47,7 +47,7 @@ export default function OrgProfile() : JSX.Element {
 
     const [loading, setLoading] = React.useState(0)
     const [loadedInfo, setLoadedInfo] = React.useState<any[]>([])
-    const [loadedInfoJSX, setLoadedInfoJSX]= React.useState<JSX.Element>(<p></p>)
+    const [loadedInfoJSX, setLoadedInfoJSX]= React.useState<JSX.Element>(<Alert severity="warning"><AlertTitle>Fetching data from API...</AlertTitle></Alert>)
 
     const [modalControl, setModalControl] = React.useState(false);
     const [passwordModalControl, setPasswordModalControl] = React.useState(false);
@@ -72,6 +72,7 @@ export default function OrgProfile() : JSX.Element {
     const [errorType, setErrorType] = React.useState('')
 
     const [confirmationResponse, setConfirmationResponse] = React.useState('')
+ 
 
     var connString = connectionString + "/getProfilePicture/?username=" + sessionStorage.getItem("username") +  "&" + "loginType=" + sessionStorage.getItem("loginType")
 
@@ -81,7 +82,7 @@ export default function OrgProfile() : JSX.Element {
         setConfirmationResponse('')
         setErrorType('')
 
-     
+     var temp = '';
         await axios.get(connectionString + "/getOrgProfile/", {params:{
             OrgId: sessionStorage.getItem("orgId"),
             username: sessionStorage.getItem("username"),
@@ -92,18 +93,23 @@ export default function OrgProfile() : JSX.Element {
 
             
          }).catch(function (error){
-
+            temp = "error"
             if (error.response == undefined){
-                setLoadedInfoJSX(<Alert severity="error"><AlertTitle>Network error connecting to the API, please try again.</AlertTitle></Alert>)
-           }
-           else
-           {
-               setLoadedInfoJSX(<Alert severity="error"><AlertTitle>{error.response.data}</AlertTitle></Alert>)
-           }
-      
+                    setLoadedInfoJSX(<Alert severity="error"><AlertTitle>Network error connecting to the API, please try again.</AlertTitle></Alert>)
+            }
+            else
+            {
+                setLoadedInfoJSX(<Alert severity="error"><AlertTitle>{error.response.data}</AlertTitle></Alert>)
+            }
+            return
         
          });  
-
+         
+         if(temp == "error")
+         {
+            return
+         }
+         
          await axios.get(connString).then(function (response) {
             if (response.data == null)
             {
@@ -462,11 +468,7 @@ export default function OrgProfile() : JSX.Element {
                 
             )
         }
-        else{
-            setLoadedInfoJSX(<Alert severity="warning">
-            <AlertTitle>Fetching data from API...</AlertTitle>
-        </Alert>)
-        }
+   
         
 
     }, [loadedInfo, counter])
@@ -488,6 +490,8 @@ export default function OrgProfile() : JSX.Element {
     else{
         return (
             <>
+  
+
                 <OrgNavbar pageName="Profile"/>
                 {loadedInfoJSX}
 

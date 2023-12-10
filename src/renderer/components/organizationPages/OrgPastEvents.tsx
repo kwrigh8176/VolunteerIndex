@@ -381,7 +381,7 @@ export default function OrgPastEvents() : JSX.Element {
                         eventCounter++;        
             }
 
-            eventSlotCopy = eventSlotCopy.slice(cardsFromDb[cardIndex].VolunteerLimit)
+            eventSlotCopy = eventSlots.slice(eventCounter)
 
            
             tempArray.push(

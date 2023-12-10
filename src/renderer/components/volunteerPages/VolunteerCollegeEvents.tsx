@@ -38,23 +38,15 @@ export default function VolunteerCollegeEvents() : JSX.Element {
     const [cardsFromDb,setCardsFromDb] = React.useState<any[]>([])
     const [eventSlots,setEventSlots] = React.useState<any[]>([])
     const volunteerId = sessionStorage.getItem('Id');
-    const [stopLoad, setStopLoad] = React.useState(false)
 
-    const [loadJSX,setLoadJSX] = React.useState(
-        <Alert severity="warning">
-            <AlertTitle>Loading Events..</AlertTitle>
-        </Alert>)
-
-    useEffect(() => {
-        getEvents()
-    }, [])
+    
 
     {/*Event Retrieval*/}
 
     const getEvents = async () => {
         var state = sessionStorage.getItem("state")
         var tempArray = new Array()
-
+        setErrorText('')
 
         var tempText = '';
         await axios.get(connectionString + "/getEvents/", {
@@ -76,17 +68,11 @@ export default function VolunteerCollegeEvents() : JSX.Element {
                 });
                 setCardsFromDb(sorted.filter((item: { CollegeEvent: number }) => item.CollegeEvent == 1))
                 tempArray.push(sorted.filter((item: { CollegeEvent: number }) => item.CollegeEvent == 1)) 
-                setLoadJSX(
-                    <></>
-                )
             }
             else
             {
-                setLoadJSX(
-                    <Alert severity="error">
-                        <AlertTitle>No Events Found.</AlertTitle>
-                    </Alert>
-                )
+                
+                setErrorText("No college events found.")
             }
             })
         .catch(function (error){
@@ -150,7 +136,7 @@ export default function VolunteerCollegeEvents() : JSX.Element {
 
         }
         setEventSlots(holdSlots);
-        setStopLoad(true)
+
        
     
 
@@ -187,10 +173,6 @@ export default function VolunteerCollegeEvents() : JSX.Element {
             }
             else{
                 setCardsFromDb(response.data)
-                setLoadJSX(<Alert severity="error">
-                    <AlertTitle>No college events found.</AlertTitle>
-                </Alert>)
-
             }
             setSuccessfulText('Successful sign up!')
             getValue = 'Successfully signed up for the event.'
@@ -303,7 +285,7 @@ export default function VolunteerCollegeEvents() : JSX.Element {
     useEffect (() => {
         var eventSlotCopy = eventSlots
         var tempArray = []
-
+        setErrorText("")
         
 
         for (var cardIndex = 0; cardIndex < cardsFromDb.length; cardIndex++){
@@ -318,7 +300,16 @@ export default function VolunteerCollegeEvents() : JSX.Element {
             {
                 
                     /*Empty slots*/
-                    if (eventSlotCopy[eventSlotCounter].VolunteerId == null)
+                    if (eventSlotCopy[eventSlotCounter].VolunteerId == null && eventSlotCopy[eventSlotCounter].RoleName == null)
+                    {
+                        renderedSlots.push(
+                            <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
+                                
+                                <Button fullWidth disabled={disableButtons}  id={eventSlotCopy[eventSlotCounter].Id+'_'+eventSlotCopy[eventSlotCounter].RoleName+'_'+cardsFromDb[cardIndex].EventId+'_'+cardsFromDb[cardIndex].EventName}  onClick={(e) => customRoleHandler((e.target as HTMLInputElement).id)}>Open Slot</Button>
+                            </Box>)
+                        
+                    }
+                    else if (eventSlotCopy[eventSlotCounter].VolunteerId == null)
                     {
                         renderedSlots.push(
                             <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
@@ -417,16 +408,15 @@ export default function VolunteerCollegeEvents() : JSX.Element {
             
         }
 
-        if (cardsFromDb.length == 0){
-            setLoadJSX(<Alert severity="error">
-            <AlertTitle>No college events found.</AlertTitle>
-        </Alert>)
+        if (cardsFromDb.length != 0)
+        {
+            setRenderedCards(tempArray)
         }
 
-        
-        setRenderedCards(tempArray)
 
-    }, [eventSlots, loadJSX]) 
+     
+
+    }, [eventSlots]) 
 
     
   
@@ -434,7 +424,9 @@ export default function VolunteerCollegeEvents() : JSX.Element {
         setLoading(1)
         getEvents()
         return (
-            <>{loadJSX}</>
+            <Alert severity="warning">
+                <AlertTitle>Fetching data from API...</AlertTitle>
+            </Alert>
             
         )
     }
@@ -443,7 +435,13 @@ export default function VolunteerCollegeEvents() : JSX.Element {
             <>
                 <VolunteerNavBar pageName="College Events"/>
                 {renderedCards}
-                {loadJSX}
+                {renderedCards.length == 0 && errorText == '' && 
+                    <Alert severity="warning">
+                      <AlertTitle>Fetching data from API...</AlertTitle>
+                  </Alert>
+
+                }
+
                 { errorText != '' && 
                     <Alert severity="error">
                       <AlertTitle>{errorText}</AlertTitle>
@@ -473,16 +471,18 @@ export default function VolunteerCollegeEvents() : JSX.Element {
                             <Typography id="modal-modal-title" variant="h6" component="h2">
                                 Registering for event: {eventName}
                             </Typography>
-                            <Typography id="modal-modal-title" variant="h6">
-                                Role Name: {roleName}
-                            </Typography>
-                            <Typography id="modal-modal-title" variant="h6">
+                            {roleName != 'null' &&
+                                <Typography id="modal-modal-title" variant="h6">
+                                    Role Name: {roleName}
+                                </Typography>
+                            }
+                            <Typography id="modal-modal-title" variant="h6" sx={{color:'red'}}>
                                 By registering for this event, you must adhere to the rules and guidelines set out by the organizing party.
                             </Typography>
-                            <Button disabled={disableButtons} onClick={() => setConfirmationModalOpen(false)}>
+                            <Button disabled={disableButtons} onClick={() => setConfirmationModalOpen(false)} variant="outlined" sx={{marginRight:'5px'}}>
                                 Cancel
                             </Button>
-                            <Button disabled={disableButtons} onClick={eventSignUp}>
+                            <Button disabled={disableButtons} onClick={eventSignUp} variant="contained">
                                 Confirm
                             </Button>
                         </Box>
