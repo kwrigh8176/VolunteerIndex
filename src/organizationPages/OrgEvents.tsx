@@ -3,16 +3,13 @@ import Card from "@mui/material/Card"
 import CardHeader from "@mui/material/CardHeader"
 import CardContent from "@mui/material/CardContent"
 import Typography from "@mui/material/Typography"
-import {Alert, AlertTitle, Box, Button, Checkbox, FormControlLabel, FormGroup, IconButton, Modal, TextField } from "@mui/material"
+import {Alert, AlertTitle, Box, Button, Checkbox, FormControlLabel, FormGroup, Modal, TextField } from "@mui/material"
 import OrgNavBar from "./OrgNavbar"
 import dayjs from "dayjs"
-import connectionString from "../config";
+import connectionString from "../config"
 import axios from 'axios';
-import EditIcon from '@mui/icons-material/Edit';
 import Textarea from "@mui/joy/Textarea"
 import moment from "moment"
-
-
 
 /*
     This is meant to be the main event feed. Where all current events are displayed.
@@ -30,10 +27,14 @@ export default function OrgEvents() : JSX.Element {
     const [kickUserModal, setKickUserModal] = React.useState(false);
     const [kickModalContent, setKickModalContent] =  React.useState('')
     const [kickModalJSX, setKickModalJSX] =  React.useState<JSX.Element>(<></>)
-    const [kickModalError, setKickModalError] = React.useState('')
-    const [kickModalSuccess, setKickModalSuccess] = React.useState('')
+    const [kickModalMsg, setKickModalMsg] = React.useState('')
+    const [kickModalStatus, setKickModalStatus] = React.useState('')
     const [disableButtons, setDisableButtons] = React.useState(false)
 
+    const [confirmModal, setConfirmModal] = React.useState(false);
+
+    const [activeEventId, setActiveEventId] = React.useState(0);
+    const [modalJSX, setModalJSX] = React.useState(<></>);
 
     const modalStyle = {
         position: 'absolute' as 'absolute',
@@ -48,9 +49,6 @@ export default function OrgEvents() : JSX.Element {
         backdrop: 'static'
     };
 
-    useEffect(() => {
-        getEvents()
-    }, [])
 
     {/*Event Retrieval*/}
 
@@ -139,8 +137,10 @@ export default function OrgEvents() : JSX.Element {
     }
 
     const kickUser = async (Id : number) => {
-        setKickModalError('')
-        setKickModalSuccess('')
+        setKickModalStatus('')
+        setKickModalMsg('')
+
+        setDisableButtons(true)
 
         await axios.post(connectionString + "/organizationKickIndividual/", null, {params:{
             slotId: Id,
@@ -148,15 +148,17 @@ export default function OrgEvents() : JSX.Element {
             token: sessionStorage.getItem("token"),
             loginType: sessionStorage.getItem("loginType")
         }}).then(function (response) {
-            setKickModalSuccess(response.data)
-            getEvents();
-   
+            setKickModalStatus('success')
+            setKickModalMsg(response.data)
+            getEvents()
+            
         }).catch(function (error){
+            setKickModalStatus('error')
             if (error.response == undefined){
-                setKickModalError("Network error connecting to the API, please try again.")
+                setKickModalMsg("Network error connecting to the API, please try again.")
             }
             else{
-                setKickModalError(error.response.data)
+                setKickModalMsg(error.response.data)
             }
             
             
@@ -166,8 +168,10 @@ export default function OrgEvents() : JSX.Element {
     }
 
     const overrideUser = async (Id : number) => {
-        setKickModalError('')
-        setKickModalSuccess('')
+        setKickModalStatus('')
+        setKickModalMsg('')
+
+        setDisableButtons(true)
 
         await axios.post(connectionString + "/organizationOverrideIndividual/", null, {params:{
             slotId: Id,
@@ -177,15 +181,17 @@ export default function OrgEvents() : JSX.Element {
             overriddenName: overriddenName,
             overriddenMisc: overriddenMisc
         }}).then(function (response) {
-            setKickModalSuccess(response.data)
+            setKickModalStatus('success')
+            setKickModalMsg(response.data)
             getEvents();
    
         }).catch(function (error){
+            setKickModalStatus('error')
             if (error.response == undefined){
-                setKickModalError("Network error connecting to the API, please try again.")
+                setKickModalMsg("Network error connecting to the API, please try again.")
             }
             else{
-                setKickModalError(error.response.data)
+                setKickModalMsg(error.response.data)
             }
             
             
@@ -193,6 +199,45 @@ export default function OrgEvents() : JSX.Element {
         })
 
         setDisableButtons(false)
+    }
+
+
+
+
+    const deletePost = async (Id : number) => {
+        setKickModalStatus('')
+        setKickModalMsg('')
+
+        setDisableButtons(true)
+
+        await axios.post(connectionString + "/deletePost/", null, {params:{
+            eventId: Id,
+            username: sessionStorage.getItem("username"),
+            token: sessionStorage.getItem("token"),
+            loginType: sessionStorage.getItem("loginType"),
+        }}).then(function (response) {
+            setKickModalStatus('success')
+            setKickModalMsg(response.data)
+            setKickUserModal(false)
+
+            setTimeout(() => {
+                window.location.reload()
+            }, 3000)
+   
+        }).catch(function (error){
+            setKickModalStatus('error')
+            if (error.response == undefined){
+                setKickModalMsg("Network error connecting to the API, please try again.")
+            }
+            else{
+                setKickModalMsg(error.response.data)
+            }
+            
+            
+            setDisableButtons(false)
+        })
+
+        
     }
 
     const [errorText, setErrorText] = React.useState('');
@@ -219,7 +264,7 @@ export default function OrgEvents() : JSX.Element {
             
             
 
-            for (let eventSlotCounter = 0; eventSlotCounter < cardsFromDb[cardIndex].VolunteerLimit; eventSlotCounter++) 
+            for (var eventSlotCounter = 0; eventSlotCounter < cardsFromDb[cardIndex].VolunteerLimit; eventSlotCounter++) 
             {
                 
                     /*Empty slots*/
@@ -228,16 +273,16 @@ export default function OrgEvents() : JSX.Element {
                         if (eventSlotCopy[eventSlotCounter].RoleName == null)
                         {
                             renderedSlots.push(
-                                <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'white'}}>
+                                <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
                                     
-                                    <Button fullWidth id={cardIndex + ','+eventCounter} onClick={(event) => {setKickModalContent(event.currentTarget.id); setKickUserModal(true)}}>Open Slot</Button>
+                                    <Button fullWidth id={cardIndex + ','+eventCounter} onClick={(event) => {setKickModalContent(event.currentTarget.id);  setKickUserModal(true)}}>Open Slot</Button>
                                 </Box>)
                         }
                         else
                         {
                             renderedSlots.push(
-                                <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'white'}}>
-                                    <Button fullWidth id={cardIndex + ','+eventCounter} onClick={(event) => {setKickModalContent(event.currentTarget.id); setKickUserModal(true)}}>Open Role: {eventSlotCopy[eventSlotCounter].RoleName}</Button>
+                                <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
+                                    <Button fullWidth id={cardIndex + ','+eventCounter} onClick={(event) => {setKickModalContent(event.currentTarget.id);   setKickUserModal(true)}}>Open Role: {eventSlotCopy[eventSlotCounter].RoleName}</Button>
                                 </Box>)
                         }
                         
@@ -250,13 +295,13 @@ export default function OrgEvents() : JSX.Element {
                         {
                             renderedSlots.push(
                                 <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#fa534d'}}>
-                                    <Button fullWidth id={cardIndex + ','+eventCounter} onClick={(event) => {setKickModalContent(event.currentTarget.id); setKickModalError(''); setKickModalSuccess(''); setKickUserModal(true);}} >Taken by: {eventSlotCopy[eventSlotCounter].Name}</Button>
+                                    <Button fullWidth id={cardIndex + ','+eventCounter} onClick={(event) => {setKickModalContent(event.currentTarget.id); setKickModalMsg(''); setKickModalStatus(''); setKickUserModal(true);}} >Taken by: {eventSlotCopy[eventSlotCounter].Name}</Button>
                                 </Box>)
                         }
                         else{
                             renderedSlots.push(
                                 <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#fa534d'}}>
-                                    <Button fullWidth id={cardIndex + ','+eventCounter} onClick={(event) => {setKickModalContent(event.currentTarget.id); setKickModalError(''); setKickModalSuccess('');  setKickUserModal(true)}}>Taken by: {eventSlotCopy[eventSlotCounter].FirstName} {eventSlotCopy[eventSlotCounter].LastName}</Button>
+                                    <Button fullWidth id={cardIndex + ','+eventCounter} onClick={(event) => {setKickModalContent(event.currentTarget.id); setKickModalMsg(''); setKickModalStatus(''); setKickUserModal(true)}}>Taken by: {eventSlotCopy[eventSlotCounter].FirstName} {eventSlotCopy[eventSlotCounter].LastName}</Button>
                                 </Box>)
                         }
                         
@@ -265,20 +310,14 @@ export default function OrgEvents() : JSX.Element {
                     eventCounter++;
             }
 
-            eventSlotCopy = eventSlotCopy.slice(cardsFromDb[cardIndex].VolunteerLimit)
+            eventSlotCopy = eventSlots.slice(eventCounter)
 
            
             tempArray.push(
-                <Card sx={{marginBottom:'20px', border:1}}>
+                <Card sx={{marginBottom:'20px'}}>
                     <CardHeader
 
                     title={cardsFromDb[cardIndex].EventName}
-                    action={
-                        <IconButton aria-label="settings">
-                          <EditIcon />
-                        </IconButton>
-                      }
-                     
                     />
                     <CardContent sx={{borderTop: '1px solid black'}}>
                         <Typography variant="body2" color="text.secondary">
@@ -302,6 +341,11 @@ export default function OrgEvents() : JSX.Element {
                         <Typography variant="body2" color="text.secondary">
                             Phone Number: {cardsFromDb[cardIndex].PhoneNumber}
                         </Typography>
+                        {cardsFromDb[cardIndex].Club != null &&
+                            <Typography variant="body2" color="text.secondary" style={{textDecoration:'underline'}}>
+                                Club: {cardsFromDb[cardIndex].Club}
+                            </Typography>
+                        }
                     </CardContent>
                     {renderedSlots}
     
@@ -325,16 +369,19 @@ export default function OrgEvents() : JSX.Element {
         var slotInfo = eventSlots[parseInt(indexes[1])]
         var eventInfo = cardsFromDb[parseInt(indexes[0])]
 
+        setActiveEventId(eventInfo.EventId)
+
+
         setKickModalJSX(
         <>
-            {kickModalError != '' &&
+            {kickModalStatus == 'error' &&
                 <Alert severity="error">
-                    <AlertTitle>{kickModalError}</AlertTitle>
+                    <AlertTitle>{kickModalMsg}</AlertTitle>
                 </Alert>
             }
-            {kickModalSuccess != '' &&
+            {kickModalStatus == 'success' &&
                 <Alert severity="success">
-                    <AlertTitle>{kickModalSuccess}</AlertTitle>
+                    <AlertTitle>{kickModalMsg}</AlertTitle>
                 </Alert>
             }
             <Typography sx={{textDecoration:'underline', fontSize:17}}>Event Info</Typography>
@@ -347,20 +394,22 @@ export default function OrgEvents() : JSX.Element {
             <br></br>
             <Typography>Description: {eventInfo.Description}</Typography>
             <br></br>
-            <Typography sx={{textDecoration:'underline', fontSize:17}}>Volunteer Information</Typography>
-            <br></br>
+            
             {slotInfo.Username != null &&
             
                 <>
-
+                    <Typography sx={{textDecoration:'underline', fontSize:17}}>Volunteer Information</Typography>
+                    <br></br>
                     <Typography>Name of Volunteer: {slotInfo.FirstName} {slotInfo.LastName}</Typography>
                     <br></br>
                     <Typography>Username: {slotInfo.Username}</Typography>
                     <br></br>
                 </>
             }
-            {slotInfo.Username == null &&
+             {slotInfo.Username == null && slotInfo.OverrideUsers != null &&
                 <>
+                    <Typography sx={{textDecoration:'underline', fontSize:17}}>Volunteer Information</Typography>
+                    <br></br>
                     <Typography>Overriden Slot Volunteer: {slotInfo.Name}</Typography>
                     <br></br>
                     <Typography>Misc Info: {slotInfo.ContactInfo}</Typography>
@@ -374,13 +423,9 @@ export default function OrgEvents() : JSX.Element {
                     <br></br>
                 </>
             }
-            <Button onClick={() => setKickUserModal(false)} disabled={disableButtons}>Close</Button>
+           
 
-            {slotInfo.Username != null &&
-            
-            <Button onClick={() => {setDisableButtons(true); kickUser(slotInfo.Id)}} disabled={disableButtons}>Kick</Button>
-    
-            }
+           
             <FormGroup>
                 <FormControlLabel control={<Checkbox />} label="Override Slot?" onChange={(event,checked) => {
                     setOveriddenValue(checked)
@@ -397,16 +442,67 @@ export default function OrgEvents() : JSX.Element {
                 <Box>
                     <TextField onChange={(event) => setOverridenName(event.target.value)} label="Volunteer Name" sx={{paddingBottom: '8px', minWidth:250}} inputProps={{maxLength:50}}></TextField>
                     <Textarea required placeholder="Enter misc info... (contact info)" onChange={(event) => {if (event.target.value.length <= 250) setOveriddenMisc(event.target.value)}} value={overriddenMisc}></Textarea>
-                    <Button sx={{color:'red', border:'1px solid black', marginTop:'2px'}} onClick={() => overrideUser(slotInfo.Id)}>Override User</Button>
                 </Box>
             }
+            
+
+            <div style={{display:'flex',justifyContent:'center', flexDirection:'row', flexWrap:'wrap', alignItems:'center'}}>
+                        
+                        <div>
+                            { overiddenValue &&
+                                <Button sx={{color:'red', border:'1px solid black', marginRight: '5px'}} onClick={() => overrideUser(slotInfo.Id)}>Override User</Button>
+                            }
+                            {slotInfo.Username != null || slotInfo.OverrideUsers != null &&
+            
+                                <Button onClick={() => {setDisableButtons(true); kickUser(slotInfo.Id)}} sx={{marginRight:'5px', color:'red'}} variant="outlined" disabled={disableButtons}>Kick</Button>
+
+                            }
+                            <Button sx={{color:'red', marginRight:'5px'}} variant="outlined" disabled={disableButtons} onClick={() => {setConfirmModal(true); }}>Delete Post</Button>
+                            <Button onClick={() => {setKickUserModal(false); setKickModalStatus('')} } disabled={disableButtons} variant="contained">Close</Button>
+                        </div>
+            </div>
+             
+            
+            
         </>
         )
 
-        setKickUserModal(true)
-    },[kickModalContent, kickModalError, kickModalSuccess, overiddenValue, overriddenMisc, eventSlots])
+        
+    },[kickModalContent, kickModalMsg, kickModalStatus, overiddenValue, overriddenMisc, eventSlots])
 
-  
+    useEffect(() => {
+
+        setModalJSX(<>
+        <Modal open={confirmModal}>
+                <Box sx={modalStyle}>
+                    {kickModalStatus == 'error' &&
+                        <Alert severity="error">
+                            <AlertTitle>{kickModalMsg}</AlertTitle>
+                        </Alert>
+                    }
+                    {kickModalStatus == 'success' &&
+                        <Alert severity="success">
+                            <AlertTitle>{kickModalMsg}</AlertTitle>
+                        </Alert>
+                    }
+                    
+                    <div style={{display:'flex',justifyContent:'center', flexDirection:'row', flexWrap:'wrap', alignItems:'center'}}>
+                        
+                            <div>
+                                <Typography>Are you sure you want to delete this post?</Typography>
+                            </div>
+                            <div>
+                                <Button sx={{marginRight:'5px'}} variant="outlined" onClick={() => setConfirmModal(false)}>Cancel</Button>
+                                <Button variant="contained" id={activeEventId + ""}  onClick={(event) => deletePost(parseInt(event.currentTarget.id))}>Confirm</Button>
+                            </div>
+                    </div>
+                </Box>
+                </Modal>
+            </>
+       )
+    }, [activeEventId, confirmModal, kickModalMsg, kickModalStatus])
+
+    
     if (loading == 0){
         setLoading(1)
         getEvents()
@@ -442,6 +538,8 @@ export default function OrgEvents() : JSX.Element {
                     {kickModalJSX}
                 </Box>
                 </Modal>
+
+               {modalJSX}
             </>
 
         )

@@ -1,8 +1,10 @@
-import { Alert, AlertTitle, Button, MenuItem, TextField, Typography, styled } from '@mui/material'
+import { Alert, AlertTitle, Button, IconButton, InputAdornment, MenuItem, TextField, Typography, styled } from '@mui/material'
 import React from 'react'
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios'
-import connectionString from "../config";
+import connectionString from '../config';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Visibility from '@mui/icons-material/Visibility';
 
 const StyledInput = styled(TextField)`
 & .MuiOutlinedInput-notchedOutline {
@@ -25,6 +27,10 @@ const ResetPassword = () : JSX.Element => {
 
     const [resCode, setResCode] = React.useState(0)
     const [resText, setResText] = React.useState('')
+
+    const [newPasswordVisibility1, setNewPasswordVisibility1] = React.useState(false);
+    const [newPasswordVisibility2, setNewPasswordVisibility2] = React.useState(false);
+
     async function resetPassword(){
         setDisableButton(true)
 
@@ -94,24 +100,30 @@ const ResetPassword = () : JSX.Element => {
                     </div>
              
                     <div style={{width: '100%',display: 'flex', justifyContent:'center', paddingTop:'1rem'}}>
-                        <StyledInput label="New Password" 
-                        InputProps={{sx : {color : "white"}  }}
-                        inputProps={{maxLength: 50}}
-                        sx={{input: {color: 'white'},marginRight: '10px', minWidth: 150, borderColor:'white', marginTop:'5px', marginBottom:'5px'}}
-                        InputLabelProps={{ sx: {color: "white"}}}
-                        onChange={(event) => setPassword1(event.target.value)}>
-                        
-                        </StyledInput>
+                        <StyledInput type={newPasswordVisibility1 ? 'text': 'password'} label="New Password" onChange={(event) => {setPassword1(event.target.value)}} sx={{marginBottom:'5px'}}
+                            InputProps={{
+                            endAdornment: <InputAdornment position="end">
+                                            <IconButton onClick={() => {setNewPasswordVisibility1(!newPasswordVisibility1)}}>
+                                                
+                                                {newPasswordVisibility1 ? <Visibility sx={{color:'white'}}/>: <VisibilityOff sx={{color:'white'}}/>}
+                                            </IconButton>
+                                        </InputAdornment>,
+                            }}
+                            InputLabelProps={{ sx: {color: "white"}}}
+                        />
                     </div>
                     <div style={{width: '100%',display: 'flex', justifyContent:'center', paddingTop:'1rem'}}>
-                        <StyledInput label="New Password (again)" 
-                        InputProps={{sx : {color : "white"}  }}
-                        inputProps={{maxLength: 50}}
-                        sx={{input: {color: 'white'},marginRight: '10px', minWidth: 150, borderColor:'white', marginTop:'5px', marginBottom:'5px'}}
+                    <StyledInput type={newPasswordVisibility2 ? 'text': 'password'} label="New Password Again" onChange={(event) => {setPassword2(event.target.value)}} sx={{marginBottom:'5px'}}
+                        InputProps={{
+                        endAdornment: <InputAdornment position="end">
+                                        <IconButton onClick={() => {setNewPasswordVisibility2(!newPasswordVisibility2)}}>
+                                            
+                                            {newPasswordVisibility2 ? <Visibility sx={{color:'white'}}/>: <VisibilityOff sx={{color:'white'}}/>}
+                                        </IconButton>
+                                      </InputAdornment>,
+                        }}
                         InputLabelProps={{ sx: {color: "white"}}}
-                        onChange={(event) => setPassword2(event.target.value)}>
-                        
-                        </StyledInput>
+                    />
                     </div>
                     <Button disabled={disableButton} onClick={() => resetPassword()}>Confirm Password</Button>
             </div>

@@ -7,7 +7,7 @@ import Typography from "@mui/material/Typography"
 import { Alert, AlertTitle, Box, Button, Modal } from "@mui/material"
 import VolunteerNavBar from "./VolunteerNavbar"
 import dayjs from "dayjs"
-import connectionString from "../config";
+import connectionString from '../config';
 import axios from 'axios';
 
 
@@ -39,16 +39,14 @@ export default function VolunteerCollegeEvents() : JSX.Element {
     const [eventSlots,setEventSlots] = React.useState<any[]>([])
     const volunteerId = sessionStorage.getItem('Id');
 
-    useEffect(() => {
-        getEvents()
-    }, [])
+    
 
     {/*Event Retrieval*/}
 
     const getEvents = async () => {
         var state = sessionStorage.getItem("state")
         var tempArray = new Array()
-
+        setErrorText('')
 
         var tempText = '';
         await axios.get(connectionString + "/getEvents/", {
@@ -71,8 +69,10 @@ export default function VolunteerCollegeEvents() : JSX.Element {
                 setCardsFromDb(sorted.filter((item: { CollegeEvent: number }) => item.CollegeEvent == 1))
                 tempArray.push(sorted.filter((item: { CollegeEvent: number }) => item.CollegeEvent == 1)) 
             }
-            else{
-                setErrorText('Events not found.')
+            else
+            {
+                
+                setErrorText("No college events found.")
             }
             })
         .catch(function (error){
@@ -103,7 +103,6 @@ export default function VolunteerCollegeEvents() : JSX.Element {
 
         if (tempArray[0] == undefined)
         {
-            setErrorText('Events not found.')
             return
         }
         
@@ -137,7 +136,7 @@ export default function VolunteerCollegeEvents() : JSX.Element {
 
         }
         setEventSlots(holdSlots);
-        
+
        
     
 
@@ -286,7 +285,8 @@ export default function VolunteerCollegeEvents() : JSX.Element {
     useEffect (() => {
         var eventSlotCopy = eventSlots
         var tempArray = []
-
+        setErrorText("")
+        
 
         for (var cardIndex = 0; cardIndex < cardsFromDb.length; cardIndex++){
 
@@ -300,7 +300,16 @@ export default function VolunteerCollegeEvents() : JSX.Element {
             {
                 
                     /*Empty slots*/
-                    if (eventSlotCopy[eventSlotCounter].VolunteerId == null)
+                    if (eventSlotCopy[eventSlotCounter].VolunteerId == null && eventSlotCopy[eventSlotCounter].RoleName == null)
+                    {
+                        renderedSlots.push(
+                            <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
+                                
+                                <Button fullWidth disabled={disableButtons}  id={eventSlotCopy[eventSlotCounter].Id+'_'+eventSlotCopy[eventSlotCounter].RoleName+'_'+cardsFromDb[cardIndex].EventId+'_'+cardsFromDb[cardIndex].EventName}  onClick={(e) => customRoleHandler((e.target as HTMLInputElement).id)}>Open Slot</Button>
+                            </Box>)
+                        
+                    }
+                    else if (eventSlotCopy[eventSlotCounter].VolunteerId == null)
                     {
                         renderedSlots.push(
                             <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
@@ -329,18 +338,36 @@ export default function VolunteerCollegeEvents() : JSX.Element {
 
             eventSlotCopy = eventSlotCopy.slice(cardsFromDb[cardIndex].VolunteerLimit)
 
+            var connString = connectionString + "/getProfilePicture/?username=" + cardsFromDb[cardIndex].Username +  "&" + "loginType=Organization"
            
             tempArray.push(
                 <Card sx={{marginBottom:'20px'}}>
-                    <CardHeader
+
+                    
+                    {cardsFromDb[cardIndex].ProfilePicture != null && 
+                    <>
+                            <CardHeader
+                            avatar={
+                                <Avatar src={connString}>
+                                    {cardsFromDb[cardIndex].OrgName.charAt(0)}
+                                </Avatar>
+                            }
+                            title={cardsFromDb[cardIndex].EventName}
+                            subheader={cardsFromDb[cardIndex].OrgName}
+                            />
+                            </>
+                    }
+                    {cardsFromDb[cardIndex].ProfilePicture == null &&
+                        <CardHeader
                         avatar={
                             <Avatar aria-label="recipe">
                                 {cardsFromDb[cardIndex].OrgName.charAt(0)}
                             </Avatar>
+                        }
+                        title={cardsFromDb[cardIndex].EventName}
+                        subheader={cardsFromDb[cardIndex].OrgName}
+                        />
                     }
-                    title={cardsFromDb[cardIndex].EventName}
-                    subheader={cardsFromDb[cardIndex].OrgName}
-                    />
                     <CardContent sx={{borderTop: '1px solid black'}}>
                         <Typography variant="body2" color="text.secondary">
                                 Address: {cardsFromDb[cardIndex].Address}
@@ -355,8 +382,19 @@ export default function VolunteerCollegeEvents() : JSX.Element {
                             End Time: {dayjs('1/1/1 ' + cardsFromDb[cardIndex].EndTime).format('h:mm A')}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
+                            Phone Number: {cardsFromDb[cardIndex].PhoneNumber}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            Email: {cardsFromDb[cardIndex].Email}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
                             Event Description: {cardsFromDb[cardIndex].Description}
                         </Typography>
+                        {cardsFromDb[cardIndex].Club != null &&
+                            <Typography variant="body2" color="text.secondary" style={{textDecoration:'underline'}}>
+                                Club: {cardsFromDb[cardIndex].Club}
+                            </Typography>
+                        }
                     </CardContent>
                     {renderedSlots}
                     
@@ -369,27 +407,30 @@ export default function VolunteerCollegeEvents() : JSX.Element {
             )
             
         }
-        setRenderedCards(tempArray)
+
+        if (cardsFromDb.length != 0)
+        {
+            setRenderedCards(tempArray)
+        }
+
+
+     
 
     }, [eventSlots]) 
 
-
+    
   
     if (loading == 0){
         setLoading(1)
         getEvents()
         return (
-            <>
-            <p>Loading Events...</p>
-            </>
+            <Alert severity="warning">
+                <AlertTitle>Fetching data from API...</AlertTitle>
+            </Alert>
+            
         )
     }
     else{
-
-        
-        
-       
-
        return(
             <>
                 <VolunteerNavBar pageName="College Events"/>
@@ -400,6 +441,7 @@ export default function VolunteerCollegeEvents() : JSX.Element {
                   </Alert>
 
                 }
+
                 { errorText != '' && 
                     <Alert severity="error">
                       <AlertTitle>{errorText}</AlertTitle>
@@ -429,16 +471,18 @@ export default function VolunteerCollegeEvents() : JSX.Element {
                             <Typography id="modal-modal-title" variant="h6" component="h2">
                                 Registering for event: {eventName}
                             </Typography>
-                            <Typography id="modal-modal-title" variant="h6">
-                                Role Name: {roleName}
-                            </Typography>
-                            <Typography id="modal-modal-title" variant="h6">
+                            {roleName != 'null' &&
+                                <Typography id="modal-modal-title" variant="h6">
+                                    Role Name: {roleName}
+                                </Typography>
+                            }
+                            <Typography id="modal-modal-title" variant="h6" sx={{color:'red'}}>
                                 By registering for this event, you must adhere to the rules and guidelines set out by the organizing party.
                             </Typography>
-                            <Button disabled={disableButtons} onClick={() => setConfirmationModalOpen(false)}>
+                            <Button disabled={disableButtons} onClick={() => setConfirmationModalOpen(false)} variant="outlined" sx={{marginRight:'5px'}}>
                                 Cancel
                             </Button>
-                            <Button disabled={disableButtons} onClick={eventSignUp}>
+                            <Button disabled={disableButtons} onClick={eventSignUp} variant="contained">
                                 Confirm
                             </Button>
                         </Box>

@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import connectionString from "../config";
+import connectionString from '../config';
 import axios from "axios";
 import VolunteerNavBar from "./VolunteerNavbar";
 import CardHeader from "@mui/material/CardHeader";
@@ -69,18 +69,38 @@ export default function VolunteerPastEvents() : JSX.Element {
         
         for (var cardIndex = 0; cardIndex < cardsFromDb.length; cardIndex++)
         { 
-        
+            var connString = connectionString + "/getProfilePicture/?username=" + cardsFromDb[cardIndex].Username +  "&" + "loginType=Organization"
+            
             tempArray.push(
                 <Card sx={{marginBottom:'20px'}}>
-                    <CardHeader
+                    {cardsFromDb[cardIndex].ProfilePicture != null && 
+                    <>
+                            <CardHeader
+                            avatar={
+                                <Avatar src={connString}>
+                                    {cardsFromDb[cardIndex].OrgName &&
+                                        cardsFromDb[cardIndex].OrgName.charAt(0)
+                                    }
+                                </Avatar>
+                            }
+                            title={cardsFromDb[cardIndex].EventName}
+                            subheader={cardsFromDb[cardIndex].OrgName}
+                            />
+                            </>
+                    }
+                    {cardsFromDb[cardIndex].ProfilePicture == null &&
+                        <CardHeader
                         avatar={
                             <Avatar aria-label="recipe">
-                                {cardsFromDb[cardIndex].OrgName.charAt(0)}
+                                    {cardsFromDb[cardIndex].OrgName &&
+                                        cardsFromDb[cardIndex].OrgName.charAt(0)
+                                    }
                             </Avatar>
+                        }
+                        title={cardsFromDb[cardIndex].EventName}
+                        subheader={cardsFromDb[cardIndex].OrgName}
+                        />
                     }
-                    title={cardsFromDb[cardIndex].EventName}
-                    subheader={cardsFromDb[cardIndex].OrgName}
-                    />
                     <CardContent sx={{borderTop: '1px solid black'}}>
                         <Typography variant="body2" color="text.secondary">
                                 Address: {cardsFromDb[cardIndex].Address}
@@ -95,9 +115,20 @@ export default function VolunteerPastEvents() : JSX.Element {
                             End Time: {dayjs('1/1/1 ' + cardsFromDb[cardIndex].EndTime).format('h:mm A')}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
+                            Phone Number: {cardsFromDb[cardIndex].PhoneNumber}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            Email: {cardsFromDb[cardIndex].Email}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
                             Event Description: {cardsFromDb[cardIndex].Description}
                         </Typography>
-                        
+                       
+                        {cardsFromDb[cardIndex].Club != null &&
+                            <Typography variant="body2" color="text.secondary" style={{textDecoration:'underline'}}>
+                                Club: {cardsFromDb[cardIndex].Club}
+                            </Typography>
+                        }
                     </CardContent>
     
          
@@ -126,11 +157,13 @@ export default function VolunteerPastEvents() : JSX.Element {
                 </Card>
             )        
         }
+
         if (cardsFromDb.length == 0){
             setWarningJSX(<Alert severity="warning">
-            <AlertTitle>No past data found.</AlertTitle>
+            <AlertTitle>Loading past data....</AlertTitle>
         </Alert>)
         }
+        
         setRenderedCards(tempArray)
     }, [cardsFromDb])
 

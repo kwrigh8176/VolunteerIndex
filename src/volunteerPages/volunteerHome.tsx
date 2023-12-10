@@ -1,7 +1,7 @@
 import * as React from 'react'
 import VolunteerNavBar from './VolunteerNavbar'
 import { useEffect } from 'react';
-import connectionString from "../config";
+import connectionString from '../config';
 import axios from 'axios';
 import { PieChart } from '@mui/x-charts/PieChart';
 import dayjs from 'dayjs';
@@ -86,7 +86,12 @@ const VolunteerHome = () : JSX.Element => {
 
     const pieChartStylings = {
         legend: { hidden: true }
+        
+
     };
+
+
+  
 
     useEffect (() => {
         setErrorText('')
@@ -127,17 +132,11 @@ const VolunteerHome = () : JSX.Element => {
                                 highlightScope: { faded: 'global', highlighted: 'item' },
                                 arcLabelMinAngle: 45,
                                 data,
-                                
+              
                                 },
                             ]}
-                            sx={{
-                                ['& .${pieArcLabelClasses.root}']: {
-                                  fill: 'white',
-                                  fontWeight: 'bold',
-                                },
-                            }}
-                            width={1200}
-                            height={800}
+                            width={700}
+                            height={700}
                             {...pieChartStylings}
                         />
                     </>
@@ -146,21 +145,20 @@ const VolunteerHome = () : JSX.Element => {
             
             
         }
-        else if (pieChartSettings.timeSetting == "week")
-        {
+        else if (pieChartSettings.timeSetting == "week"){
             var date = new Date();
 
 
-            var chartData = []
+            var chartData: any[] = []
 
             {/*If the day is not a sunday */}
-            var dateDiff =  date.getDate() - date.getDay();
+            var weekFromToday =  dayjs(date).subtract(7,'day');
             
-            date = new Date(date.setDate(dateDiff));
+            
 
             var dataAmt = 0
             for (let day = 0; day < 7; day++){
-                var getProperDateFormat = dayjs(date).format('YYYY-MM-DD')
+                var getProperDateFormat = dayjs(weekFromToday.add(day,'day')).format('YYYY-MM-DD')
 
                 var tempData = data.filter((obj) => obj.Date===getProperDateFormat)
 
@@ -215,70 +213,67 @@ const VolunteerHome = () : JSX.Element => {
                             {
                             arcLabel: (item) => `${item.label}`,
                             highlightScope: { faded: 'global', highlighted: 'item' },
-                            arcLabelMinAngle: 45,
+                            arcLabelMinAngle: 30,
                             data,
                             
                             },
                         ]}
-                        width={1200}
-                        height={800}
+                        width={700}
+                        height={700}
                         {...pieChartStylings}
                     />
                 </>
 
             )
         }
-        else if (pieChartSettings.timeSetting == "month")
-        {
+        else if (pieChartSettings.timeSetting == "month"){
             var date = new Date();
-
+            data = data.filter((obj) => dayjs(obj.Date).month()===dayjs(date).month())
             var chartData = []
 
-            var getProperDateFormat = dayjs(date).format('YYYY-MM-DD')
-
-            var tempData = data.filter((obj) => dayjs(obj.Date).month()===dayjs(new Date()).month())
-            
-            if (tempData.length != 0){
+            if (data.length != 0){
 
 
-                
-                var totalHoursOnDay = tempData.reduce( function(prev,curr){ return prev + curr.value; }, 0)
-                var minutes = totalHoursOnDay%60
-                if (minutes != 0)
-                {
-                    if (Math.floor(totalHoursOnDay/60) == 1)
+                    
+                    var totalHoursOnDay = data.reduce( function(prev,curr){ return prev + curr.value; }, 0)
+                    var minutes = totalHoursOnDay%60
+                    if (minutes != 0)
                     {
-                        var getLabel =  '('+Math.floor(totalHoursOnDay/60) + ' hr ' + minutes + ' m)'
+                        if (Math.floor(totalHoursOnDay/60) == 1)
+                        {
+                            var getLabel =  '('+Math.floor(totalHoursOnDay/60) + ' hr ' + minutes + ' m)'
+                        }
+                        else
+                        {
+                            var getLabel =  '('+Math.floor(totalHoursOnDay/60) + ' hrs ' + minutes + ' m)'
+                        }
                     }
-                    else
-                    {
-                        var getLabel =  '('+Math.floor(totalHoursOnDay/60) + ' hrs ' + minutes + ' m)'
-                    }
-                }
-                else{
-                    if (Math.floor(totalHoursOnDay/60) == 1)
-                    {
-                        var getLabel = '('+Math.floor(totalHoursOnDay/60) + ' hr) '
-                    }
-                    else
-                    {
-                        var getLabel = '('+Math.floor(totalHoursOnDay/60) + ' hrs) '
+                    else{
+                        if (Math.floor(totalHoursOnDay/60) == 1)
+                        {
+                            var getLabel = '('+Math.floor(totalHoursOnDay/60) + ' hr) '
+                        }
+                        else
+                        {
+                            var getLabel = '('+Math.floor(totalHoursOnDay/60) + ' hrs) '
+                        }
                     }
                     
-                }
+
+                    chartData.push({value: totalHoursOnDay, label: dayjs(date).format('MMMM') + ' ' + getLabel})
+               
                 
-
-                chartData.push({value: totalHoursOnDay, label: dayjs(getProperDateFormat).format('MM-DD-YYYY') + ' ' + getLabel})
-                data = chartData
             }
-            else 
+            else
             {
-                setPieChartData(warningJSX)
-                return
+
+                    setPieChartData(warningJSX)
+                    return
+                
             }
 
-           
-
+            data = chartData
+            
             setPieChartData(
                 <>
                      <PieChart
@@ -286,20 +281,21 @@ const VolunteerHome = () : JSX.Element => {
                             {
                             arcLabel: (item) => `${item.label}`,
                             highlightScope: { faded: 'global', highlighted: 'item' },
-                            arcLabelMinAngle: 45,
+                            arcLabelMinAngle: 360/7,
                             data,
                             
                             },
                         ]}
-                        width={1200}
-                        height={800}
+                        width={700}
+                        height={700}
                         {...pieChartStylings}
                     />
                 </>
 
             )
+
         }
-        else{
+        else if (pieChartSettings.timeSetting == "year"){
 
             var date = new Date();
 
@@ -329,8 +325,7 @@ const VolunteerHome = () : JSX.Element => {
                 
                 var tempData = data.filter((obj) => dayjs(obj.Date).month()===month)
 
-                if (tempData.length != 0)
-                {
+                if (tempData.length != 0){
 
 
                     dataAmt += 1
@@ -380,20 +375,13 @@ const VolunteerHome = () : JSX.Element => {
                             {
                             arcLabel: (item) => `${item.label}`,
                             highlightScope: { faded: 'global', highlighted: 'item' },
-                            arcLabelMinAngle: 45,
+                            arcLabelMinAngle: 30,
                             data,
                             
                             },
                         ]}
-                        sx={{
-                            "& .MuiPieArcLabel-root": {
-                            
-                              fill: 'white',
-                              fontWeight: 'bold',
-                            }
-                        }}
-                        width={1200}
-                        height={800}
+                        width={700}
+                        height={700}
                         {...pieChartStylings}
                     />
                 </>
@@ -401,7 +389,7 @@ const VolunteerHome = () : JSX.Element => {
             )
         }
 
-    }, [pieChartSettings, allData])
+    }, [allData, pieChartSettings])
 
     if (loading == 0){
         setLoading(1)
@@ -468,9 +456,9 @@ const VolunteerHome = () : JSX.Element => {
                     </StyledInput>
 
                 }
-
+                
                 {pieChartData}
-           
+
             </>
         )
     }

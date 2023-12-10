@@ -342,14 +342,14 @@ export default function OrgPastEvents() : JSX.Element {
                                 {
                                     renderedSlots.push(
                                         <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#57eb75'}}>
-                                            <Button id={cardIndex + ','+eventCounter} fullWidth onClick={(event) => (setModalContent(event.currentTarget.id), setModal(true))}>Role ({eventSlotCopy[eventSlotCounter].RoleName}) was fulfilled by: {eventSlotCopy[eventSlotCounter].FirstName} {eventSlotCopy[eventSlotCounter].LastName}</Button>
+                                            <Button id={cardIndex + ','+eventCounter} fullWidth onClick={(event) => {setModalContent(event.currentTarget.id); setModal(true)}}>Role ({eventSlotCopy[eventSlotCounter].RoleName}) was fulfilled by: {eventSlotCopy[eventSlotCounter].FirstName} {eventSlotCopy[eventSlotCounter].LastName}</Button>
                                         </Box>)
                                 }
                                 else
                                 {
                                     renderedSlots.push(
                                         <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#57eb75'}}>
-                                            <Button fullWidth id={cardIndex + ','+eventCounter} onClick={(event) => (setModalContent(event.currentTarget.id), setModal(true))}>Slot was fulfilled by: {eventSlotCopy[eventSlotCounter].FirstName} {eventSlotCopy[eventSlotCounter].LastName}</Button>
+                                            <Button fullWidth id={cardIndex + ','+eventCounter} onClick={(event) => {setModalContent(event.currentTarget.id);  setModal(true)}}>Slot was fulfilled by: {eventSlotCopy[eventSlotCounter].FirstName} {eventSlotCopy[eventSlotCounter].LastName}</Button>
                                         </Box>)
                                 }
                             }
@@ -361,7 +361,7 @@ export default function OrgPastEvents() : JSX.Element {
                                     
                                     renderedSlots.push(
                                         <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#57eb75'}}>
-                                            <Button fullWidth id={cardIndex + ','+eventCounter} onClick={(event) => (setModalContent(event.currentTarget.id), setModal(true))}>Role ({eventSlotCopy[eventSlotCounter].RoleName}) was fulfilled by: {eventSlotCopy[eventSlotCounter].Name} (Manually added)</Button>
+                                            <Button fullWidth id={cardIndex + ','+eventCounter} onClick={(event) => {setModalContent(event.currentTarget.id); setModal(true)}}>Role ({eventSlotCopy[eventSlotCounter].RoleName}) was fulfilled by: {eventSlotCopy[eventSlotCounter].Name} (Manually added)</Button>
                                         </Box>)
                                 }
                                 else
@@ -369,7 +369,7 @@ export default function OrgPastEvents() : JSX.Element {
                                     
                                     renderedSlots.push(
                                         <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#57eb75'}}>
-                                            <Button fullWidth id={cardIndex + ','+eventCounter} onClick={(event) => (setModalContent(event.currentTarget.id), setModal(true))}>Slot was fulfilled by: {eventSlotCopy[eventSlotCounter].Name} (Manually added)</Button>
+                                            <Button fullWidth id={cardIndex + ','+eventCounter} onClick={(event) => {setModalContent(event.currentTarget.id); setModal(true)}}>Slot was fulfilled by: {eventSlotCopy[eventSlotCounter].Name} (Manually added)</Button>
                                         </Box>)
                                 }
 
@@ -381,11 +381,11 @@ export default function OrgPastEvents() : JSX.Element {
                         eventCounter++;        
             }
 
-            eventSlotCopy = eventSlotCopy.slice(cardsFromDb[cardIndex].VolunteerLimit)
+            eventSlotCopy = eventSlots.slice(eventCounter)
 
            
             tempArray.push(
-                <Card sx={{marginBottom:'20px', border:1}}>
+                <Card sx={{marginBottom:'20px'}}>
                     <CardHeader
                     title={cardsFromDb[cardIndex].EventName}
                     />
@@ -405,6 +405,11 @@ export default function OrgPastEvents() : JSX.Element {
                         <Typography variant="body2" color="text.secondary">
                             Event Description: {cardsFromDb[cardIndex].Description}
                         </Typography>
+                        {cardsFromDb[cardIndex].Club != null &&
+                            <Typography variant="body2" color="text.secondary" style={{textDecoration:'underline'}}>
+                                Club: {cardsFromDb[cardIndex].Club}
+                            </Typography>
+                        }
                     </CardContent>
                     {renderedSlots}
                     

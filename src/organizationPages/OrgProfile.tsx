@@ -10,12 +10,13 @@ import OrgNavbar from "./OrgNavbar"
 import Button from "@mui/material/Button"
 import Alert from "@mui/material/Alert"
 import AlertTitle from "@mui/material/AlertTitle"
-import { IconButton, InputAdornment, InputLabel, MenuItem, Modal, Select, Typography } from "@mui/material"
+import { Avatar, IconButton, InputAdornment, InputLabel, MenuItem, Modal, Select, Typography } from "@mui/material"
 import validator from "validator"
 import Visibility from "@mui/icons-material/Visibility"
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import moment from "moment"
-
+import { styled } from '@mui/material/styles';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 const modalStyle = {
     position: 'absolute' as 'absolute',
@@ -30,6 +31,17 @@ const modalStyle = {
     backdrop: 'static'
   };
 
+  const VisuallyHiddenInput = styled('input')({
+    clip: 'rect(0 0 0 0)',
+    clipPath: 'inset(50%)',
+    height: 1,
+    overflow: 'hidden',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    whiteSpace: 'nowrap',
+    width: 1,
+  });
 export default function OrgProfile() : JSX.Element {
 
     const [loading, setLoading] = React.useState(0)
@@ -40,6 +52,9 @@ export default function OrgProfile() : JSX.Element {
     const [passwordModalControl, setPasswordModalControl] = React.useState(false);
     const [disabledButton, setDisabledButton] = React.useState(false)
 
+    const [profilePicture, setProfilePicture] = React.useState<boolean>();
+    const [profilePictureText, setProfilePictureText] = React.useState<string>('');
+
     const [oldPassword, setOldPassword] = React.useState('')
     const [newPassword1, setNewPassword1] = React.useState('')
     const [newPassword2, setNewPassword2] = React.useState('')
@@ -49,6 +64,9 @@ export default function OrgProfile() : JSX.Element {
     const [newPasswordVisibility2, setNewPasswordVisibility2] = React.useState(false);
 
     const [confirmationResponse, setConfirmationResponse] = React.useState('')
+
+    var connString = connectionString + "/getProfilePicture/?username=" + sessionStorage.getItem("username") +  "&" + "loginType=" + sessionStorage.getItem("loginType")
+
     const getLoadedInfo = async () => {
         setConfirmationResponse('')
 
@@ -74,6 +92,54 @@ export default function OrgProfile() : JSX.Element {
       
         
          });  
+    }
+
+    async function handleProfilePicture(e: React.FormEvent<HTMLInputElement>) {
+        const target = e.target as HTMLInputElement & {
+          files: FileList;
+        }
+
+       
+
+        if(target.files[0].size > 2097152){
+            alert("File is too big! (2MB only)");
+            return
+         }
+
+         
+
+        const formData = new FormData();
+        formData.append("avatar",target.files[0]);
+
+        await axios.post(connectionString + "/uploadProfilePicture/", formData, {
+            
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            },
+
+            params:{
+                Id: sessionStorage.getItem("Id"),
+                username: sessionStorage.getItem("username"),
+                token: sessionStorage.getItem("token"), 
+                loginType: sessionStorage.getItem("loginType"),
+                profileImageLink: loadedInfo[0].ProfilePicture
+            }
+    
+        }).then(function (response) {
+            setProfilePictureText(target.files[0].name)
+            
+        }).catch(function (error){
+            if (error.response == undefined){
+                setConfirmationResponse("Network error connecting to the API, please try again.")
+            }
+            else
+            {
+                setConfirmationResponse(error.response.data)
+            }
+     
+        
+         });  
+         setDisabledButton(false)
     }
 
     const processPasswordChange = async() => {
@@ -203,8 +269,46 @@ export default function OrgProfile() : JSX.Element {
                     <Box>
                         
                         <Card sx={{border:1}}>
-                            <CardHeader title={"Welcome, " + loadedInfo[0].OrgName} >
-                            </CardHeader>
+                            {profilePicture == false && 
+                                    <CardHeader
+                                avatar={
+                                            <Avatar sx={{ bgcolor: 'grey' }}>
+                                                {loadedInfo[0].FirstName.charAt(0)}
+                                            </Avatar>
+                                        }
+                
+                                sx={{borderTop:'1px solid black'}}
+                                title = {
+                                    <Button component="label" variant="contained" startIcon={<CloudUploadIcon />}>
+                                        Upload Profile Picture
+                                        <VisuallyHiddenInput type="file" accept="image/png, image/jpg, image/jpeg" onChange={handleProfilePicture}/>
+                      
+                                    </Button>
+                                }
+                                >
+                                </CardHeader>
+                            }
+
+                            {profilePicture != true && 
+                                     <CardHeader
+                                        avatar={
+                                                    <Avatar src={connString}>
+                                                    </Avatar>
+                                                }
+                        
+                                        sx={{borderTop:'1px solid black'}}
+                                        title = {
+                                            <>
+                                            <Button component="label" variant="contained" startIcon={<CloudUploadIcon />}>
+                                                Upload Profile Picture
+                                                <VisuallyHiddenInput type="file" accept="image/png, image/jpg, image/jpeg" onChange={handleProfilePicture}/>
+                                            </Button>
+                                            </>
+                                        }
+                                     >
+                                     
+                                     </CardHeader>
+                            }
                             <CardHeader title="Your Info" subheader="Click on a field to edit. Click the save button below to save." subheaderTypographyProps={{ color: 'black' }}  sx={{borderTop:'1px solid black'}} >
                             </CardHeader>
                             <CardContent sx={{borderBottom:'1px white'}}>
