@@ -378,7 +378,7 @@ export default function orgCollegeEvents() : JSX.Element {
         var slotInfo = eventSlots[parseInt(indexes[1])]
         var eventInfo = cardsFromDb[parseInt(indexes[0])]
 
-        console.log(slotInfo)
+        setActiveEventId(eventInfo.EventId)
 
 
         setKickModalJSX(
