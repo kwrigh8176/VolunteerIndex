@@ -40,9 +40,7 @@ export default function VolunteerEvents() : JSX.Element {
     const [eventSlots,setEventSlots] = React.useState<any[]>([])
     const volunteerId = sessionStorage.getItem('Id');
 
-    useEffect(() => {
-        getEvents()
-    }, [])
+
 
     {/*Event Retrieval*/}
 
@@ -283,23 +281,25 @@ export default function VolunteerEvents() : JSX.Element {
             {
                 
                     /*Empty slots*/
-                    if (eventSlotCopy[eventSlotCounter].VolunteerId == null && eventSlotCopy[eventSlotCounter].RoleName == null)
+                    if (eventSlotCopy[eventSlotCounter].VolunteerId == null && eventSlotCopy[eventSlotCounter].OverrideUsers == null)
                     {
-                        renderedSlots.push(
-                            <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
-                                
-                                <Button fullWidth disabled={disableButtons}  id={eventSlotCopy[eventSlotCounter].Id+'_'+eventSlotCopy[eventSlotCounter].RoleName+'_'+cardsFromDb[cardIndex].EventId+'_'+cardsFromDb[cardIndex].EventName}  onClick={(e) => customRoleHandler((e.target as HTMLInputElement).id)}>Open Slot</Button>
-                            </Box>)
-                        
-                    }
-                    else if (eventSlotCopy[eventSlotCounter].VolunteerId == null)
-                    {
-                        renderedSlots.push(
-                            <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
-                                
-                                <Button fullWidth disabled={disableButtons}  id={eventSlotCopy[eventSlotCounter].Id+'_'+eventSlotCopy[eventSlotCounter].RoleName+'_'+cardsFromDb[cardIndex].EventId+'_'+cardsFromDb[cardIndex].EventName}  onClick={(e) => customRoleHandler((e.target as HTMLInputElement).id)}>Open Role: {eventSlotCopy[eventSlotCounter].RoleName}</Button>
-                            </Box>)
-                        
+
+                        if (eventSlotCopy[eventSlotCounter].RoleName == null)
+                        {
+                            renderedSlots.push(
+                                <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
+                                    
+                                    <Button fullWidth disabled={disableButtons}  id={eventSlotCopy[eventSlotCounter].Id+'_'+eventSlotCopy[eventSlotCounter].RoleName+'_'+cardsFromDb[cardIndex].EventId+'_'+cardsFromDb[cardIndex].EventName}  onClick={(e) => customRoleHandler((e.target as HTMLInputElement).id)}>Open Slot</Button>
+                                </Box>)
+                        }
+                        else
+                        {
+                            renderedSlots.push(
+                                <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
+                                    
+                                    <Button fullWidth disabled={disableButtons}  id={eventSlotCopy[eventSlotCounter].Id+'_'+eventSlotCopy[eventSlotCounter].RoleName+'_'+cardsFromDb[cardIndex].EventId+'_'+cardsFromDb[cardIndex].EventName}  onClick={(e) => customRoleHandler((e.target as HTMLInputElement).id)}>Open Role: {eventSlotCopy[eventSlotCounter].RoleName}</Button>
+                                </Box>)
+                        }
                     }
                     /*Slots taken by the user already*/
                     else if (eventSlotCopy[eventSlotCounter].VolunteerId == volunteerId){
@@ -315,6 +315,7 @@ export default function VolunteerEvents() : JSX.Element {
                                 <Typography>Slot Taken</Typography>
                             </Box>)
                     }
+                    
                     
 
             }
