@@ -39,7 +39,7 @@ export default function VolunteerEvents() : JSX.Element {
     const [cardsFromDb,setCardsFromDb] = React.useState<any[]>([])
     const [eventSlots,setEventSlots] = React.useState<any[]>([])
     const volunteerId = sessionStorage.getItem('Id');
-
+    const [mainText, setMainText] = React.useState('')
     {/*Event Retrieval*/}
 
     const getEvents = async () => {
@@ -70,17 +70,16 @@ export default function VolunteerEvents() : JSX.Element {
                 tempArray = sorted
             }
             else{
-                setErrorText('Events not found.')
+                setMainText('Events not found.')
             }
         })
         .catch(function (error){
-            tempText = "error";
             if (error.response == undefined){
-                setErrorText("Network error connecting to the API, please try again.")
+                setMainText("Network error connecting to the API, please try again.")
             }
             else
             {
-                setErrorText(error.response.data)
+                setMainText(error.response.data)
             }
             
         }); 
@@ -119,11 +118,11 @@ export default function VolunteerEvents() : JSX.Element {
                    
             }).catch(function (error){
                 if (error.response == undefined){
-                    setErrorText("Network error connecting to the API, please try again.")
+                    setMainText("Network error connecting to the API, please try again.")
                 }
                 else
                 {
-                    setErrorText(error.response.data)
+                    setMainText(error.response.data)
                 }
             });     
 
@@ -418,15 +417,15 @@ export default function VolunteerEvents() : JSX.Element {
             <>
                 <VolunteerNavBar pageName="Events"/>
                 {renderedCards}
-                {renderedCards.length == 0 && errorText == '' && 
+                {renderedCards.length == 0 && mainText == '' && 
                     <Alert severity="warning">
                       <AlertTitle>Fetching data from API...</AlertTitle>
                   </Alert>
 
                 }
-                { errorText != '' && 
+                {mainText != '' && 
                     <Alert severity="error">
-                      <AlertTitle>{errorText}</AlertTitle>
+                      <AlertTitle>{mainText}</AlertTitle>
                   </Alert>
 
                 }
@@ -478,6 +477,12 @@ export default function VolunteerEvents() : JSX.Element {
                         
                     >
                         <Box sx={modalStyle}>
+                            {errorText != '' && 
+                                
+                                <Alert severity="error">
+                                    <AlertTitle>{errorText}</AlertTitle>
+                                </Alert>
+                            }
                             {withdrawalModalText != '' && 
                                 
                                 <Alert severity='success'>

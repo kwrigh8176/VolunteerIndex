@@ -39,7 +39,7 @@ export default function VolunteerCollegeEvents() : JSX.Element {
     const [eventSlots,setEventSlots] = React.useState<any[]>([])
     const volunteerId = sessionStorage.getItem('Id');
 
-    
+    const [mainText, setMainText] = React.useState('')
 
     {/*Event Retrieval*/}
 
@@ -66,23 +66,24 @@ export default function VolunteerCollegeEvents() : JSX.Element {
                     }
                     return -1
                 });
-                setCardsFromDb(sorted.filter((item: { CollegeEvent: number }) => item.CollegeEvent == 1))
-                tempArray.push(sorted.filter((item: { CollegeEvent: number }) => item.CollegeEvent == 1)) 
+                var emailIndex = sessionStorage.getItem("email")!.indexOf("@") + 1 
+                var email = sessionStorage.getItem("email")!.slice(emailIndex)
+                setCardsFromDb(sorted.filter((item: { Email: string }) => item.Email.includes(email)))
+                tempArray.push(sorted.filter((item: { Email: string }) => item.Email.includes(email))) 
             }
             else
             {
                 
-                setErrorText("No college events found.")
+                setMainText("No college events found.")
             }
             })
         .catch(function (error){
-            tempText = "error";
             if (error.response == undefined){
-                setErrorText("Network error connecting to the API, please try again.")
+                setMainText("Network error connecting to the API, please try again.")
             }
             else
             {
-                setErrorText(error.response.data)
+                setMainText(error.response.data)
             }
             
         }); 
@@ -126,11 +127,11 @@ export default function VolunteerCollegeEvents() : JSX.Element {
                    
             }).catch(function (error){
                 if (error.response == undefined){
-                    setErrorText("Network error connecting to the API, please try again.")
+                    setMainText("Network error connecting to the API, please try again.")
                 }
                 else
                 {
-                    setErrorText(error.response.data)
+                    setMainText(error.response.data)
                 }
             });     
 
@@ -437,16 +438,15 @@ export default function VolunteerCollegeEvents() : JSX.Element {
             <>
                 <VolunteerNavBar pageName="College Events"/>
                 {renderedCards}
-                {renderedCards.length == 0 && errorText == '' && 
+                {renderedCards.length == 0 && mainText == '' && 
                     <Alert severity="warning">
                       <AlertTitle>Fetching data from API...</AlertTitle>
                   </Alert>
 
                 }
-
-                { errorText != '' && 
+                {mainText != '' && 
                     <Alert severity="error">
-                      <AlertTitle>{errorText}</AlertTitle>
+                      <AlertTitle>{mainText}</AlertTitle>
                   </Alert>
 
                 }
@@ -498,6 +498,12 @@ export default function VolunteerCollegeEvents() : JSX.Element {
                         
                     >
                         <Box sx={modalStyle}>
+                            {errorText != '' && 
+                                
+                                <Alert severity="error">
+                                    <AlertTitle>{errorText}</AlertTitle>
+                                </Alert>
+                            }
                             {withdrawalModalText != '' && 
                                 
                                 <Alert severity='success'>
