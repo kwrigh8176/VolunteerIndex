@@ -77,7 +77,7 @@ const VolunteerHome = () : JSX.Element => {
             var duration = currLine.Duration
             var getLabel = currLine.EventName + ': ' +  Math.floor(currLine.Duration/60) + ' hours ' + currLine.Duration%60 + ' minutes'
 
-            formattedData.push({value: duration, label: getLabel, verifiedHours: currLine.VerifiedHours, Date: currLine.Date, CollegeEvent: currLine.CollegeEvent, NoShow:currLine.NoShow})
+            formattedData.push({value: duration, label: getLabel, verifiedHours: currLine.VerifiedHours, Date: currLine.Date, CollegeEvent: currLine.CollegeEvent, NoShow:currLine.NoShow, Email: currLine.Email})
         }
 
         setAllData(formattedData)
@@ -101,7 +101,9 @@ const VolunteerHome = () : JSX.Element => {
 
         if (pieChartSettings.collegeFlag == "1")
         {
-            data = data.filter((data) => data.CollegeEvent==true)
+            var emailIndex = sessionStorage.getItem("email")!.indexOf("@") + 1 
+            var email = sessionStorage.getItem("email")!.slice(emailIndex)
+            data = data.filter((data) => data.Email.includes(email))
         }
 
         if (data.length == 0)
@@ -153,7 +155,7 @@ const VolunteerHome = () : JSX.Element => {
             
 
             var dataAmt = 0
-            for (let day = 0; day < 7; day++){
+            for (let day = 0; day < 8; day++){
                 var getProperDateFormat = dayjs(weekFromToday.add(day,'day')).format('YYYY-MM-DD')
 
                 var tempData = data.filter((obj) => obj.Date===getProperDateFormat)
