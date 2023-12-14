@@ -59,7 +59,7 @@ export default function VolunteerEvents() : JSX.Element {
             }
         }).then(function (response){
             if (response.data.length != 0){
-                const sorted = response.data.sort((objA : any,objB:any)=>{
+                var sorted = response.data.sort((objA : any,objB:any)=>{
                     const dateA = new Date(`${objA.Date}`).valueOf();
                     const dateB = new Date(`${objB.Date}`).valueOf();
                     if(dateA > dateB){
@@ -67,6 +67,25 @@ export default function VolunteerEvents() : JSX.Element {
                     }
                     return -1
                 });
+              
+
+                sorted.filter((obj: any) => {
+                    if (obj.CollegeEvent == 1)
+                    {
+                        var emailIndex = stateData.email.indexOf("@") + 1 
+                        var email = stateData.email.slice(emailIndex)
+                        if (obj.Email.includes(email))
+                        {
+                            return obj
+                        }
+
+                    }
+                    else
+                    {
+                        return obj
+                    }
+                })
+                
                 setCardsFromDb(sorted)
                 tempArray = sorted
             }
