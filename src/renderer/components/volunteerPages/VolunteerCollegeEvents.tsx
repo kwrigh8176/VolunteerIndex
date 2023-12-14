@@ -9,7 +9,7 @@ import VolunteerNavBar from "./VolunteerNavbar"
 import dayjs from "dayjs"
 import connectionString from '../../../../config';
 import axios from 'axios';
-
+import {store} from '../../redux';
 
 /*
     This is meant to be the main event feed. Where all current events are displayed.
@@ -33,36 +33,29 @@ const modalStyle = {
 
 
 export default function VolunteerCollegeEvents() : JSX.Element {
- 
+    
+    const storeData = store.getState()
 
     const [cardsFromDb,setCardsFromDb] = React.useState<any[]>([])
     const [eventSlots,setEventSlots] = React.useState<any[]>([])
-    const volunteerId = sessionStorage.getItem('Id');
-    const [stopLoad, setStopLoad] = React.useState(false)
+    const volunteerId = storeData.Id;
 
-    const [loadJSX,setLoadJSX] = React.useState(
-        <Alert severity="warning">
-            <AlertTitle>Loading Events..</AlertTitle>
-        </Alert>)
-
-    useEffect(() => {
-        getEvents()
-    }, [])
+    const [mainText, setMainText] = React.useState('')
 
     {/*Event Retrieval*/}
 
     const getEvents = async () => {
-        var state = sessionStorage.getItem("state")
+        var state = storeData.state
         var tempArray = new Array()
-
+        setErrorText('')
 
         var tempText = '';
         await axios.get(connectionString + "/getEvents/", {
             params:{
                 state: state,
-                username: sessionStorage.getItem("username"),
-                token: sessionStorage.getItem("token"),
-                loginType: sessionStorage.getItem("loginType")
+                username: storeData.username,
+                token: storeData.token,
+                loginType: storeData.loginType
             }
         }).then(function (response){
             if (response.data.length != 0){
@@ -74,29 +67,24 @@ export default function VolunteerCollegeEvents() : JSX.Element {
                     }
                     return -1
                 });
-                setCardsFromDb(sorted.filter((item: { CollegeEvent: number }) => item.CollegeEvent == 1))
-                tempArray.push(sorted.filter((item: { CollegeEvent: number }) => item.CollegeEvent == 1)) 
-                setLoadJSX(
-                    <></>
-                )
+                var emailIndex = storeData.email.indexOf("@") + 1 
+                var email = storeData.email.slice(emailIndex)
+                setCardsFromDb(sorted.filter((item: { Email: string }) => item.Email.includes(email)))
+                tempArray.push(sorted.filter((item: { Email: string }) => item.Email.includes(email))) 
             }
             else
             {
-                setLoadJSX(
-                    <Alert severity="error">
-                        <AlertTitle>No Events Found.</AlertTitle>
-                    </Alert>
-                )
+                
+                setMainText("No college events found.")
             }
             })
         .catch(function (error){
-            tempText = "error";
             if (error.response == undefined){
-                setErrorText("Network error connecting to the API, please try again.")
+                setMainText("Network error connecting to the API, please try again.")
             }
             else
             {
-                setErrorText(error.response.data)
+                setMainText(error.response.data)
             }
             
         }); 
@@ -127,9 +115,9 @@ export default function VolunteerCollegeEvents() : JSX.Element {
             await axios.get(connectionString + "/getEventSlots/", {
                 params:{
                     eventId: eventId,
-                    username: sessionStorage.getItem("username"),
-                    token: sessionStorage.getItem("token"),
-                    loginType: sessionStorage.getItem("loginType")
+                    username: storeData.username,
+                    token: storeData.token,
+                    loginType: "Volunteer"
                 }
             }).then(function (response) {
                 if (response.data.length >= 1){
@@ -140,17 +128,17 @@ export default function VolunteerCollegeEvents() : JSX.Element {
                    
             }).catch(function (error){
                 if (error.response == undefined){
-                    setErrorText("Network error connecting to the API, please try again.")
+                    setMainText("Network error connecting to the API, please try again.")
                 }
                 else
                 {
-                    setErrorText(error.response.data)
+                    setMainText(error.response.data)
                 }
             });     
 
         }
         setEventSlots(holdSlots);
-        setStopLoad(true)
+
        
     
 
@@ -168,30 +156,12 @@ export default function VolunteerCollegeEvents() : JSX.Element {
             params:{
                 activeSlot: activeSlot,
                 activeEventId: activeEventId,
-                volunteerId: sessionStorage.getItem('Id'),
-                username: sessionStorage.getItem('username'),
-                token: sessionStorage.getItem('token'),
-                loginType: sessionStorage.getItem("loginType")
+                volunteerId: storeData.Id,
+                username: storeData.username,
+                token: storeData.token,
+                loginType: "Volunteer"
             }
         }).then(function (response) {
-            if (response.data.length != 0){
-                const sorted = response.data.sort((objA : any,objB:any)=>{
-                    const dateA = new Date(`${objA.Date}`).valueOf();
-                    const dateB = new Date(`${objB.Date}`).valueOf();
-                    if(dateA > dateB){
-                        return 1
-                    }
-                    return -1
-                });
-                setCardsFromDb(sorted)
-            }
-            else{
-                setCardsFromDb(response.data)
-                setLoadJSX(<Alert severity="error">
-                    <AlertTitle>No college events found.</AlertTitle>
-                </Alert>)
-
-            }
             setSuccessfulText('Successful sign up!')
             getValue = 'Successfully signed up for the event.'
         }).catch(function (error){
@@ -225,9 +195,9 @@ export default function VolunteerCollegeEvents() : JSX.Element {
         
         await axios.post(connectionString + "/withdrawFromEvents/", null,{params:{
             activeSlotId: activeSlot,
-            username: sessionStorage.getItem('username'),
-            token: sessionStorage.getItem('token'),
-            loginType: sessionStorage.getItem('loginType')
+            username: storeData.username,
+            token: storeData.token,
+            loginType: "Volunteer"
         }}).then(function (response) {
                 getValue = response.data
         }).catch(function (error){
@@ -303,7 +273,7 @@ export default function VolunteerCollegeEvents() : JSX.Element {
     useEffect (() => {
         var eventSlotCopy = eventSlots
         var tempArray = []
-
+        setErrorText("")
         
 
         for (var cardIndex = 0; cardIndex < cardsFromDb.length; cardIndex++){
@@ -318,14 +288,25 @@ export default function VolunteerCollegeEvents() : JSX.Element {
             {
                 
                     /*Empty slots*/
-                    if (eventSlotCopy[eventSlotCounter].VolunteerId == null)
+                    if (eventSlotCopy[eventSlotCounter].VolunteerId == null && eventSlotCopy[eventSlotCounter].OverrideUsers == null)
                     {
-                        renderedSlots.push(
-                            <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
-                                
-                                <Button fullWidth disabled={disableButtons}  id={eventSlotCopy[eventSlotCounter].Id+'_'+eventSlotCopy[eventSlotCounter].RoleName+'_'+cardsFromDb[cardIndex].EventId+'_'+cardsFromDb[cardIndex].EventName}  onClick={(e) => customRoleHandler((e.target as HTMLInputElement).id)}>Open Role: {eventSlotCopy[eventSlotCounter].RoleName}</Button>
-                            </Box>)
-                        
+
+                        if (eventSlotCopy[eventSlotCounter].RoleName == null)
+                        {
+                            renderedSlots.push(
+                                <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
+                                    
+                                    <Button fullWidth disabled={disableButtons}  id={eventSlotCopy[eventSlotCounter].Id+'_'+eventSlotCopy[eventSlotCounter].RoleName+'_'+cardsFromDb[cardIndex].EventId+'_'+cardsFromDb[cardIndex].EventName}  onClick={(e) => customRoleHandler((e.target as HTMLInputElement).id)}>Open Slot</Button>
+                                </Box>)
+                        }
+                        else
+                        {
+                            renderedSlots.push(
+                                <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black'}}>
+                                    
+                                    <Button fullWidth disabled={disableButtons}  id={eventSlotCopy[eventSlotCounter].Id+'_'+eventSlotCopy[eventSlotCounter].RoleName+'_'+cardsFromDb[cardIndex].EventId+'_'+cardsFromDb[cardIndex].EventName}  onClick={(e) => customRoleHandler((e.target as HTMLInputElement).id)}>Open Role: {eventSlotCopy[eventSlotCounter].RoleName}</Button>
+                                </Box>)
+                        }
                     }
                     /*Slots taken by the user already*/
                     else if (eventSlotCopy[eventSlotCounter].VolunteerId == volunteerId){
@@ -347,8 +328,8 @@ export default function VolunteerCollegeEvents() : JSX.Element {
 
             eventSlotCopy = eventSlotCopy.slice(cardsFromDb[cardIndex].VolunteerLimit)
 
-            var connString = connectionString + "/getProfilePicture/?username=" + cardsFromDb[cardIndex].Username +  "&" + "loginType=Organization"
-           
+            var connString = connectionString + "/getProfilePicture/?Id=" + cardsFromDb[cardIndex].OrgId +  "&" + "loginType=Organization"
+
             tempArray.push(
                 <Card sx={{marginBottom:'20px'}}>
 
@@ -417,16 +398,15 @@ export default function VolunteerCollegeEvents() : JSX.Element {
             
         }
 
-        if (cardsFromDb.length == 0){
-            setLoadJSX(<Alert severity="error">
-            <AlertTitle>No college events found.</AlertTitle>
-        </Alert>)
+        if (cardsFromDb.length != 0)
+        {
+            setRenderedCards(tempArray)
         }
 
-        
-        setRenderedCards(tempArray)
 
-    }, [eventSlots, loadJSX]) 
+     
+
+    }, [eventSlots]) 
 
     
   
@@ -434,7 +414,9 @@ export default function VolunteerCollegeEvents() : JSX.Element {
         setLoading(1)
         getEvents()
         return (
-            <>{loadJSX}</>
+            <Alert severity="warning">
+                <AlertTitle>Fetching data from API...</AlertTitle>
+            </Alert>
             
         )
     }
@@ -443,10 +425,15 @@ export default function VolunteerCollegeEvents() : JSX.Element {
             <>
                 <VolunteerNavBar pageName="College Events"/>
                 {renderedCards}
-                {loadJSX}
-                { errorText != '' && 
+                {renderedCards.length == 0 && mainText == '' && 
+                    <Alert severity="warning">
+                      <AlertTitle>Fetching data from API...</AlertTitle>
+                  </Alert>
+
+                }
+                {mainText != '' && 
                     <Alert severity="error">
-                      <AlertTitle>{errorText}</AlertTitle>
+                      <AlertTitle>{mainText}</AlertTitle>
                   </Alert>
 
                 }
@@ -473,16 +460,18 @@ export default function VolunteerCollegeEvents() : JSX.Element {
                             <Typography id="modal-modal-title" variant="h6" component="h2">
                                 Registering for event: {eventName}
                             </Typography>
-                            <Typography id="modal-modal-title" variant="h6">
-                                Role Name: {roleName}
-                            </Typography>
-                            <Typography id="modal-modal-title" variant="h6">
+                            {roleName != 'null' &&
+                                <Typography id="modal-modal-title" variant="h6">
+                                    Role Name: {roleName}
+                                </Typography>
+                            }
+                            <Typography id="modal-modal-title" variant="h6" sx={{color:'red'}}>
                                 By registering for this event, you must adhere to the rules and guidelines set out by the organizing party.
                             </Typography>
-                            <Button disabled={disableButtons} onClick={() => setConfirmationModalOpen(false)}>
+                            <Button disabled={disableButtons} onClick={() => setConfirmationModalOpen(false)} variant="outlined" sx={{marginRight:'5px'}}>
                                 Cancel
                             </Button>
-                            <Button disabled={disableButtons} onClick={eventSignUp}>
+                            <Button disabled={disableButtons} onClick={eventSignUp} variant="contained">
                                 Confirm
                             </Button>
                         </Box>
@@ -496,6 +485,12 @@ export default function VolunteerCollegeEvents() : JSX.Element {
                         
                     >
                         <Box sx={modalStyle}>
+                            {errorText != '' && 
+                                
+                                <Alert severity="error">
+                                    <AlertTitle>{errorText}</AlertTitle>
+                                </Alert>
+                            }
                             {withdrawalModalText != '' && 
                                 
                                 <Alert severity='success'>

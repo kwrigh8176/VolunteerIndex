@@ -8,7 +8,7 @@ import dayjs from 'dayjs';
 import { Alert, AlertTitle, TextField, styled } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
 import moment from 'moment';
-
+import {store} from '../../redux';
 
 const StyledInput = styled(TextField)`
 & .MuiOutlinedInput-notchedOutline {
@@ -41,17 +41,20 @@ const VolunteerHome = () : JSX.Element => {
         collegeFlag : "0"
     })
 
+    var storeData = store.getState()
+    
+
     const fetchEvents = async () => {
         var getValue: any[] = [];
         var formattedData = [];
         
         var tempText = '';
         await axios.get(connectionString + "/fetchVolunteerHome/",{params:{
-            volunteerId: sessionStorage.getItem("Id"),
-            state: sessionStorage.getItem("state"),
-            username: sessionStorage.getItem('username'),
-            token: sessionStorage.getItem('token'),
-            loginType: sessionStorage.getItem('loginType'),
+            volunteerId: storeData.Id,
+            state: storeData.state,
+            username: storeData.username,
+            token: storeData.token,
+            loginType: "Volunteer",
             locale:  moment.tz.guess(true)
         }}).then(function (response) {
             getValue = response.data
@@ -77,7 +80,7 @@ const VolunteerHome = () : JSX.Element => {
             var duration = currLine.Duration
             var getLabel = currLine.EventName + ': ' +  Math.floor(currLine.Duration/60) + ' hours ' + currLine.Duration%60 + ' minutes'
 
-            formattedData.push({value: duration, label: getLabel, verifiedHours: currLine.VerifiedHours, Date: currLine.Date, CollegeEvent: currLine.CollegeEvent, NoShow:currLine.NoShow})
+            formattedData.push({value: duration, label: getLabel, verifiedHours: currLine.VerifiedHours, Date: currLine.Date, CollegeEvent: currLine.CollegeEvent, NoShow:currLine.NoShow, Email: currLine.Email})
         }
 
         setAllData(formattedData)
@@ -101,7 +104,9 @@ const VolunteerHome = () : JSX.Element => {
 
         if (pieChartSettings.collegeFlag == "1")
         {
-            data = data.filter((data) => data.CollegeEvent==true)
+            var emailIndex = storeData.email.indexOf("@") + 1 
+            var email = storeData.email.slice(emailIndex)
+            data = data.filter((data) => data.Email.includes(email))
         }
 
         if (data.length == 0)
@@ -153,7 +158,7 @@ const VolunteerHome = () : JSX.Element => {
             
 
             var dataAmt = 0
-            for (let day = 0; day < 7; day++){
+            for (let day = 0; day < 8; day++){
                 var getProperDateFormat = dayjs(weekFromToday.add(day,'day')).format('YYYY-MM-DD')
 
                 var tempData = data.filter((obj) => obj.Date===getProperDateFormat)
@@ -429,7 +434,7 @@ const VolunteerHome = () : JSX.Element => {
                     <MenuItem value={"Verified"}>Yes</MenuItem>
                 </StyledInput>
                
-                {sessionStorage.getItem("collegeStudent") == "true" &&
+                {storeData.collegeStudent == true &&
 
                     <StyledInput 
                         select

@@ -25,12 +25,15 @@ const ForgotPassword = () : JSX.Element => {
 
     const [resCode, setResCode] = React.useState(0)
     const [resText, setResText] = React.useState('')
+    const [email, setEmail] = React.useState<string>('');
+
     async function forgotPassword(){
         setDisableButton(true)
         await axios.post(connectionString + "/forgotpassword/", null, {
             params: {
                 loginType: loginType,
                 username: username,
+                Email: email,
             }
         }).then(function (response) {
             setResCode(response.status)
@@ -38,12 +41,13 @@ const ForgotPassword = () : JSX.Element => {
 
 
         }).catch(function (error){
-            setResCode(error.response.status)
+            setResCode(400)
             if (error.response == undefined)
             {
                 setResText('Error connecting to the API. Please try again.')
             }
             else{
+                
                 setResText(error.response.data)
             }
             
@@ -76,6 +80,11 @@ const ForgotPassword = () : JSX.Element => {
                         </Alert>
 
                     }
+
+                    
+                    <Typography sx={{color:'white'}}>Enter your username and email (associated with account) below to reset your password.</Typography>
+                    <Typography sx={{color:'white'}}>You will be emailed a temporary password.</Typography>
+                    
                    <div style={{width:'100%', display:'flex', flexDirection:'row', flexWrap: 'wrap' , alignItems:'center', justifyContent:'center', paddingTop:'1rem'}}>
                         <StyledInput select value={loginType}  label="Login Type" onChange={(event) => setLoginType(event.target.value)}
                         InputProps={{sx : {color : "white"}  }}
@@ -86,16 +95,22 @@ const ForgotPassword = () : JSX.Element => {
                             <MenuItem value='Organization'>Organization</MenuItem>
                         </StyledInput>
                     </div>
-                    <div style={{width: '100%',display: 'flex'}}>
-                        <Typography sx={{color:'white'}}>Enter your username below to reset your password. You will be emailed a temporary password.</Typography>
-                    </div>
              
-                    <div style={{width: '100%',display: 'flex', justifyContent:'center', paddingTop:'1rem'}}>
+                    <div style={{width: '100%',display: 'flex', justifyContent:'center', paddingTop:'4px'}}>
                         <StyledInput label="Username" 
                         InputProps={{sx : {color : "white"}  }}
                         sx={{input: {color: 'white'},marginRight: '10px', minWidth: 150, borderColor:'white', marginTop:'5px', marginBottom:'5px'}}
                         InputLabelProps={{ sx: {color: "white"}}}
                         onChange={(event) => setUsername(event.target.value)}>
+                        
+                        </StyledInput>
+                    </div>
+                    <div style={{width: '100%',display: 'flex', justifyContent:'center', paddingTop:'4px'}}>
+                        <StyledInput label="Email" 
+                        InputProps={{sx : {color : "white"}  }}
+                        sx={{input: {color: 'white'},marginRight: '10px', minWidth: 150, borderColor:'white', marginTop:'5px', marginBottom:'5px'}}
+                        InputLabelProps={{ sx: {color: "white"}}}
+                        onChange={(event) => setEmail(event.target.value)}>
                         
                         </StyledInput>
                     </div>

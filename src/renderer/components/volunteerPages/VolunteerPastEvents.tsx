@@ -12,26 +12,27 @@ import Box from "@mui/material/Box";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 import moment from "moment";
-
+import {store} from '../../redux';
 
 
 
 export default function VolunteerPastEvents() : JSX.Element {
 
+    const stateData = store.getState()
 
     const [cardsFromDb,setCardsFromDb] = React.useState<any[]>([])
     const [renderedCards, setRenderedCards] = React.useState<any[]>([])
     const [errorText, setErrorText] = React.useState('');
     const [loading, setLoading] = React.useState(0)
-    const [warningJSX, setWarningJSX] = React.useState(<></>)
-
+    const [warningJSX, setWarningJSX] = React.useState(<><Alert severity="warning"><AlertTitle>Loading past data....</AlertTitle>
+    </Alert></>)
     const getPastEvents = async () => {
 
         await axios.get(connectionString + "/getPastEvents/", {params:{
-            volunteerId: sessionStorage.getItem("Id"),
-            username: sessionStorage.getItem("username"),
-            token: sessionStorage.getItem("token"),
-            loginType: sessionStorage.getItem("loginType"),
+            volunteerId: stateData.Id,
+            username: stateData.username,
+            token: stateData.token,
+            loginType: stateData.loginType,
             locale:  moment.tz.guess(true)
         }}).then(function (response){
 
@@ -69,8 +70,8 @@ export default function VolunteerPastEvents() : JSX.Element {
         
         for (var cardIndex = 0; cardIndex < cardsFromDb.length; cardIndex++)
         { 
-            var connString = connectionString + "/getProfilePicture/?username=" + cardsFromDb[cardIndex].Username +  "&" + "loginType=Organization"
-            
+            var connString = connectionString + "/getProfilePicture/?Id=" + cardsFromDb[cardIndex].OrgId +  "&" + "loginType=Organization"
+
             tempArray.push(
                 <Card sx={{marginBottom:'20px'}}>
                     {cardsFromDb[cardIndex].ProfilePicture != null && 
@@ -158,10 +159,11 @@ export default function VolunteerPastEvents() : JSX.Element {
             )        
         }
 
-        if (cardsFromDb.length == 0){
-            setWarningJSX(<Alert severity="warning">
-            <AlertTitle>Loading past data....</AlertTitle>
-        </Alert>)
+        if (tempArray.length == 0)
+        {
+            setWarningJSX(<Alert severity="error">
+            <AlertTitle>No events found.</AlertTitle>
+         </Alert>)
         }
         
         setRenderedCards(tempArray)
@@ -182,12 +184,6 @@ export default function VolunteerPastEvents() : JSX.Element {
         return (
             <>
                 <VolunteerNavBar pageName="Past Events"/>
-                {errorText != '' && 
-                                
-                    <Alert severity="error">
-                        <AlertTitle>{errorText}</AlertTitle>
-                    </Alert>
-                }
                 {warningJSX}
                 {renderedCards}
             </>

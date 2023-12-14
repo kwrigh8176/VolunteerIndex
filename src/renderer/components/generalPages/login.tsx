@@ -8,7 +8,7 @@ import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import axios from 'axios';
 import { Card, Link, styled } from '@mui/material';
-
+import {store} from '../../redux';
 
 const StyledInput = styled(TextField)`
 & .MuiOutlinedInput-notchedOutline {
@@ -51,13 +51,14 @@ const Login = () : JSX.Element => {
                         }).then(function (response) {
                             
                             var getBody = response.data
-                            sessionStorage.setItem("state",getBody.State)
-                            sessionStorage.setItem("username",username)
-                            sessionStorage.setItem("password",password)
-                            sessionStorage.setItem("Id",getBody.VolunteerId)
-                            sessionStorage.setItem("email", getBody.Email)
-                            sessionStorage.setItem("loginType","Volunteer")
-                            sessionStorage.setItem("collegeStudent",getBody.CollegeStudent)
+                            
+                            
+                            store.dispatch({type:'changeUsername', username:username})
+                            store.dispatch({type:'changeState', state:getBody.State})
+                            store.dispatch({type:'changeId', Id:parseInt(getBody.VolunteerId)})
+                            store.dispatch({type:'changeEmail', email:getBody.Email})
+                            store.dispatch({type:'changeLoginType', loginType:"Volunteer"})
+                            store.dispatch({type:'changeCollegeStudent', collegeStudent:getBody.CollegeStudent})
 
                             if (getBody.ResetPassword == 0)
                             {
@@ -92,14 +93,15 @@ const Login = () : JSX.Element => {
                         }
                         }).then(function (response) {
                         var getBody = response.data
-                        sessionStorage.setItem("state",getBody.State)
-                        sessionStorage.setItem("username",getBody.Username)
-                        sessionStorage.setItem("orgId", getBody.OrgId)
-                        sessionStorage.setItem("email", getBody.Email)
-                        sessionStorage.setItem("phoneNumber", getBody.PhoneNumber)
-                        sessionStorage.setItem("address", getBody.Address)
-                        sessionStorage.setItem("loginType","Organization")
-                        sessionStorage.setItem("collegeOrgs",getBody.CollegeOrgs)
+
+                        store.dispatch({type:'changeUsername', username:username})
+                        store.dispatch({type:'changeState', state:getBody.State})
+                        store.dispatch({type:'changeId', Id:parseInt(getBody.OrgId)})
+                        store.dispatch({type:'changeEmail', email:getBody.Email})
+                        store.dispatch({type:'changeLoginType', loginType:"Organization"})
+                        store.dispatch({type:'changeCollegeOrg', collegeOrg:getBody.CollegeOrgs})
+                        store.dispatch({type:'changePN', phoneNumber:getBody.PhoneNumber})
+                        store.dispatch({type:'changeAddress', address:getBody.Address})
 
                         if (getBody.ResetPassword == 0)
                         {
@@ -185,7 +187,7 @@ const Login = () : JSX.Element => {
                                     <Button component={Link} onClick={() => navigate('/forgotpassword')} variant='text'>Forgot Password?</Button>
                                 </div>
                                 <div style={{justifyContent:'center', alignItems:'center', width:'100%', display:'flex', paddingTop:'3px'}}>
-                                <Button component={Link} onClick={() => navigate('/forgotusername')}>Forgot Username?</Button>
+                                <Button component={Link} onClick={() => navigate('/forgotusername')} variant='text'>Forgot Username?</Button>
                                 </div>
                             </div>
                         </div>
