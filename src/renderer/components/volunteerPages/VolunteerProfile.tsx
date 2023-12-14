@@ -17,7 +17,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import moment from "moment"
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { styled } from '@mui/material/styles';
-import { windowsStore } from "process";
+import {store} from '../../redux';
 import { useNavigate } from "react-router-dom";
 
 
@@ -47,6 +47,7 @@ const modalStyle = {
   });
 
 export default function VolunteerProfile() : JSX.Element {
+    var stateData = store.getState()
 
     const [loading, setLoading] = React.useState(0)
     const [loadedInfo, setLoadedInfo] = React.useState<any[]>([])
@@ -80,17 +81,17 @@ export default function VolunteerProfile() : JSX.Element {
 
     const navigate = useNavigate();
     
-    var connString = connectionString + "/getProfilePicture/?username=" + sessionStorage.getItem("username") +  "&" + "loginType=" + sessionStorage.getItem("loginType")
+    var connString = connectionString + "/getProfilePicture/?Id=" + stateData.Id +  "&" + "loginType=" + stateData.loginType
     
     const getLoadedInfo = async () => {
         setConfirmationResponse('')
         setErrorType('')
         
         await axios.get(connectionString + "/getVolunteerProfile/", {params:{
-            volunteerId: sessionStorage.getItem("Id"),
-            username: sessionStorage.getItem("username"),
-            token: sessionStorage.getItem("token"), 
-            loginType: sessionStorage.getItem("loginType")
+            volunteerId: stateData.Id,
+            username: stateData.username,
+            token: stateData.token, 
+            loginType: "Volunteer"
         }}).then(function (response) {
             setLoadedInfo(response.data)    
             
@@ -161,10 +162,10 @@ export default function VolunteerProfile() : JSX.Element {
             },
 
             params:{
-                Id: sessionStorage.getItem("Id"),
-                username: sessionStorage.getItem("username"),
-                token: sessionStorage.getItem("token"), 
-                loginType: sessionStorage.getItem("loginType"),
+                Id: stateData.Id,
+                username: stateData.username,
+                token: stateData.token, 
+                loginType: stateData.loginType,
                 profileImageLink: loadedInfo[0].ProfilePicture
             }
     
@@ -193,10 +194,10 @@ export default function VolunteerProfile() : JSX.Element {
 
 
         await axios.get(connectionString + "/deleteAccount/", {params:{
-            volunteerId: sessionStorage.getItem("Id"),
-            username: sessionStorage.getItem("username"),
-            token: sessionStorage.getItem("token"), 
-            loginType: sessionStorage.getItem("loginType"),
+            volunteerId: stateData.Id,
+            username: stateData.username,
+            token: stateData.token, 
+            loginType: stateData.loginType,
             givenUsername: deleteUsername,
             givenPassword: deletePassword
         }}).then(function (response) {
@@ -232,10 +233,10 @@ export default function VolunteerProfile() : JSX.Element {
         }
 
         await axios.post(connectionString + "/processPasswordChange/", null, {params:{
-            Id: sessionStorage.getItem("Id"),
-            username: sessionStorage.getItem("username"),
-            token: sessionStorage.getItem("token"), 
-            loginType: sessionStorage.getItem("loginType"),
+            Id: stateData.Id,
+            username: stateData.username,
+            token: stateData.token, 
+            loginType: stateData.loginType,
             newPassword: newPassword1,
             oldPassword: oldPassword,
         }}).then(function (response) {
@@ -298,27 +299,28 @@ export default function VolunteerProfile() : JSX.Element {
             email: loadedInfo[0].Email,
             username: loadedInfo[0].Username,
             phonenumber: loadedInfo[0].PhoneNumber,
-            token:  sessionStorage.getItem("token"),
-            Id: sessionStorage.getItem("Id"),
-            loginType: sessionStorage.getItem("loginType"),
-            oldUsername: sessionStorage.getItem("username"),
+            token:  stateData.token,
+            Id: stateData.Id,
+            loginType: stateData.loginType,
+            oldUsername: stateData.username,
         }}).then(function (response) {
             axios.post(connectionString + "/saveVolunteerProfile/", null, {params:{
-                volunteerId: sessionStorage.getItem("Id"),
+                volunteerId: stateData.Id,
                 email: loadedInfo[0].Email,
                 username: loadedInfo[0].Username,
                 phonenumber: loadedInfo[0].PhoneNumber,
                 bio: loadedInfo[0].Bio,
                 State: loadedInfo[0].State,
-                token:  sessionStorage.getItem("token"),
-                loginType: sessionStorage.getItem("loginType"),
-                oldUsername: sessionStorage.getItem("username"),
+                token:  stateData.token,
+                loginType: stateData.loginType,
+                oldUsername:    stateData.username,
                 locale:  moment.tz.guess()
             }}).then(function (response) {
                 setErrorType('success');
                 setConfirmationResponse('Data saved.')
-                sessionStorage.setItem("username", loadedInfo[0].Username)
-                sessionStorage.setItem("state", loadedInfo[0].State)
+                store.dispatch({type:'changeUsername', username:loadedInfo[0].Username})
+                store.dispatch({type:'changeState', state:loadedInfo[0].State})
+
              }).catch(function (error){
                 setErrorType('error');
                 if (error.response == undefined){

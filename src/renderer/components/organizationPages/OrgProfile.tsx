@@ -10,7 +10,7 @@ import OrgNavbar from "./OrgNavbar"
 import Button from "@mui/material/Button"
 import Alert from "@mui/material/Alert"
 import AlertTitle from "@mui/material/AlertTitle"
-import { Avatar, IconButton, InputAdornment, InputLabel, MenuItem, Modal, Select, Typography } from "@mui/material"
+import { Avatar, IconButton, InputAdornment, MenuItem, Modal, Typography } from "@mui/material"
 import validator from "validator"
 import Visibility from "@mui/icons-material/Visibility"
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
@@ -18,6 +18,7 @@ import moment from "moment"
 import { styled } from '@mui/material/styles';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useNavigate } from "react-router-dom";
+import { store } from "../../redux";
 
 const modalStyle = {
     position: 'absolute' as 'absolute',
@@ -44,6 +45,7 @@ const modalStyle = {
     width: 1,
   });
 export default function OrgProfile() : JSX.Element {
+    var storeData = store.getState()
 
     const [loading, setLoading] = React.useState(0)
     const [loadedInfo, setLoadedInfo] = React.useState<any[]>([])
@@ -74,7 +76,7 @@ export default function OrgProfile() : JSX.Element {
     const [confirmationResponse, setConfirmationResponse] = React.useState('')
  
 
-    var connString = connectionString + "/getProfilePicture/?username=" + sessionStorage.getItem("username") +  "&" + "loginType=" + sessionStorage.getItem("loginType")
+    var connString = connectionString + "/getProfilePicture/?Id=" + storeData.Id +  "&" + "loginType=" + storeData.loginType
 
     var navigate = useNavigate();
     
@@ -82,16 +84,14 @@ export default function OrgProfile() : JSX.Element {
         setConfirmationResponse('')
         setErrorType('')
 
-     var temp = '';
+        var temp = '';
         await axios.get(connectionString + "/getOrgProfile/", {params:{
-            OrgId: sessionStorage.getItem("orgId"),
-            username: sessionStorage.getItem("username"),
-            token: sessionStorage.getItem("token"), 
-            loginType: sessionStorage.getItem("loginType")
+            OrgId: storeData.Id,
+            username: storeData.username,
+            token: storeData.token, 
+            loginType: "Organization"
         }}).then(function (response) {
             setLoadedInfo(response.data)
-
-            
          }).catch(function (error){
             temp = "error"
             if (error.response == undefined){
@@ -152,10 +152,10 @@ export default function OrgProfile() : JSX.Element {
             },
 
             params:{
-                Id: sessionStorage.getItem("Id"),
-                username: sessionStorage.getItem("username"),
-                token: sessionStorage.getItem("token"), 
-                loginType: sessionStorage.getItem("loginType"),
+                Id: storeData.Id,
+                username: storeData.username,
+                token: storeData.token, 
+                loginType: "Organization",
                 profileImageLink: loadedInfo[0].ProfilePicture
             }
     
@@ -188,10 +188,10 @@ export default function OrgProfile() : JSX.Element {
         }
 
         await axios.post(connectionString + "/processPasswordChange/", null, {params:{
-            Id: sessionStorage.getItem("orgId"),
-            username: sessionStorage.getItem("username"),
-            token: sessionStorage.getItem("token"), 
-            loginType: sessionStorage.getItem("loginType"),
+            Id: storeData.Id,
+            username: storeData.username,
+            token: storeData.token, 
+            loginType: "Organization",
             newPassword: newPassword1,
             oldPassword: oldPassword,
         }}).then(function (response) {
@@ -219,10 +219,10 @@ export default function OrgProfile() : JSX.Element {
 
 
         await axios.get(connectionString + "/deleteAccount/", {params:{
-            orgId: sessionStorage.getItem("Id"),
-            username: sessionStorage.getItem("username"),
-            token: sessionStorage.getItem("token"), 
-            loginType: sessionStorage.getItem("loginType"),
+            orgId: storeData.Id,
+            username: storeData.username,
+            token: storeData.token, 
+            loginType: "Organization",
             givenUsername: deleteUsername,
             givenPassword: deletePassword,
             locale:  moment.tz.guess(true) 
@@ -286,16 +286,16 @@ export default function OrgProfile() : JSX.Element {
 
         await axios.post(connectionString + "/getTakenOrgData/", null, {params:{
             email: loadedInfo[0].Email,
-            username: sessionStorage.getItem("username"),
+            username: storeData.username,
             phonenumber: loadedInfo[0].PhoneNumber,
-            token:  sessionStorage.getItem("token"),
-            orgId: sessionStorage.getItem("orgId"),
-            loginType: sessionStorage.getItem("loginType"),
+            token:  storeData.token,
+            orgId: storeData.Id,
+            loginType: "Organization",
             newUsername: loadedInfo[0].Username,
 
         }}).then(function (response) {
             axios.post(connectionString + "/saveOrgProfile/", null, {params:{
-                orgId: sessionStorage.getItem("orgId"),
+                orgId: storeData.Id,
                 email: loadedInfo[0].Email,
                 username: loadedInfo[0].Username,
                 phonenumber: loadedInfo[0].PhoneNumber,
@@ -303,15 +303,15 @@ export default function OrgProfile() : JSX.Element {
                 State: loadedInfo[0].State,
                 Address: loadedInfo[0].Address,
                 orgName: loadedInfo[0].OrgName,
-                token:  sessionStorage.getItem("token"),
-                loginType: sessionStorage.getItem("loginType"),
-                oldUsername: sessionStorage.getItem("username"),
+                token:  storeData.token,
+                loginType: storeData.loginType,
+                oldUsername: storeData.username,
                 locale:  moment.tz.guess(true) 
             }}).then(function (response) {
                 setErrorType('success');
                 setConfirmationResponse('Data saved.')
-                sessionStorage.setItem("username", loadedInfo[0].Username)
-                sessionStorage.setItem("state", loadedInfo[0].State)
+                store.dispatch({type:'changeUsername', username:loadedInfo[0].Username})
+                store.dispatch({type:'changeState', state:loadedInfo[0].State})
              }).catch(function (error){
                 setErrorType('error');
                 if (error.response == undefined){

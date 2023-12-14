@@ -17,20 +17,21 @@ import axios from "axios";
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import Typography from "@mui/material/Typography";
-
-
-
-import validator from "validator";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 import InputLabel from "@mui/material/InputLabel";
 import moment from "moment-timezone";
 import { useNavigate } from "react-router-dom";
+import {store} from '../../redux';
 
 
 
 
 export default function OrgCreateEvent() : JSX.Element {
+
+
+
+    var storeData = store.getState()
 
     const [confirmationModalOpen, setConfirmationModalOpen] = React.useState(false);
 
@@ -83,10 +84,9 @@ export default function OrgCreateEvent() : JSX.Element {
 
         //Need to do some validation here (event name, event description, event date is not less than current one)
 
-        var getEmail = sessionStorage.getItem("email")
-        var getAddress = sessionStorage.getItem("address")
-
-        var getPhone = sessionStorage.getItem("phoneNumber")
+        var getEmail = storeData.email
+        var getAddress = storeData.address
+        var getPhone = storeData.phoneNumber
 
         if (email != ''){
             getEmail = email;
@@ -154,12 +154,12 @@ export default function OrgCreateEvent() : JSX.Element {
             volunteerLimit: volunteerLimit,
             address: getAddress,
             email: getEmail,
-            orgId: sessionStorage.getItem("orgId"),
+            orgId: storeData.Id,
             phoneNumber: getPhone,
             optionalRoleInfo: JSON.stringify(optionalRoleInfo),
-            username: sessionStorage.getItem("username"),
-            token: sessionStorage.getItem("token"),
-            loginType : sessionStorage.getItem("loginType"),
+            username: storeData.username,
+            token: storeData.token,
+            loginType : "Organization",
             CollegeEvent: getCollegeVisibility,
             locale:  moment.tz.guess(),
             cadence: cadence,
@@ -289,7 +289,7 @@ export default function OrgCreateEvent() : JSX.Element {
                         </Select>
 
                 </CardContent>
-                {sessionStorage.getItem("collegeOrgs") == "true" &&
+                {storeData.collegeOrg == true &&
                     <>
                         <CardHeader title={"College Settings"} sx={{borderTop: '1px solid grey'}}/>
                         <br></br>
@@ -349,7 +349,7 @@ export default function OrgCreateEvent() : JSX.Element {
                 <br></br>
                 <Typography>Volunteer Slots: {volunteerLimit}</Typography>
                 <br></br>
-                {sessionStorage.getItem("collegeOrgs") == "true" && 
+                {storeData.collegeOrg == true && 
                     <>
                         <Typography>Event Visibility: {collegeVisibility}</Typography>
                         <br></br>

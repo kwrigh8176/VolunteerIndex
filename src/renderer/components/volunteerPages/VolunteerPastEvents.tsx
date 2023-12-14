@@ -12,12 +12,13 @@ import Box from "@mui/material/Box";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 import moment from "moment";
-
+import {store} from '../../redux';
 
 
 
 export default function VolunteerPastEvents() : JSX.Element {
 
+    const stateData = store.getState()
 
     const [cardsFromDb,setCardsFromDb] = React.useState<any[]>([])
     const [renderedCards, setRenderedCards] = React.useState<any[]>([])
@@ -28,10 +29,10 @@ export default function VolunteerPastEvents() : JSX.Element {
     const getPastEvents = async () => {
 
         await axios.get(connectionString + "/getPastEvents/", {params:{
-            volunteerId: sessionStorage.getItem("Id"),
-            username: sessionStorage.getItem("username"),
-            token: sessionStorage.getItem("token"),
-            loginType: sessionStorage.getItem("loginType"),
+            volunteerId: stateData.Id,
+            username: stateData.username,
+            token: stateData.token,
+            loginType: stateData.loginType,
             locale:  moment.tz.guess(true)
         }}).then(function (response){
 
@@ -69,8 +70,8 @@ export default function VolunteerPastEvents() : JSX.Element {
         
         for (var cardIndex = 0; cardIndex < cardsFromDb.length; cardIndex++)
         { 
-            var connString = connectionString + "/getProfilePicture/?username=" + cardsFromDb[cardIndex].Username +  "&" + "loginType=Organization"
-            
+            var connString = connectionString + "/getProfilePicture/?Id=" + cardsFromDb[cardIndex].OrgId +  "&" + "loginType=Organization"
+
             tempArray.push(
                 <Card sx={{marginBottom:'20px'}}>
                     {cardsFromDb[cardIndex].ProfilePicture != null && 

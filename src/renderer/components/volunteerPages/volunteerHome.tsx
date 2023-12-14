@@ -8,7 +8,7 @@ import dayjs from 'dayjs';
 import { Alert, AlertTitle, TextField, styled } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
 import moment from 'moment';
-
+import {store} from '../../redux';
 
 const StyledInput = styled(TextField)`
 & .MuiOutlinedInput-notchedOutline {
@@ -41,17 +41,20 @@ const VolunteerHome = () : JSX.Element => {
         collegeFlag : "0"
     })
 
+    var storeData = store.getState()
+    
+
     const fetchEvents = async () => {
         var getValue: any[] = [];
         var formattedData = [];
         
         var tempText = '';
         await axios.get(connectionString + "/fetchVolunteerHome/",{params:{
-            volunteerId: sessionStorage.getItem("Id"),
-            state: sessionStorage.getItem("state"),
-            username: sessionStorage.getItem('username'),
-            token: sessionStorage.getItem('token'),
-            loginType: sessionStorage.getItem('loginType'),
+            volunteerId: storeData.Id,
+            state: storeData.state,
+            username: storeData.username,
+            token: storeData.token,
+            loginType: "Volunteer",
             locale:  moment.tz.guess(true)
         }}).then(function (response) {
             getValue = response.data
@@ -101,8 +104,8 @@ const VolunteerHome = () : JSX.Element => {
 
         if (pieChartSettings.collegeFlag == "1")
         {
-            var emailIndex = sessionStorage.getItem("email")!.indexOf("@") + 1 
-            var email = sessionStorage.getItem("email")!.slice(emailIndex)
+            var emailIndex = storeData.email.indexOf("@") + 1 
+            var email = storeData.email.slice(emailIndex)
             data = data.filter((data) => data.Email.includes(email))
         }
 
@@ -431,7 +434,7 @@ const VolunteerHome = () : JSX.Element => {
                     <MenuItem value={"Verified"}>Yes</MenuItem>
                 </StyledInput>
                
-                {sessionStorage.getItem("collegeStudent") == "true" &&
+                {storeData.collegeStudent == true &&
 
                     <StyledInput 
                         select
