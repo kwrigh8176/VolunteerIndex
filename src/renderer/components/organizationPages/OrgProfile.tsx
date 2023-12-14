@@ -160,7 +160,9 @@ export default function OrgProfile() : JSX.Element {
             }
     
         }).then(function (response) {
-            window.location.reload()
+            setTimeout(function(){
+                window.location.reload();
+            },100); 
         }).catch(function (error){
             setErrorType('error')
             if (error.response == undefined){

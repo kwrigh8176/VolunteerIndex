@@ -24,8 +24,8 @@ export default function VolunteerPastEvents() : JSX.Element {
     const [renderedCards, setRenderedCards] = React.useState<any[]>([])
     const [errorText, setErrorText] = React.useState('');
     const [loading, setLoading] = React.useState(0)
-    const [warningJSX, setWarningJSX] = React.useState(<></>)
-
+    const [warningJSX, setWarningJSX] = React.useState(<><Alert severity="warning"><AlertTitle>Loading past data....</AlertTitle>
+    </Alert></>)
     const getPastEvents = async () => {
 
         await axios.get(connectionString + "/getPastEvents/", {params:{
@@ -159,10 +159,11 @@ export default function VolunteerPastEvents() : JSX.Element {
             )        
         }
 
-        if (cardsFromDb.length == 0){
-            setWarningJSX(<Alert severity="warning">
-            <AlertTitle>Loading past data....</AlertTitle>
-        </Alert>)
+        if (tempArray.length == 0)
+        {
+            setWarningJSX(<Alert severity="error">
+            <AlertTitle>No events found.</AlertTitle>
+         </Alert>)
         }
         
         setRenderedCards(tempArray)
@@ -183,12 +184,6 @@ export default function VolunteerPastEvents() : JSX.Element {
         return (
             <>
                 <VolunteerNavBar pageName="Past Events"/>
-                {errorText != '' && 
-                                
-                    <Alert severity="error">
-                        <AlertTitle>{errorText}</AlertTitle>
-                    </Alert>
-                }
                 {warningJSX}
                 {renderedCards}
             </>
