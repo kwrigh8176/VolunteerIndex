@@ -5,6 +5,7 @@ import axios from 'axios'
 import connectionString from '../config';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Visibility from '@mui/icons-material/Visibility';
+import { store } from '../redux';
 
 const StyledInput = styled(TextField)`
 & .MuiOutlinedInput-notchedOutline {
@@ -19,7 +20,7 @@ const StyledInput = styled(TextField)`
 `;
 
 const ResetPassword = () : JSX.Element => {
-
+    var storeData = store.getState()
     const navigate = useNavigate();
     const [password1, setPassword1] = React.useState<string>('');
     const [password2, setPassword2] = React.useState<string>('');
@@ -44,8 +45,8 @@ const ResetPassword = () : JSX.Element => {
 
         await axios.post(connectionString + "/resetpassword/", null, {
             params: {
-                loginType: sessionStorage.getItem("loginType"),
-                username: sessionStorage.getItem("username"),
+                loginType: storeData.loginType,
+                username: storeData.username,
                 password: password1,
             }
         }).then(function (response) {

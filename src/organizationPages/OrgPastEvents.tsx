@@ -12,7 +12,7 @@ import { Alert, AlertTitle, Button, Modal } from "@mui/material";
 import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
 import moment from "moment";
-
+import {store} from '../redux';
 
 
 export default function OrgPastEvents() : JSX.Element {
@@ -30,17 +30,15 @@ export default function OrgPastEvents() : JSX.Element {
         backdrop: 'static'
     };
 
+    var storeData = store.getState()
 
     sessionStorage.setItem("currRoute", "/orgPastEvents")
 
     const [cardsFromDb,setCardsFromDb] = React.useState<any[]>([])
     const [eventSlots,setEventSlots] = React.useState<any[]>([])
-    const orgId = sessionStorage.getItem('orgId');
+    const orgId = storeData.Id;
 
-    useEffect(() => {
-        getEvents()
-    }, [])
-
+   
     {/*Event Retrieval*/}
 
     const getEvents = async () => {
@@ -50,9 +48,9 @@ export default function OrgPastEvents() : JSX.Element {
 
         await axios.get(connectionString + "/getOrganizationPastEvents/", {params:{
             orgId: orgId,
-            username: sessionStorage.getItem("username"),
-            token: sessionStorage.getItem("token"),
-            loginType: sessionStorage.getItem("loginType"),
+            username: storeData.username,
+            token: storeData.token,
+            loginType: "Organization",
             locale:  moment.tz.guess(true)
         }}).then(function (response){
             if (response.data.length != 0){
@@ -103,8 +101,8 @@ export default function OrgPastEvents() : JSX.Element {
            
             await axios.get(connectionString + "/getOrganizationEventSlots/", {params:{
                 eventId: eventId,
-                username: sessionStorage.getItem("username"),
-                token: sessionStorage.getItem("token")
+                username: storeData.username,
+                token: storeData.token
             }}).then(function (response) {
                 if (response.data.length >= 1){
                     for (var dataindex = 0; dataindex < response.data.length; dataindex++){
@@ -132,8 +130,8 @@ export default function OrgPastEvents() : JSX.Element {
         setDisableButtons(true)
         await axios.post(connectionString + "/organizationSetNoShow/", null, {params:{
             Id: Id,
-            username: sessionStorage.getItem('username'),
-            token: sessionStorage.getItem('token'),
+            username: storeData.username,
+            token: storeData.token,
 
         }}).then(function (response){
             setModalError('')
@@ -159,8 +157,8 @@ export default function OrgPastEvents() : JSX.Element {
         setDisableButtons(true)
         await axios.post(connectionString + "/organizationSetHoursVerified/", null, {params:{
             Id: Id,
-            username: sessionStorage.getItem('username'),
-            token: sessionStorage.getItem('token'),
+            username: storeData.username,
+            token: storeData.token,
 
         }}).then(function (response){
             setModalError('')
@@ -178,7 +176,7 @@ export default function OrgPastEvents() : JSX.Element {
                 setModalError(error.response.data)
             }
         }); 
-        
+        setDisableButtons(false)
     }
 
    
@@ -349,7 +347,7 @@ export default function OrgPastEvents() : JSX.Element {
                                 {
                                     renderedSlots.push(
                                         <Box sx={{justifyContent:"center", display:'flex', borderTop: '1px solid black', backgroundColor:'#57eb75'}}>
-                                            <Button fullWidth id={cardIndex + ','+eventCounter} onClick={(event) => {setModalContent(event.currentTarget.id);  setModal(true)}}>Slot was fulfilled by: {eventSlotCopy[eventSlotCounter].FirstName} {eventSlotCopy[eventSlotCounter].LastName}</Button>
+                                            <Button fullWidth id={cardIndex + ','+eventCounter} onClick={(event) => {setModalContent(event.currentTarget.id); setModal(true)}}>Slot was fulfilled by: {eventSlotCopy[eventSlotCounter].FirstName} {eventSlotCopy[eventSlotCounter].LastName}</Button>
                                         </Box>)
                                 }
                             }
@@ -423,17 +421,16 @@ export default function OrgPastEvents() : JSX.Element {
             
         }
         setRenderedCards(tempArray)
-
+       
     }, [eventSlots]) 
 
-
+    
   
     if (loading == 0){
         setLoading(1)
         getEvents()
         return (
             <>
-            <p>Loading Events...</p>
             </>
         )
     }

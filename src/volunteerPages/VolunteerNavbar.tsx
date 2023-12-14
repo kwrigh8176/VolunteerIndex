@@ -4,7 +4,7 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useNavigate } from 'react-router-dom'
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-
+import { store } from '../redux';
 
 const modalStyle = {
     position: 'absolute' as 'absolute',
@@ -58,8 +58,9 @@ const limitedRoutes = [
 
 export default function VolunteerNavBar(pageName: any) : JSX.Element {
 
+    var stateData = store.getState()
     var routes;
-    if (sessionStorage.getItem("collegeStudent") == "true")
+    if (stateData.collegeStudent == true)
     {
         routes = pagesAndRoutes
     }
@@ -152,7 +153,7 @@ export default function VolunteerNavBar(pageName: any) : JSX.Element {
 
                 <div style={{width: '100%',display: 'flex' , justifyContent:'center'}}>
                     <Button onClick={() => setOpenExitModal(false)} variant="contained">Cancel</Button>
-                    <Button onClick={() => {sessionStorage.clear(); navigate('/')}} variant="outlined" sx={{marginLeft:'10px'}}>Confirm</Button>
+                    <Button onClick={() => {navigate('/')}} variant="outlined" sx={{marginLeft:'10px'}}>Confirm</Button>
                 </div>
             </Box>
         </Modal>

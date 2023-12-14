@@ -10,6 +10,7 @@ import connectionString from "../config"
 import axios from 'axios';
 import Textarea from "@mui/joy/Textarea"
 import moment from "moment"
+import {store} from "../redux";
 
 /*
     This is meant to be the main event feed. Where all current events are displayed.
@@ -20,9 +21,11 @@ export default function OrgEvents() : JSX.Element {
 
     sessionStorage.setItem("currRoute", "/orgCurrentEvents")
 
+    var storeData = store.getState()
+
     const [cardsFromDb,setCardsFromDb] = React.useState<any[]>([])
     const [eventSlots,setEventSlots] = React.useState<any[]>([])
-    const orgId = sessionStorage.getItem('orgId');
+    const orgId = storeData.Id;
 
     const [kickUserModal, setKickUserModal] = React.useState(false);
     const [kickModalContent, setKickModalContent] =  React.useState('')
@@ -35,6 +38,9 @@ export default function OrgEvents() : JSX.Element {
 
     const [activeEventId, setActiveEventId] = React.useState(0);
     const [modalJSX, setModalJSX] = React.useState(<></>);
+
+    const [deleteModalMsg, setDeleteModalMsg] = React.useState('')
+    const [deleteModalStatus, setDeleteModalStatus] = React.useState('')
 
     const modalStyle = {
         position: 'absolute' as 'absolute',
@@ -59,8 +65,8 @@ export default function OrgEvents() : JSX.Element {
      
         await axios.get(connectionString + "/getOrganizationCurrentEvents/",{params:{
             orgId: orgId,
-            username: sessionStorage.getItem('username'),
-            token: sessionStorage.getItem('token'),
+            username: storeData.username,
+            token: storeData.token,
             getCollegeEvents: "0",
             locale:  moment.tz.guess(true)
         }}).then(function (response){
@@ -106,9 +112,9 @@ export default function OrgEvents() : JSX.Element {
            
             await axios.get(connectionString + "/getOrganizationEventSlots/",{params:{
                 eventId: eventId,
-                username: sessionStorage.getItem("username"),
-                token: sessionStorage.getItem("token"),
-                loginType: sessionStorage.getItem("loginType")
+                username: storeData.username,
+                token: storeData.token,
+                loginType: storeData.loginType
             }}).then(function (response) {
                 if (response.data.length >= 1){
                     for (var dataindex = 0; dataindex < response.data.length; dataindex++){
@@ -144,9 +150,9 @@ export default function OrgEvents() : JSX.Element {
 
         await axios.post(connectionString + "/organizationKickIndividual/", null, {params:{
             slotId: Id,
-            username: sessionStorage.getItem("username"),
-            token: sessionStorage.getItem("token"),
-            loginType: sessionStorage.getItem("loginType")
+            username: storeData.username,
+            token: storeData.token,
+            loginType: "Organization"
         }}).then(function (response) {
             setKickModalStatus('success')
             setKickModalMsg(response.data)
@@ -175,9 +181,9 @@ export default function OrgEvents() : JSX.Element {
 
         await axios.post(connectionString + "/organizationOverrideIndividual/", null, {params:{
             slotId: Id,
-            username: sessionStorage.getItem("username"),
-            token: sessionStorage.getItem("token"),
-            loginType: sessionStorage.getItem("loginType"),
+            username: storeData.username,
+            token: storeData.token,
+            loginType: "Organization",
             overriddenName: overriddenName,
             overriddenMisc: overriddenMisc
         }}).then(function (response) {
@@ -210,27 +216,30 @@ export default function OrgEvents() : JSX.Element {
 
         setDisableButtons(true)
 
+        setDeleteModalStatus('')
+        setDeleteModalMsg('')
+
         await axios.post(connectionString + "/deletePost/", null, {params:{
             eventId: Id,
-            username: sessionStorage.getItem("username"),
-            token: sessionStorage.getItem("token"),
-            loginType: sessionStorage.getItem("loginType"),
+            username: storeData.username,
+            token: storeData.token,
+            loginType: storeData.loginType,
         }}).then(function (response) {
-            setKickModalStatus('success')
-            setKickModalMsg(response.data)
-            setKickUserModal(false)
+            setDeleteModalStatus('success')
+            setDeleteModalMsg(response.data)
+         
 
             setTimeout(() => {
                 window.location.reload()
             }, 3000)
    
         }).catch(function (error){
-            setKickModalStatus('error')
+            setDeleteModalStatus('error')
             if (error.response == undefined){
-                setKickModalMsg("Network error connecting to the API, please try again.")
+                setDeleteModalMsg("Network error connecting to the API, please try again.")
             }
             else{
-                setKickModalMsg(error.response.data)
+                setDeleteModalMsg(error.response.data)
             }
             
             
@@ -475,16 +484,17 @@ export default function OrgEvents() : JSX.Element {
         setModalJSX(<>
         <Modal open={confirmModal}>
                 <Box sx={modalStyle}>
-                    {kickModalStatus == 'error' &&
+                    {deleteModalStatus == 'error' &&
                         <Alert severity="error">
-                            <AlertTitle>{kickModalMsg}</AlertTitle>
+                            <AlertTitle>{deleteModalMsg}</AlertTitle>
                         </Alert>
                     }
-                    {kickModalStatus == 'success' &&
+                    {deleteModalStatus == 'success' &&
                         <Alert severity="success">
-                            <AlertTitle>{kickModalMsg}</AlertTitle>
+                            <AlertTitle>{deleteModalMsg}</AlertTitle>
                         </Alert>
                     }
+                    
                     
                     <div style={{display:'flex',justifyContent:'center', flexDirection:'row', flexWrap:'wrap', alignItems:'center'}}>
                         
@@ -492,15 +502,15 @@ export default function OrgEvents() : JSX.Element {
                                 <Typography>Are you sure you want to delete this post?</Typography>
                             </div>
                             <div>
-                                <Button sx={{marginRight:'5px'}} variant="outlined" onClick={() => setConfirmModal(false)}>Cancel</Button>
-                                <Button variant="contained" id={activeEventId + ""}  onClick={(event) => deletePost(parseInt(event.currentTarget.id))}>Confirm</Button>
+                                <Button sx={{marginRight:'5px'}} variant="outlined" onClick={() => setConfirmModal(false)} disabled={disableButtons}>Cancel</Button>
+                                <Button variant="contained" id={activeEventId + ""}  onClick={(event) => deletePost(parseInt(event.currentTarget.id))} disabled={disableButtons}>Confirm</Button>
                             </div>
                     </div>
                 </Box>
                 </Modal>
             </>
        )
-    }, [activeEventId, confirmModal, kickModalMsg, kickModalStatus])
+    }, [activeEventId, confirmModal, deleteModalMsg, deleteModalMsg])
 
     
     if (loading == 0){

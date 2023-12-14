@@ -5,6 +5,7 @@ import AddIcon from '@mui/icons-material/Add';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useNavigate } from 'react-router-dom'
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import {store} from '../redux';
 
 const modalStyle = {
     position: 'absolute' as 'absolute',
@@ -53,7 +54,9 @@ const limitedRoutes = [
 
 export default function OrgNavBar(pageName: any) : JSX.Element {
     var routes;
-    if (sessionStorage.getItem("collegeOrgs") == "true")
+
+
+    if (store.getState().collegeOrg == true)
     {
         routes = allRoutes
     }
@@ -158,7 +161,7 @@ export default function OrgNavBar(pageName: any) : JSX.Element {
 
                 <div style={{width: '100%',display: 'flex' , justifyContent:'center'}}>
                     <Button onClick={() => setOpenExitModal(false)} variant="contained">Cancel</Button>
-                    <Button onClick={() => {sessionStorage.clear(); navigate('/')}} variant="outlined" sx={{marginLeft:'10px'}}>Confirm</Button>
+                    <Button onClick={() => { navigate('/')}} variant="outlined" sx={{marginLeft:'10px'}}>Confirm</Button>
                 </div>
             </Box>
         </Modal>

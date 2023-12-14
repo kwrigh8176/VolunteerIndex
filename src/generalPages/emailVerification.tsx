@@ -9,6 +9,7 @@ import axios from "axios";
 import { Box, styled } from "@mui/material";
 import { Typography } from "@mui/joy";
 import dayjs from "dayjs";
+import {store} from "../redux";
 
 const StyledInput = styled(TextField)`
 & .MuiOutlinedInput-notchedOutline {
@@ -31,14 +32,16 @@ export default function EmailVerification() : JSX.Element {
 
     const navigate = useNavigate();
     
+    var storeData = store.getState()
+
     async function resetCode(){
         
         setbuttonDisable(true)
         axios.post(connectionString + "/resendCodes/", null, {
             params: {
-                username: sessionStorage.getItem("username"),
-                email: sessionStorage.getItem("email"),
-                loginType: sessionStorage.getItem("loginType"),
+                username: storeData.username,
+                email: storeData.email,
+                loginType: storeData.loginType,
                 dateTime: dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss.000')
             }
         }).then(function (response) {
@@ -65,16 +68,17 @@ export default function EmailVerification() : JSX.Element {
       
         await axios.post(connectionString + "/processCode/", null, {
             params:{
-                username: sessionStorage.getItem("username"),
-                loginType: sessionStorage.getItem("loginType"),
+                username: storeData.username,
+                loginType: storeData.loginType,
                 keyProvided: verifyTextBox,
                 dateTime: dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss.000')
             }
 
         }).then(function (response) {
                 setErrorText('Successful Verification')
-                sessionStorage.setItem("token",response.data)
-                if (sessionStorage.getItem("loginType")  == "Volunteer")
+                store.dispatch({type:"changeToken",token:response.data})
+
+                if (storeData.loginType  == "Volunteer")
                 {
                     setTimeout(() =>{
                         navigate("/volunteerHome")

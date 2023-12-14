@@ -10,7 +10,7 @@ import dayjs from "dayjs"
 import connectionString from '../config';
 import axios from 'axios';
 import moment from "moment"
-
+import {store} from '../redux';
 
 /*
     This is meant to be the main event feed. Where all current events are displayed.
@@ -35,17 +35,16 @@ const modalStyle = {
 
 export default function VolunteerEvents() : JSX.Element {
 
+    const stateData = store.getState()
 
     const [cardsFromDb,setCardsFromDb] = React.useState<any[]>([])
     const [eventSlots,setEventSlots] = React.useState<any[]>([])
-    const volunteerId = sessionStorage.getItem('Id');
-
-
-
+    const volunteerId = stateData.Id;
+    const [mainText, setMainText] = React.useState('')
     {/*Event Retrieval*/}
 
     const getEvents = async () => {
-        var state = sessionStorage.getItem("state")
+        var state = stateData.state
         var tempArray = new Array()
 
 
@@ -53,9 +52,9 @@ export default function VolunteerEvents() : JSX.Element {
         await axios.get(connectionString + "/getEvents/", {
             params:{
                 state: state,
-                username: sessionStorage.getItem("username"),
-                token: sessionStorage.getItem("token"),
-                loginType: sessionStorage.getItem("loginType"),
+                username: stateData.username,
+                token: stateData.token,
+                loginType: "Volunteer",
                 locale:  moment.tz.guess(true)
             }
         }).then(function (response){
@@ -72,17 +71,16 @@ export default function VolunteerEvents() : JSX.Element {
                 tempArray = sorted
             }
             else{
-                setErrorText('Events not found.')
+                setMainText('Events not found.')
             }
         })
         .catch(function (error){
-            tempText = "error";
             if (error.response == undefined){
-                setErrorText("Network error connecting to the API, please try again.")
+                setMainText("Network error connecting to the API, please try again.")
             }
             else
             {
-                setErrorText(error.response.data)
+                setMainText(error.response.data)
             }
             
         }); 
@@ -108,9 +106,9 @@ export default function VolunteerEvents() : JSX.Element {
             await axios.get(connectionString + "/getEventSlots/", {
                 params:{
                     eventId: eventId,
-                    username: sessionStorage.getItem("username"),
-                    token: sessionStorage.getItem("token"),
-                    loginType: sessionStorage.getItem("loginType")
+                    username: stateData.username,
+                    token: stateData.token,
+                    loginType: "Volunteer"
                 }
             }).then(function (response) {
                 if (response.data.length >= 1){
@@ -121,11 +119,11 @@ export default function VolunteerEvents() : JSX.Element {
                    
             }).catch(function (error){
                 if (error.response == undefined){
-                    setErrorText("Network error connecting to the API, please try again.")
+                    setMainText("Network error connecting to the API, please try again.")
                 }
                 else
                 {
-                    setErrorText(error.response.data)
+                    setMainText(error.response.data)
                 }
             });     
 
@@ -149,10 +147,10 @@ export default function VolunteerEvents() : JSX.Element {
             params:{
                 activeSlot: activeSlot,
                 activeEventId: activeEventId,
-                volunteerId: sessionStorage.getItem('Id'),
-                username: sessionStorage.getItem('username'),
-                token: sessionStorage.getItem('token'),
-                loginType: sessionStorage.getItem("loginType")
+                volunteerId: stateData.Id,
+                username: stateData.username,
+                token: stateData.token,
+                loginType: "Volunteer"
             }
         }).then(function (response) {
             setSuccessfulText('Successful sign up!')
@@ -188,9 +186,9 @@ export default function VolunteerEvents() : JSX.Element {
         
         await axios.post(connectionString + "/withdrawFromEvents/", null,{params:{
             activeSlotId: activeSlot,
-            username: sessionStorage.getItem('username'),
-            token: sessionStorage.getItem('token'),
-            loginType: sessionStorage.getItem('loginType')
+            username: stateData.username,
+            token: stateData.token,
+            loginType: "Volunteer"
         }}).then(function (response) {
                 getValue = response.data
         }).catch(function (error){
@@ -316,13 +314,12 @@ export default function VolunteerEvents() : JSX.Element {
                             </Box>)
                     }
                     
-                    
 
             }
 
             eventSlotCopy = eventSlotCopy.slice(cardsFromDb[cardIndex].VolunteerLimit)
 
-            var connString = connectionString + "/getProfilePicture/?username=" + cardsFromDb[cardIndex].Username +  "&" + "loginType=Organization"
+            var connString = connectionString + "/getProfilePicture/?Id=" + cardsFromDb[cardIndex].OrgId +  "&" + "loginType=Organization"
 
             tempArray.push(
                 <Card sx={{marginBottom:'20px'}}>
@@ -421,15 +418,15 @@ export default function VolunteerEvents() : JSX.Element {
             <>
                 <VolunteerNavBar pageName="Events"/>
                 {renderedCards}
-                {renderedCards.length == 0 && errorText == '' && 
+                {renderedCards.length == 0 && mainText == '' && 
                     <Alert severity="warning">
                       <AlertTitle>Fetching data from API...</AlertTitle>
                   </Alert>
 
                 }
-                { errorText != '' && 
+                {mainText != '' && 
                     <Alert severity="error">
-                      <AlertTitle>{errorText}</AlertTitle>
+                      <AlertTitle>{mainText}</AlertTitle>
                   </Alert>
 
                 }
@@ -481,6 +478,12 @@ export default function VolunteerEvents() : JSX.Element {
                         
                     >
                         <Box sx={modalStyle}>
+                            {errorText != '' && 
+                                
+                                <Alert severity="error">
+                                    <AlertTitle>{errorText}</AlertTitle>
+                                </Alert>
+                            }
                             {withdrawalModalText != '' && 
                                 
                                 <Alert severity='success'>
