@@ -184,8 +184,10 @@ export default function OrgProfile() : JSX.Element {
         setErrorType('');
 
         if (newPassword1 != newPassword2)
-        {
+        {   
+            setErrorType('error')
             setConfirmationResponse("Passwords dont match.")
+            setDisabledButton(false)
             return
         }
 
